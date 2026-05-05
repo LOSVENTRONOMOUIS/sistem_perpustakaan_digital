@@ -210,7 +210,7 @@ class="mb-3">
 <ul class="nav flex-column">
 
 <li class="nav-item">
-<a class="nav-link active" href="dashboard.php">
+<a class="nav-link active" href="index.php">
 <i class="bi bi-grid-fill me-2"></i>
 Dashboard
 </a>

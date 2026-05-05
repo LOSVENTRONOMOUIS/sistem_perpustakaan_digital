@@ -1,25 +1,19 @@
-
-
 <?php
+ob_start();
 session_start();
 require 'koneksi.php';
 
-$data = mysqli_query($conn,"
-SELECT peminjaman.*, users.nama, buku.judul
-FROM peminjaman
-JOIN users ON peminjaman.user_id = users.id
-JOIN buku ON peminjaman.buku_id = buku.id
-ORDER BY peminjaman.id DESC
+$data = mysqli_query($conn, "
+    SELECT peminjaman.*, users.nama, buku.judul
+    FROM peminjaman
+    JOIN users ON peminjaman.user_id = users.id
+    JOIN buku ON peminjaman.buku_id = buku.id
+    ORDER BY peminjaman.id DESC
 ");
 
-$totalPeminjaman = mysqli_num_rows(mysqli_query($conn,
-"SELECT * FROM peminjaman"));
-
-$totalDipinjam = mysqli_num_rows(mysqli_query($conn,
-"SELECT * FROM peminjaman WHERE status='dipinjam'"));
-
-$totalKembali = mysqli_num_rows(mysqli_query($conn,
-"SELECT * FROM peminjaman WHERE status='dikembalikan'"));
+$totalPeminjaman = mysqli_num_rows(mysqli_query($conn, "SELECT * FROM peminjaman"));
+$totalDipinjam = mysqli_num_rows(mysqli_query($conn, "SELECT * FROM peminjaman WHERE status='dipinjam'"));
+$totalKembali = mysqli_num_rows(mysqli_query($conn, "SELECT * FROM peminjaman WHERE status='dikembalikan'"));
 ?>
 
 <!DOCTYPE html>
@@ -32,12 +26,9 @@ $totalKembali = mysqli_num_rows(mysqli_query($conn,
 <title>Peminjaman Buku</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-<link rel="stylesheet"
-href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
 <style>
-
 body{
     background:#f4f7fe;
     font-family:'Poppins',sans-serif;
@@ -155,18 +146,16 @@ body{
 }
 
 @media(max-width:992px){
+    .shifted{
+        margin-left:0;
+    }
 
-.shifted{
-    margin-left:0;
+    .content{
+        padding:20px;
+    }
 }
-
-.content{
-    padding:20px;
-}
-
-}
-
 </style>
+
 </head>
 
 <body>
@@ -174,343 +163,260 @@ body{
 <div id="mainWrapper">
 
 <!-- NAVBAR -->
-
 <nav class="navbar navbar-light bg-white shadow-sm px-4">
+    <div class="d-flex align-items-center">
+        <button class="btn btn-outline-primary"
+        type="button"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#sidebar">
+            <i class="bi bi-list fs-4"></i>
+        </button>
 
-<div class="d-flex align-items-center">
+        <h4 class="ms-3 mt-2 fw-bold">
+            Peminjaman Buku
+        </h4>
+    </div>
 
-<button class="btn btn-outline-primary"
-type="button"
-data-bs-toggle="offcanvas"
-data-bs-target="#sidebar">
+    <div class="d-flex align-items-center gap-3">
+        <i class="bi bi-bell fs-5"></i>
 
-<i class="bi bi-list fs-4"></i>
-
-</button>
-
-<h4 class="ms-3 mt-2 fw-bold">
-Peminjaman Buku
-</h4>
-
-</div>
-
-<div class="d-flex align-items-center gap-3">
-
-<i class="bi bi-bell fs-5"></i>
-
-<img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-width="45"
-class="rounded-circle">
-
-</div>
-
+        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+        width="45"
+        class="rounded-circle">
+    </div>
 </nav>
 
 <!-- CONTENT -->
-
 <div class="content">
 
-<div class="mb-4">
+    <div class="mb-4">
+        <h1 class="fw-bold">
+            Manajemen Peminjaman
+        </h1>
 
-<h1 class="fw-bold">
-Manajemen Peminjaman
-</h1>
+        <p class="text-muted">
+            Kelola data peminjaman buku perpustakaan digital
+        </p>
+    </div>
 
-<p class="text-muted">
-Kelola data peminjaman buku perpustakaan digital
-</p>
+    <!-- CARD -->
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-4">
+            <div class="card-dashboard">
+                <div class="icon-box bg-blue">
+                    <i class="bi bi-journal-bookmark-fill"></i>
+                </div>
+
+                <h2 class="fw-bold">
+                    <?= $totalPeminjaman ?>
+                </h2>
+
+                <p class="text-muted mb-0">
+                    Total Peminjaman
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card-dashboard">
+                <div class="icon-box bg-orange">
+                    <i class="bi bi-book-half"></i>
+                </div>
+
+                <h2 class="fw-bold">
+                    <?= $totalDipinjam ?>
+                </h2>
+
+                <p class="text-muted mb-0">
+                    Sedang Dipinjam
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card-dashboard">
+                <div class="icon-box bg-green">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+
+                <h2 class="fw-bold">
+                    <?= $totalKembali ?>
+                </h2>
+
+                <p class="text-muted mb-0">
+                    Sudah Dikembalikan
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-box">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-bold">
+                Data Peminjaman
+            </h4>
+
+            <a href="tambah_peminjaman.php"
+            class="btn btn-primary rounded-4">
+                <i class="bi bi-plus-circle"></i>
+                Tambah Peminjaman
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Nama</th>
+                        <th>Buku</th>
+                        <th>Tanggal Pinjam</th>
+                        <th>Tanggal Kembali</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <?php while($d = mysqli_fetch_assoc($data)) { ?>
+                    <tr>
+                        <td><?= htmlspecialchars($d['nama']) ?></td>
+                        <td><?= htmlspecialchars($d['judul']) ?></td>
+                        <td><?= htmlspecialchars($d['tanggal_pinjam']) ?></td>
+                        <td><?= htmlspecialchars($d['tanggal_kembali']) ?></td>
+
+                        <td>
+                            <?php if($d['status'] == 'dipinjam'){ ?>
+                                <span class="badge-pinjam">Dipinjam</span>
+                            <?php } else { ?>
+                                <span class="badge-kembali">Dikembalikan</span>
+                            <?php } ?>
+                        </td>
+
+                        <td>
+                            <?php if($d['status'] == 'dipinjam'){ ?>
+                                <a href="pengembalian.php?id=<?= $d['id'] ?>"
+                                class="btn btn-success btn-sm rounded-3"
+                                onclick="return confirm('Yakin buku ini sudah dikembalikan?')">
+                                    Kembalikan
+                                </a>
+                            <?php } ?>
+
+                            <a href="hapus_peminjaman.php?id=<?= $d['id'] ?>"
+                            class="btn btn-danger btn-sm rounded-3"
+                            onclick="return confirm('Yakin ingin menghapus data peminjaman ini?')">
+                                Hapus
+                            </a>
+                        </td>
+                    </tr>
+                    <?php } ?>
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
 
 </div>
-
-<!-- CARD -->
-
-<div class="row g-4 mb-4">
-
-<div class="col-md-4">
-
-<div class="card-dashboard">
-
-<div class="icon-box bg-blue">
-<i class="bi bi-journal-bookmark-fill"></i>
-</div>
-
-<h2 class="fw-bold">
-<?= $totalPeminjaman ?>
-</h2>
-
-<p class="text-muted mb-0">
-Total Peminjaman
-</p>
-
-</div>
-
-</div>
-
-<div class="col-md-4">
-
-<div class="card-dashboard">
-
-<div class="icon-box bg-orange">
-<i class="bi bi-book-half"></i>
-</div>
-
-<h2 class="fw-bold">
-<?= $totalDipinjam ?>
-</h2>
-
-<p class="text-muted mb-0">
-Sedang Dipinjam
-</p>
-
-</div>
-
-</div>
-
-<div class="col-md-4">
-
-<div class="card-dashboard">
-
-<div class="icon-box bg-green">
-<i class="bi bi-check-circle-fill"></i>
-</div>
-
-<h2 class="fw-bold">
-<?= $totalKembali ?>
-</h2>
-
-<p class="text-muted mb-0">
-Sudah Dikembalikan
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- TABLE -->
-
-<div class="table-box">
-
-<div class="d-flex justify-content-between align-items-center mb-4">
-
-<h4 class="fw-bold">
-Data Peminjaman
-</h4>
-
-<a href="tambah_peminjaman.php"
-class="btn btn-primary rounded-4">
-
-<i class="bi bi-plus-circle"></i>
-Tambah Peminjaman
-
-</a>
-
-</div>
-
-<div class="table-responsive">
-
-<table class="table align-middle">
-
-<thead>
-
-<tr>
-<th>Nama</th>
-<th>Buku</th>
-<th>Tanggal Pinjam</th>
-<th>Tanggal Kembali</th>
-<th>Status</th>
-<th>Aksi</th>
-</tr>
-
-</thead>
-
-<tbody>
-
-<?php while($d = mysqli_fetch_array($data)){ ?>
-
-<tr>
-
-<td><?= $d['nama'] ?></td>
-
-<td><?= $d['judul'] ?></td>
-
-<td><?= $d['tanggal_pinjam'] ?></td>
-
-<td><?= $d['tanggal_kembali'] ?></td>
-
-<td>
-
-<?php if($d['status'] == 'dipinjam'){ ?>
-
-<span class="badge-pinjam">
-Dipinjam
-</span>
-
-<?php } else { ?>
-
-<span class="badge-kembali">
-Dikembalikan
-</span>
-
-<?php } ?>
-
-</td>
-
-<td>
-
-<?php if($d['status'] == 'dipinjam'){ ?>
-
-<a href="pengembalian.php?id=<?= $d['id'] ?>"
-class="btn btn-success btn-sm rounded-3">
-
-Kembalikan
-
-</a>
-
-<?php } ?>
-
-<a href="hapus_peminjaman.php?id=<?= $d['id'] ?>"
-class="btn btn-danger btn-sm rounded-3">
-
-Hapus
-
-</a>
-
-</td>
-
-</tr>
-
-<?php } ?>
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
-</div>
-
 </div>
 
 <!-- SIDEBAR -->
-
 <div class="offcanvas offcanvas-start"
 tabindex="-1"
 id="sidebar"
 style="width:280px;"
 data-bs-backdrop="false">
 
-<div class="offcanvas-header border-bottom">
+    <div class="offcanvas-header border-bottom">
+        <h4 class="fw-bold text-primary">
+            <i class="bi bi-book-half"></i>
+            Digital Library
+        </h4>
 
-<h4 class="fw-bold text-primary">
+        <button type="button"
+        class="btn-close"
+        data-bs-dismiss="offcanvas"></button>
+    </div>
 
-<i class="bi bi-book-half"></i>
-Digital Library
+    <div class="offcanvas-body d-flex flex-column">
 
-</h4>
+        <div class="text-center mb-4">
+            <a href="profile2.php">
+                <img src="https://cdn-icons-png.flaticon.com/512/2232/2232688.png"
+                width="110"
+                class="mb-3">
+            </a>
 
-<button type="button"
-class="btn-close"
-data-bs-dismiss="offcanvas">
-</button>
+            <h5 class="fw-bold mb-0">
+                Administrator
+            </h5>
 
-</div>
+            <small class="text-muted">
+                Admin Perpustakaan
+            </small>
+        </div>
 
-<div class="offcanvas-body d-flex flex-column">
+        <ul class="nav flex-column">
 
-<div class="text-center mb-4">
-<a href="profile2.php">
-<img src="https://cdn-icons-png.flaticon.com/512/2232/2232688.png"
-width="110"
-class="mb-3">
-</a>
-<h5 class="fw-bold mb-0">
-Administrator
-</h5>
+            <li class="nav-item">
+                <a class="nav-link"
+                href="index.php">
+                    <i class="bi bi-grid-fill me-2"></i>
+                    Dashboard
+                </a>
+            </li>
 
-<small class="text-muted">
-Admin Perpustakaan
-</small>
+            <li class="nav-item">
+                <a class="nav-link"
+                href="buku.php">
+                    <i class="bi bi-book-fill me-2"></i>
+                    Kelola Buku
+                </a>
+            </li>
 
-</div>
+            <li class="nav-item">
+                <a class="nav-link"
+                href="anggota.php">
+                    <i class="bi bi-people-fill me-2"></i>
+                    Data Anggota
+                </a>
+            </li>
 
-<ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link active"
+                href="peminjaman.php">
+                    <i class="bi bi-journal-check me-2"></i>
+                    Peminjaman
+                </a>
+            </li>
 
-<li class="nav-item">
-<a class="nav-link"
-href="index.php">
+            <li class="nav-item">
+                <a class="nav-link"
+                href="kategori.php">
+                    <i class="bi bi-tags-fill me-2"></i>
+                    Kategori Buku
+                </a>
+            </li>
 
-<i class="bi bi-grid-fill me-2"></i>
-Dashboard
+        </ul>
 
-</a>
-</li>
+        <div class="mt-auto border-top pt-3">
+            <a href="logout.php"
+            class="btn btn-danger w-100 rounded-4">
+                <i class="bi bi-box-arrow-right"></i>
+                Logout
+            </a>
+        </div>
 
-<li class="nav-item">
-<a class="nav-link"
-href="buku.php">
-
-<i class="bi bi-book-fill me-2"></i>
-Kelola Buku
-
-</a>
-</li>
-
-<li class="nav-item">
-<a class="nav-link"
-href="anggota.php">
-
-<i class="bi bi-people-fill me-2"></i>
-Data Anggota
-
-</a>
-</li>
-
-<li class="nav-item">
-<a class="nav-link active"
-href="peminjaman.php">
-
-<i class="bi bi-journal-check me-2"></i>
-Peminjaman
-
-</a>
-</li>
-
-<li class="nav-item">
-<a class="nav-link"
-href="kategori.php">
-
-<i class="bi bi-tags-fill me-2"></i>
-Kategori Buku
-
-</a>
-</li>
-
-</ul>
-
-<div class="mt-auto border-top pt-3">
-
-<a href="logout.php"
-class="btn btn-danger w-100 rounded-4">
-
-<i class="bi bi-box-arrow-right"></i>
-Logout
-
-</a>
-
-</div>
-
-</div>
-
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-
 const sidebar = document.getElementById('sidebar');
 const wrapper = document.getElementById('mainWrapper');
 
@@ -519,67 +425,25 @@ function isDesktop(){
 }
 
 sidebar.addEventListener('shown.bs.offcanvas', function () {
-
     if(isDesktop()){
         wrapper.classList.add('shifted');
     }
-
 });
 
 sidebar.addEventListener('hidden.bs.offcanvas', function () {
-
     wrapper.classList.remove('shifted');
-
 });
 
 window.addEventListener('resize', function(){
-
     if(window.innerWidth <= 992){
         wrapper.classList.remove('shifted');
     }
-
 });
-
 </script>
 
 </body>
 </html>
-```
-
-```php
-<!-- FILE: pengembalian.php -->
 
 <?php
-require 'koneksi.php';
-
-if(isset($_GET['id'])){
-
-    $id = $_GET['id'];
-
-    $data = mysqli_query($conn,
-    "SELECT * FROM peminjaman WHERE id='$id'");
-
-    $d = mysqli_fetch_array($data);
-
-    if($d){
-
-        mysqli_query($conn,"
-        UPDATE peminjaman
-        SET status='dikembalikan'
-        WHERE id='$id'
-        ");
-
-        mysqli_query($conn,"
-        UPDATE buku
-        SET stok = stok + 1
-        WHERE id='$d[buku_id]'
-        ");
-
-    }
-
-}
-
-header("Location:peminjaman.php");
-exit;
+ob_end_flush();
 ?>
-```
