@@ -1,4 +1,3 @@
-```php
 <?php
 session_start();
 require 'koneksi.php';
@@ -513,4 +512,3 @@ window.addEventListener('resize', () => {
 
 </body>
 </html>
-```

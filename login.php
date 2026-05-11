@@ -25,7 +25,7 @@ if(isset($_POST['login'])){
                 header("Location: index.php");
             } 
             elseif($user['role'] == 'anggota'){
-                header("Location: dashboard_mhs.php");
+                header("Location: user/dashboard.php");
             }
         
 
