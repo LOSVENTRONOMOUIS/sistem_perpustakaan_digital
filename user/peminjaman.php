@@ -396,7 +396,7 @@ body{
 </div>
 <div class="d-flex align-items-center gap-3">
 <i class="bi bi-bell fs-5"></i>
-<a href="#"><img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" width="45" class="rounded-circle"></a>
+<a href="profil.php"><img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" width="45" class="rounded-circle"></a>
 </div>
 </nav>
 
@@ -418,7 +418,7 @@ body{
         <li class="nav-item"><a class="nav-link-custom" href="katalog.php"><i class="bi bi-book-half me-2"></i>Katalog</a></li>
     </ul>
     <div class="mt-auto border-top pt-3">
-        <a href="#" class="btn btn-danger w-100 rounded-4"><i class="bi bi-box-arrow-right me-2"></i>Logout</a>
+        <a href="logout.php" class="btn btn-danger w-100 rounded-4"><i class="bi bi-box-arrow-right me-2"></i>Logout</a>
     </div>
 </div>
 </div>

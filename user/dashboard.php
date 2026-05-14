@@ -262,7 +262,7 @@ data-bs-target="#sidebar">
 <div class="d-flex align-items-center gap-3">
 <i class="bi bi-bell fs-5"></i>
 
-<a href="#">
+<a href="profil.php">
 <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
 width="45"
 class="rounded-circle">
@@ -321,7 +321,7 @@ Katalog
 </ul>
 
 <div class="mt-auto border-top pt-3">
-<a href="#" class="btn btn-danger w-100 rounded-4" onclick="logout()">
+<a href="logout.php" class="btn btn-danger w-100 rounded-4" onclick="logout()">
 <i class="bi bi-box-arrow-right me-2"></i>
 Logout
 </a>
