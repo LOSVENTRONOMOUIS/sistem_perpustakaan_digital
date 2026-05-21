@@ -174,7 +174,7 @@ data-bs-target="#sidebar">
 <div class="d-flex align-items-center gap-3">
 <i class="bi bi-bell fs-5"></i>
 
-<a href="profile2.php">
+<a href="profile.php">
 <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
 width="45"
 class="rounded-circle">
