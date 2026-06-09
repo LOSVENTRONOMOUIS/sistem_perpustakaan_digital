@@ -1,5 +1,11 @@
+<?php
+// debug
+// print_r($kategori);
+?>
+
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
 
 <meta charset="UTF-8">
@@ -17,7 +23,7 @@ body{
 }
 
 .form-box{
-    max-width:750px;
+    max-width:650px;
     margin:50px auto;
     background:white;
     padding:35px;
@@ -28,6 +34,7 @@ body{
 </style>
 
 </head>
+
 <body>
 
 <div class="container">
@@ -38,121 +45,127 @@ body{
 Tambah Buku
 </h2>
 
-<form action="../../public/store_buku.php" method="POST">
+<form action="store_buku.php" method="POST">
 
-<div class="row">
-
-<div class="col-md-6 mb-3">
+<!-- JUDUL -->
+<div class="mb-3">
 
 <label class="form-label">
 Judul Buku
 </label>
 
-<input type="text"
+<input
+type="text"
 name="judul"
 class="form-control rounded-4"
 required>
 
 </div>
 
-<div class="col-md-6 mb-3">
+<!-- PENULIS -->
+<div class="mb-3">
 
 <label class="form-label">
 Penulis
 </label>
 
-<input type="text"
+<input
+type="text"
 name="penulis"
 class="form-control rounded-4"
 required>
 
 </div>
 
-<div class="col-md-6 mb-3">
+<!-- PENERBIT -->
+<div class="mb-3">
 
 <label class="form-label">
 Penerbit
 </label>
 
-<input type="text"
+<input
+type="text"
 name="penerbit"
 class="form-control rounded-4"
 required>
 
 </div>
 
-<div class="col-md-6 mb-3">
+<!-- TAHUN -->
+<div class="mb-3">
 
 <label class="form-label">
-Tahun
+Tahun Terbit
 </label>
 
-<input type="number"
+<input
+type="number"
 name="tahun"
 class="form-control rounded-4"
 required>
 
 </div>
 
-<div class="col-md-6 mb-3">
+<!-- KATEGORI -->
+<div class="mb-3">
 
 <label class="form-label">
 Kategori
 </label>
 
-<input type="text"
+<select
 name="kategori"
 class="form-control rounded-4"
 required>
 
+<option value="">
+-- Pilih Kategori --
+</option>
+
+<?php foreach($kategori as $k){ ?>
+
+<?php print_r($k); ?>
+
+<option value="<?= $k['id'] ?>">
+
+<?= $k['nama_kategori'] ?>
+
+</option>
+
+<?php } ?>
+
+</select>
+
 </div>
 
-<div class="col-md-6 mb-3">
+<!-- STOK -->
+<div class="mb-3">
 
 <label class="form-label">
-Stok
+Stok Buku
 </label>
 
-<input type="number"
+<input
+type="number"
 name="stok"
 class="form-control rounded-4"
 required>
 
 </div>
 
-<div class="col-md-12 mb-3">
+<!-- BUTTON -->
+<div class="d-flex gap-2">
 
-<label class="form-label">
-Status
-</label>
-
-<select name="status"
-class="form-select rounded-4">
-
-<option value="Tersedia">
-Tersedia
-</option>
-
-<option value="Habis">
-Habis
-</option>
-
-</select>
-
-</div>
-
-</div>
-
-<div class="d-flex gap-2 mt-3">
-
-<a href="../../public/buku.php"
+<a href="buku.php"
 class="btn btn-secondary rounded-4">
 
 Kembali
 
 </a>
 
-<button type="submit"
+<button
+type="submit"
 class="btn btn-primary rounded-4">
 
 Simpan Buku

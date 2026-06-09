@@ -31,6 +31,8 @@ body{
 .navbar{
     height:75px;
     border-radius:0 0 20px 20px;
+    transition:0.3s;
+    z-index:1020;
 }
 
 .content{
@@ -82,6 +84,36 @@ body{
     color:white !important;
 }
 
+.table th{
+    border:none;
+    color:#666;
+}
+
+.table td{
+    vertical-align:middle;
+    border-color:#f1f1f1;
+}
+
+@media (min-width: 992px) {
+    /* 1. Paksa sidebar selalu muncul & menempel di kiri */
+    #sidebar {
+        transform: none !important; 
+        visibility: visible !important; 
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        background-color: white;
+        z-index: 1030;
+        display: block !important;
+    }
+    
+    /* 2. Paksa pembungkus utama selalu geser ke kanan 280px */
+    #mainWrapper {
+        margin-left: 280px !important;
+    }
+}
+
 </style>
 
 </head>
@@ -91,16 +123,13 @@ body{
 <div id="mainWrapper">
 
 <!-- NAVBAR -->
-
 <nav class="navbar navbar-light bg-white shadow-sm px-4">
 
 <div class="d-flex align-items-center">
 
-<button class="btn btn-outline-primary"
-data-bs-toggle="offcanvas"
-data-bs-target="#sidebar">
-
-<i class="bi bi-list fs-4"></i>
+<button class="btn btn-outline-primary d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#sidebar">
+    <i class="bi bi-list fs-4"></i>
+</button>
 
 </button>
 
@@ -110,10 +139,23 @@ Kategori Buku
 
 </div>
 
+<div class="d-flex align-items-center gap-3">
+
+<i class="bi bi-bell fs-5"></i>
+
+<a href="#">
+
+<img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+width="45"
+class="rounded-circle">
+
+</a>
+
+</div>
+
 </nav>
 
 <!-- CONTENT -->
-
 <div class="content">
 
 <div class="mb-4">
@@ -129,7 +171,6 @@ Kelola kategori buku perpustakaan
 </div>
 
 <!-- CARD -->
-
 <div class="row g-4 mb-4">
 
 <div class="col-md-4">
@@ -161,7 +202,6 @@ Total Kategori
 </div>
 
 <!-- TABLE -->
-
 <div class="table-box">
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -234,7 +274,6 @@ onclick="return confirm('Yakin hapus?')">
 </tr>
 
 <!-- MODAL EDIT -->
-
 <div class="modal fade"
 id="edit<?= $k['id'] ?>">
 
@@ -298,7 +337,6 @@ Simpan
 </div>
 
 <!-- MODAL TAMBAH -->
-
 <div class="modal fade"
 id="modalTambah">
 
@@ -348,7 +386,6 @@ Tambah
 </div>
 
 <!-- SIDEBAR -->
-
 <div class="offcanvas offcanvas-start"
 tabindex="-1"
 id="sidebar"
@@ -459,6 +496,39 @@ Logout
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+const sidebar = document.getElementById('sidebar');
+const wrapper = document.getElementById('mainWrapper');
+
+function isDesktop(){
+    return window.innerWidth > 992;
+}
+
+sidebar.addEventListener('shown.bs.offcanvas', function () {
+
+    if(isDesktop()){
+        wrapper.classList.add('shifted');
+    }
+
+});
+
+sidebar.addEventListener('hidden.bs.offcanvas', function () {
+
+    wrapper.classList.remove('shifted');
+
+});
+
+window.addEventListener('resize', function(){
+
+    if(window.innerWidth <= 992){
+        wrapper.classList.remove('shifted');
+    }
+
+});
+
+</script>
 
 </body>
 </html>

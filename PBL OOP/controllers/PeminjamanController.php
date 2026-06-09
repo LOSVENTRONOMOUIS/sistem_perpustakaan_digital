@@ -6,60 +6,100 @@ class PeminjamanController {
 
     private $pinjam;
 
-    public function __construct(){
-
+    public function __construct()
+    {
         $this->pinjam = new Peminjaman();
     }
 
-    // halaman utama
-    public function index(){
-
+    // ==========================
+    // INDEX
+    // ==========================
+    public function index()
+    {
         $data = $this->pinjam->getAll();
 
         $totalPinjam = $this->pinjam->totalPinjam();
-
         $totalDipinjam = $this->pinjam->totalDipinjam();
-
         $totalKembali = $this->pinjam->totalKembali();
 
         require "../views/peminjaman/index.php";
     }
 
-    // halaman tambah
-    public function create(){
-
+    // ==========================
+    // CREATE
+    // ==========================
+    public function create()
+    {
         require "../views/peminjaman/tambah.php";
     }
 
-    // simpan
-    public function store(){
+    // ==========================
+    // STORE AJAX
+    // ==========================
+    public function store()
+    {
+        header('Content-Type: application/json');
 
-        $this->pinjam->tambah($_POST);
+        try {
 
-        header("Location: /peminjaman.php");
+            if(empty($_POST)){
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Data kosong'
+                ]);
+                exit;
+            }
+
+            $this->pinjam->tambah($_POST);
+
+            echo json_encode([
+                'status' => 'success',
+                'message' => 'Peminjaman berhasil'
+            ]);
+
+        } catch(Exception $e){
+
+            echo json_encode([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+
+        exit;
     }
 
-    // edit
-    public function edit(){
-
+    // ==========================
+    // EDIT
+    // ==========================
+    public function edit()
+    {
         $pinjam = $this->pinjam->getById($_GET['id']);
 
-        require "../views/peminjaman/edit.php";
+        // Ganti baris 78 menjadi ini:
+        require "../views/peminjaman/edit.php"; 
     }
 
-    // update
-    public function update(){
-
+    // ==========================
+    // UPDATE
+    // ==========================
+    public function update()
+    {
         $this->pinjam->update($_POST);
 
-        header("Location: peminjaman.php");
+        // Ganti header() dengan script JS ini
+        echo "<script>window.location.href = 'peminjaman.php';</script>";
+        exit;
     }
 
-    // hapus
-    public function destroy(){
-
+    // ==========================
+    // DELETE
+    // ==========================
+    public function destroy()
+    {
         $this->pinjam->hapus($_GET['id']);
 
-        header("Location: peminjaman.php");
+        // Ganti header() dengan script JS ini
+        echo "<script>window.location.href = 'peminjaman.php';</script>";
+        exit;
     }
 }

@@ -4,132 +4,221 @@ require_once "../config/database.php";
 
 class Peminjaman extends Database {
 
-    // semua data
+    public function __construct(){
+        parent::__construct();
+    }
+
+    // ======================
+    // AMBIL SEMUA DATA
+    // ======================
     public function getAll(){
 
-        $query = mysqli_query($this->conn,"
-        SELECT peminjaman.*,
-               users.nama,
-               buku.judul
-        FROM peminjaman
-        JOIN users ON peminjaman.user_id = users.id
-        JOIN buku ON peminjaman.buku_id = buku.id
-        ORDER BY peminjaman.id DESC
+        $query = mysqli_query($this->conn, "
+            SELECT 
+                peminjaman.*, 
+                users.nama, 
+                users.email, 
+                buku.judul, 
+                buku.penulis,
+                -- Deteksi apakah telat (1 = Telat, 0 = Aman)
+                (CASE WHEN peminjaman.status = 'dipinjam' AND peminjaman.tanggal_kembali < CURDATE() THEN 1 ELSE 0 END) as is_late
+
+            FROM peminjaman
+            LEFT JOIN users ON peminjaman.user_id = users.id
+            LEFT JOIN buku ON peminjaman.buku_id = buku.id
+
+            -- Urutkan yang telat (1) di paling atas, baru setelahnya diurutkan dari ID terbaru
+            ORDER BY is_late DESC, peminjaman.id DESC
         ");
 
         return mysqli_fetch_all($query, MYSQLI_ASSOC);
     }
 
-    // total pinjam
+    // ======================
+    // TOTAL SEMUA
+    // ======================
     public function totalPinjam(){
 
-        $query = mysqli_query($this->conn,"
-        SELECT * FROM peminjaman
+        $query = mysqli_query($this->conn, "
+            SELECT * FROM peminjaman
         ");
 
         return mysqli_num_rows($query);
     }
 
-    // dipinjam
+    // ======================
+    // TOTAL DIPINJAM
+    // ======================
     public function totalDipinjam(){
 
-        $query = mysqli_query($this->conn,"
-        SELECT * FROM peminjaman
-        WHERE status='dipinjam'
+        $query = mysqli_query($this->conn, "
+            SELECT * FROM peminjaman
+            WHERE status='dipinjam'
         ");
 
         return mysqli_num_rows($query);
     }
 
-    // dikembalikan
+    // ======================
+    // TOTAL KEMBALI
+    // ======================
     public function totalKembali(){
 
-        $query = mysqli_query($this->conn,"
-        SELECT * FROM peminjaman
-        WHERE status='dikembalikan'
+        $query = mysqli_query($this->conn, "
+            SELECT * FROM peminjaman
+            WHERE status='dikembalikan'
         ");
 
         return mysqli_num_rows($query);
     }
 
-    // tambah
+    // ======================
+    // TAMBAH PEMINJAMAN
+    // ======================
     public function tambah($data){
 
         $user_id = $data['user_id'];
         $buku_id = $data['buku_id'];
+
         $tanggal_pinjam = $data['tanggal_pinjam'];
         $tanggal_kembali = $data['tanggal_kembali'];
+
         $status = $data['status'];
 
-        mysqli_query($this->conn,"
-        INSERT INTO peminjaman
-        (user_id,buku_id,tanggal_pinjam,tanggal_kembali,status)
+        mysqli_query($this->conn, "
 
-        VALUES
-        ('$user_id','$buku_id','$tanggal_pinjam',
-        '$tanggal_kembali','$status')
+            INSERT INTO peminjaman
+            (
+                user_id,
+                buku_id,
+                tanggal_pinjam,
+                tanggal_kembali,
+                status
+            )
+
+            VALUES
+            (
+                '$user_id',
+                '$buku_id',
+                '$tanggal_pinjam',
+                '$tanggal_kembali',
+                '$status'
+            )
+
+        ");
+
+        // kurangi stok buku
+        mysqli_query($this->conn, "
+            UPDATE buku
+            SET stok = stok - 1
+            WHERE id='$buku_id'
         ");
     }
 
-    // ambil by id
+    // ======================
+    // GET BY ID
+    // ======================
     public function getById($id){
-
-        $query = mysqli_query($this->conn,"
-        SELECT * FROM peminjaman
-        WHERE id='$id'
+        $query = mysqli_query($this->conn, "
+            SELECT 
+                peminjaman.*, 
+                users.nama, 
+                buku.judul
+            FROM peminjaman
+            LEFT JOIN users ON peminjaman.user_id = users.id
+            LEFT JOIN buku ON peminjaman.buku_id = buku.id
+            WHERE peminjaman.id='$id'
         ");
 
         return mysqli_fetch_assoc($query);
     }
 
-    // update
+    // ======================
+    // UPDATE
+    // ======================
     public function update($data){
 
         $id = $data['id'];
 
-        mysqli_query($this->conn,"
-        UPDATE peminjaman SET
+        $tanggal_pinjam = $data['tanggal_pinjam'];
+        $tanggal_kembali = $data['tanggal_kembali'];
 
-        user_id='".$data['user_id']."',
-        buku_id='".$data['buku_id']."',
-        tanggal_pinjam='".$data['tanggal_pinjam']."',
-        tanggal_kembali='".$data['tanggal_kembali']."',
-        status='".$data['status']."'
+        $status = $data['status'];
 
-        WHERE id='$id'
+        mysqli_query($this->conn, "
+
+            UPDATE peminjaman SET
+
+            tanggal_pinjam='$tanggal_pinjam',
+            tanggal_kembali='$tanggal_kembali',
+            status='$status'
+
+            WHERE id='$id'
+
         ");
     }
 
-    // hapus
+    // ======================
+    // HAPUS
+    // ======================
     public function hapus($id){
 
-        mysqli_query($this->conn,"
-        DELETE FROM peminjaman
-        WHERE id='$id'
+        mysqli_query($this->conn, "
+
+            DELETE FROM peminjaman
+            WHERE id='$id'
+
         ");
     }
+public function aktivitas(){
 
-    // =========================
-    // AKTIVITAS TERBARU
-    // =========================
-    public function aktivitas(){
+    $query = mysqli_query($this->conn, "
 
-        $query = mysqli_query($this->conn,"
-        SELECT peminjaman.*,
-               users.nama,
-               buku.judul
+        SELECT
+            peminjaman.*,
+            users.nama,
+            buku.judul
 
         FROM peminjaman
 
-        JOIN users
+        LEFT JOIN users
         ON peminjaman.user_id = users.id
 
-        JOIN buku
+        LEFT JOIN buku
         ON peminjaman.buku_id = buku.id
 
         ORDER BY peminjaman.id DESC
 
-        LIMIT 5
+        LIMIT 10
+
+    ");
+
+    return mysqli_fetch_all(
+        $query,
+        MYSQLI_ASSOC
+    );
+}
+    // ======================
+    // DATA USER TERTENTU
+    // ======================
+    public function getByUser($user_id){
+
+        $query = mysqli_query($this->conn, "
+
+            SELECT
+                peminjaman.*,
+                buku.judul,
+                buku.penulis
+
+            FROM peminjaman
+
+            LEFT JOIN buku
+            ON peminjaman.buku_id = buku.id
+
+            WHERE peminjaman.user_id='$user_id'
+
+            ORDER BY peminjaman.id DESC
+
         ");
 
         return mysqli_fetch_all(

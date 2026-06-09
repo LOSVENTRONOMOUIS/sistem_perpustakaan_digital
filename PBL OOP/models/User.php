@@ -4,6 +4,18 @@ require_once "../config/database.php";
 
 class User extends Database {
 
+        public function login($email){
+
+        $query = mysqli_query($this->conn,"
+            SELECT *
+            FROM users
+            WHERE email='$email'
+            LIMIT 1
+        ");
+
+        return mysqli_fetch_assoc($query);
+    }
+
     // semua user
     public function getAllUsers(){
 

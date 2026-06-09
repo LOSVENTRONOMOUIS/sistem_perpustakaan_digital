@@ -107,16 +107,24 @@ body{
     border-radius:50%;
 }
 
-@media(max-width:992px){
-
-.shifted{
-    margin-left:0;
-}
-
-.content{
-    padding:20px;
-}
-
+@media (min-width: 992px) {
+    /* 1. Paksa sidebar selalu muncul & menempel di kiri */
+    #sidebar {
+        transform: none !important; 
+        visibility: visible !important; 
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        background-color: white;
+        z-index: 1030;
+        display: block !important;
+    }
+    
+    /* 2. Paksa pembungkus utama selalu geser ke kanan 280px */
+    #mainWrapper {
+        margin-left: 280px !important;
+    }
 }
 
 </style>
@@ -133,13 +141,11 @@ body{
 
 <div class="d-flex align-items-center">
 
-<button class="btn btn-outline-primary"
-data-bs-toggle="offcanvas"
-data-bs-target="#sidebar">
-
-<i class="bi bi-list fs-4"></i>
-
+<button class="btn btn-outline-primary d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#sidebar">
+    <i class="bi bi-list fs-4"></i>
 </button>
+
+
 
 <h4 class="ms-3 mt-2 fw-bold">
 Data Anggota

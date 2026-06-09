@@ -1,19 +1,22 @@
 <?php
 
 require_once "../models/Buku.php";
+require_once "../models/Kategori.php";
 
 class BukuController {
 
     private $buku;
+    private $kategori;
 
     public function __construct(){
 
         $this->buku = new Buku();
+        $this->kategori = new Kategori();
     }
 
-    // ======================
+    // =========================
     // HALAMAN BUKU
-    // ======================
+    // =========================
     public function index(){
 
         $books = $this->buku->getAllBooks();
@@ -27,67 +30,68 @@ class BukuController {
         require "../views/buku/index.php";
     }
 
-    // ======================
-    // HALAMAN TAMBAH
-    // ======================
+    // =========================
+    // FORM TAMBAH
+    // =========================
     public function create(){
+
+        $kategori = $this->kategori->getAllKategori();
 
         require "../views/buku/tambah.php";
     }
 
-    // ======================
-    // SIMPAN BUKU
-    // ======================
+    // =========================
+    // SIMPAN
+    // =========================
     public function store(){
 
         if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
             $this->buku->tambahBuku($_POST);
 
-            header("Location: /pbl2/public/buku.php");
+            header("Location: buku.php");
             exit;
         }
     }
 
-    // ======================
-    // HALAMAN EDIT
-    // ======================
+    // =========================
+    // FORM EDIT
+    // =========================
     public function edit(){
 
         $id = $_GET['id'];
 
         $book = $this->buku->getById($id);
 
+        $kategori = $this->kategori->getAllKategori();
+
         require "../views/buku/edit_buku.php";
     }
 
-    // ======================
-    // UPDATE BUKU
-    // ======================
+    // =========================
+    // UPDATE
+    // =========================
     public function update(){
 
         if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
             $this->buku->updateBuku($_POST);
 
-            header("Location: /pbl2/public/buku.php");
+            header("Location: buku.php");
             exit;
         }
     }
 
-    // ======================
-    // HAPUS BUKU
-    // ======================
+    // =========================
+    // HAPUS
+    // =========================
     public function destroy(){
 
-        if(isset($_GET['id'])){
+        $id = $_GET['id'];
 
-            $id = $_GET['id'];
+        $this->buku->hapusBuku($id);
 
-            $this->buku->hapusBuku($id);
-
-            header("Location: /pbl2/public/buku.php");
-            exit;
-        }
+        header("Location: buku.php");
+        exit;
     }
 }

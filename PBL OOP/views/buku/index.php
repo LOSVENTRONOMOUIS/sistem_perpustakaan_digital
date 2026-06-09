@@ -1,13 +1,6 @@
-<?php
-// data dari controller
-// $books
-// $totalBuku
-// $totalTersedia
-// $totalHabis
-?>
-
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
 
 <meta charset="UTF-8">
@@ -28,25 +21,20 @@ body{
     overflow-x:hidden;
 }
 
-#mainWrapper{
-    transition:0.3s ease;
-}
-
-.shifted{
-    margin-left:280px;
-}
-
 .navbar{
     height:75px;
     border-radius:0 0 20px 20px;
     transition:0.3s;
     z-index:1020;
-    position:relative;
 }
 
 .content{
     padding:30px;
     transition:0.3s;
+}
+
+.shifted{
+    margin-left:280px;
 }
 
 .offcanvas{
@@ -74,11 +62,6 @@ body{
     padding:25px;
     background:white;
     box-shadow:0 10px 25px rgba(0,0,0,0.05);
-    transition:0.3s;
-}
-
-.card-dashboard:hover{
-    transform:translateY(-5px);
 }
 
 .icon-box{
@@ -93,42 +76,15 @@ body{
     margin-bottom:18px;
 }
 
-.bg-blue{
-    background:#0d6efd;
-}
-
-.bg-green{
-    background:#198754;
-}
-
-.bg-red{
-    background:#dc3545;
-}
+.bg-blue{background:#0d6efd;}
+.bg-green{background:#198754;}
+.bg-red{background:#dc3545;}
 
 .table-box{
     background:white;
     border-radius:24px;
     padding:25px;
     box-shadow:0 10px 25px rgba(0,0,0,0.05);
-}
-
-.table-title{
-    font-size:24px;
-    font-weight:700;
-    color:#111;
-    margin-bottom:0;
-}
-
-.page-title{
-    font-size:36px;
-    font-weight:800;
-    color:#111;
-    margin-bottom:10px;
-}
-
-.page-subtitle{
-    color:#777;
-    font-size:16px;
 }
 
 .table th{
@@ -141,73 +97,47 @@ body{
     border-color:#f1f1f1;
 }
 
-.book-cover{
-    width:55px;
-    height:75px;
+.badge{
+    padding:8px 14px;
     border-radius:12px;
-    object-fit:cover;
 }
 
-.badge-tersedia{
-    background:#d1e7dd;
-    color:#0f5132;
-    padding:8px 14px;
-    border-radius:20px;
-    font-size:13px;
-}
-
-.badge-habis{
-    background:#f8d7da;
-    color:#842029;
-    padding:8px 14px;
-    border-radius:20px;
-    font-size:13px;
-}
-
-.profile-img{
-    width:45px;
-    height:45px;
-    border-radius:50%;
-    object-fit:cover;
-}
-
-@media(max-width:992px){
-
-.shifted{
-    margin-left:0;
-}
-
-.content{
-    padding:20px;
-}
-
-.page-title{
-    font-size:28px;
-}
-
+@media (min-width: 992px) {
+    /* 1. Paksa sidebar selalu muncul & menempel di kiri */
+    #sidebar {
+        transform: none !important; 
+        visibility: visible !important; 
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        background-color: white;
+        z-index: 1030;
+        display: block !important;
+    }
+    
+    /* 2. Paksa pembungkus utama selalu geser ke kanan 280px */
+    #mainWrapper {
+        margin-left: 280px !important;
+    }
 }
 
 </style>
+
 </head>
 
 <body>
 
-<div id="mainWrapper">
-
 <!-- NAVBAR -->
-
 <nav class="navbar navbar-light bg-white shadow-sm px-4">
 
 <div class="d-flex align-items-center">
 
-<button class="btn btn-outline-primary"
-type="button"
-data-bs-toggle="offcanvas"
-data-bs-target="#sidebar">
-
-<i class="bi bi-list fs-4"></i>
-
+<button class="btn btn-outline-primary d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#sidebar">
+    <i class="bi bi-list fs-4"></i>
 </button>
+
+
 
 <h4 class="ms-3 mt-2 fw-bold">
 Kelola Buku
@@ -222,7 +152,8 @@ Kelola Buku
 <a href="#">
 
 <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-class="profile-img">
+width="45"
+class="rounded-circle">
 
 </a>
 
@@ -231,23 +162,21 @@ class="profile-img">
 </nav>
 
 <!-- CONTENT -->
-
 <div class="content">
 
 <div class="mb-4">
 
-<h1 class="page-title">
-Kelola Buku Perpustakaan
+<h1 class="fw-bold">
+Manajemen Buku
 </h1>
 
-<p class="page-subtitle">
-Kelola seluruh data buku perpustakaan digital modern
+<p class="text-muted">
+Kelola seluruh data buku perpustakaan digital
 </p>
 
 </div>
 
 <!-- CARD -->
-
 <div class="row g-4 mb-4">
 
 <div class="col-md-4">
@@ -259,7 +188,7 @@ Kelola seluruh data buku perpustakaan digital modern
 </div>
 
 <h2 class="fw-bold">
-<?= $totalBuku ?>
+<?= isset($totalBuku) ? $totalBuku : 0 ?>
 </h2>
 
 <p class="text-muted mb-0">
@@ -279,7 +208,7 @@ Total Buku
 </div>
 
 <h2 class="fw-bold">
-<?= $totalTersedia ?>
+<?= isset($totalTersedia) ? $totalTersedia : 0 ?>
 </h2>
 
 <p class="text-muted mb-0">
@@ -299,11 +228,11 @@ Buku Tersedia
 </div>
 
 <h2 class="fw-bold">
-<?= $totalHabis ?>
+<?= isset($totalHabis) ? $totalHabis : 0 ?>
 </h2>
 
 <p class="text-muted mb-0">
-Stok Habis
+Buku Habis
 </p>
 
 </div>
@@ -313,16 +242,15 @@ Stok Habis
 </div>
 
 <!-- TABLE -->
-
 <div class="table-box">
 
-<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+<div class="d-flex justify-content-between align-items-center mb-4">
 
-<h4 class="table-title">
+<h4 class="fw-bold">
 Daftar Buku
 </h4>
 
-<a href="../public/tambah_buku.php"
+<a href="tambah_buku.php"
 class="btn btn-primary rounded-4">
 
 <i class="bi bi-plus-circle"></i>
@@ -332,83 +260,93 @@ Tambah Buku
 
 </div>
 
-<div class="table-responsive">
-
 <table class="table align-middle">
 
 <thead>
 
 <tr>
-<th>Cover</th>
-<th>Judul Buku</th>
+
+<th>Judul</th>
+<th>Penulis</th>
+<th>Penerbit</th>
+<th>Tahun</th>
+<th>Kategori</th>
 <th>Stok</th>
 <th>Status</th>
 <th>Aksi</th>
+
 </tr>
 
 </thead>
 
 <tbody>
 
-<?php if(!empty($books)) : ?>
+<?php if(!empty($books)){ ?>
 
-<?php foreach($books as $d) : ?>
+<?php foreach($books as $b){ ?>
 
 <tr>
 
 <td>
+<b><?= isset($b['judul']) ? $b['judul'] : '-' ?></b>
+</td>
 
-<img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=400"
-class="book-cover">
+<td>
+<?= isset($b['penulis']) ? $b['penulis'] : '-' ?>
+</td>
 
+<td>
+<?= isset($b['penerbit']) ? $b['penerbit'] : '-' ?>
+</td>
+
+<td>
+<?= isset($b['tahun']) ? $b['tahun'] : '-' ?>
 </td>
 
 <td>
 
-<div class="fw-bold">
-<?= $d['judul']; ?>
-</div>
+<span class="badge bg-primary">
 
-<small class="text-muted">
-Digital Library
-</small>
+<?= isset($b['nama_kategori']) ? $b['nama_kategori'] : '-' ?>
+
+</span>
 
 </td>
 
 <td>
-<?= $d['stok']; ?>
+<?= isset($b['stok']) ? $b['stok'] : 0 ?>
 </td>
 
 <td>
 
-<?php if($d['stok'] > 0) : ?>
+<?php if(isset($b['stok']) && $b['stok'] > 0){ ?>
 
-<span class="badge-tersedia">
+<span class="badge bg-success">
 Tersedia
 </span>
 
-<?php else : ?>
+<?php } else { ?>
 
-<span class="badge-habis">
+<span class="badge bg-danger">
 Habis
 </span>
 
-<?php endif; ?>
+<?php } ?>
 
 </td>
 
 <td>
 
-<a href="../public/edit_buku.php?id=<?= $d['id'] ?>"
+<a href="edit_buku.php?id=<?= $b['id'] ?>"
 class="btn btn-warning btn-sm rounded-3">
 
 <i class="bi bi-pencil-fill"></i>
 
 </a>
 
-<a href="../public/hapus_buku.php?id=<?= $d['id'] ?>"
+<a href="hapus_buku.php?id=<?= $b['id'] ?>"
 class="btn btn-danger btn-sm rounded-3"
-onclick="return confirm('Yakin hapus buku?')">
+onclick="return confirm('Yakin ingin hapus buku?')">
 
 <i class="bi bi-trash-fill"></i>
 
@@ -418,19 +356,19 @@ onclick="return confirm('Yakin hapus buku?')">
 
 </tr>
 
-<?php endforeach; ?>
+<?php } ?>
 
-<?php else : ?>
+<?php } else { ?>
 
 <tr>
 
-<td colspan="5" class="text-center py-4">
-Data buku kosong
+<td colspan="8" class="text-center text-muted">
+Data buku belum ada
 </td>
 
 </tr>
 
-<?php endif; ?>
+<?php } ?>
 
 </tbody>
 
@@ -440,16 +378,8 @@ Data buku kosong
 
 </div>
 
-</div>
-
-</div>
-
 <!-- SIDEBAR -->
-
-<!-- SIDEBAR -->
-
 <div class="offcanvas offcanvas-start"
-tabindex="-1"
 id="sidebar"
 style="width:280px;"
 data-bs-backdrop="false">
@@ -463,8 +393,7 @@ Digital Library
 
 </h4>
 
-<button type="button"
-class="btn-close"
+<button class="btn-close"
 data-bs-dismiss="offcanvas">
 </button>
 
@@ -490,8 +419,7 @@ Admin Perpustakaan
 
 <ul class="nav flex-column">
 
-<li class="nav-item">
-
+<li>
 <a class="nav-link"
 href="dashboard.php">
 
@@ -499,11 +427,9 @@ href="dashboard.php">
 Dashboard
 
 </a>
-
 </li>
 
-<li class="nav-item">
-
+<li>
 <a class="nav-link active"
 href="buku.php">
 
@@ -511,11 +437,9 @@ href="buku.php">
 Kelola Buku
 
 </a>
-
 </li>
 
-<li class="nav-item">
-
+<li>
 <a class="nav-link"
 href="anggota.php">
 
@@ -523,11 +447,9 @@ href="anggota.php">
 Data Anggota
 
 </a>
-
 </li>
 
-<li class="nav-item">
-
+<li>
 <a class="nav-link"
 href="peminjaman.php">
 
@@ -535,11 +457,9 @@ href="peminjaman.php">
 Peminjaman
 
 </a>
-
 </li>
 
-<li class="nav-item">
-
+<li>
 <a class="nav-link"
 href="kategori.php">
 
@@ -547,7 +467,6 @@ href="kategori.php">
 Kategori Buku
 
 </a>
-
 </li>
 
 </ul>
@@ -573,7 +492,8 @@ Logout
 <script>
 
 const sidebar = document.getElementById('sidebar');
-const wrapper = document.getElementById('mainWrapper');
+const content = document.querySelector('.content');
+const navbar = document.querySelector('.navbar');
 
 function isDesktop(){
     return window.innerWidth > 992;
@@ -582,21 +502,26 @@ function isDesktop(){
 sidebar.addEventListener('shown.bs.offcanvas', function () {
 
     if(isDesktop()){
-        wrapper.classList.add('shifted');
+        content.classList.add('shifted');
+        navbar.classList.add('shifted');
     }
 
 });
 
 sidebar.addEventListener('hidden.bs.offcanvas', function () {
 
-    wrapper.classList.remove('shifted');
+    content.classList.remove('shifted');
+    navbar.classList.remove('shifted');
 
 });
 
 window.addEventListener('resize', function(){
 
     if(window.innerWidth <= 992){
-        wrapper.classList.remove('shifted');
+
+        content.classList.remove('shifted');
+        navbar.classList.remove('shifted');
+
     }
 
 });

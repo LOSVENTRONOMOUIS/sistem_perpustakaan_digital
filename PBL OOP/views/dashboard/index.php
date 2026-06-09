@@ -1,6 +1,5 @@
 <?php
 
-// views/dashboard/index.php
 
 ?>
 
@@ -140,6 +139,25 @@ body{
     border-radius:16px;
     margin-bottom:15px;
 }
+@media (min-width: 992px) {
+    /* 1. Paksa sidebar selalu muncul & menempel di kiri */
+    #sidebar {
+        transform: none !important; 
+        visibility: visible !important; 
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        background-color: white;
+        z-index: 1030;
+        display: block !important;
+    }
+    
+    /* 2. Paksa pembungkus utama selalu geser ke kanan 280px */
+    #mainWrapper {
+        margin-left: 280px !important;
+    }
+}
 
 </style>
 </head>
@@ -151,10 +169,9 @@ body{
 
 <div class="d-flex align-items-center">
 
-<button class="btn btn-outline-primary"
-type="button"
-data-bs-toggle="offcanvas"
-data-bs-target="#sidebar">
+<button class="btn btn-outline-primary d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#sidebar">
+    <i class="bi bi-list fs-4"></i>
+</button>
 
 <i class="bi bi-list fs-4"></i>
 
