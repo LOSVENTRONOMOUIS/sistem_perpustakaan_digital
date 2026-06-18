@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jun 03, 2026 at 02:56 PM
+-- Generation Time: Jun 18, 2026 at 01:07 PM
 -- Server version: 8.4.6
 -- PHP Version: 8.4.16
 
@@ -58,9 +58,42 @@ CREATE TABLE `buku` (
 --
 
 INSERT INTO `buku` (`id`, `judul`, `penulis`, `penerbit`, `tahun`, `stok`, `cover`, `kategori`, `created_at`, `status`) VALUES
-(22, 'Informatika', 'gg', 'gg', '2025', 7, NULL, 14, '2026-05-27 16:30:57', 'tersedia'),
-(23, 'How to make Your own AI', 'masbro', 'Politeknik Negeri Batam', '2026', 48, NULL, 18, '2026-06-03 10:51:17', 'tersedia'),
-(24, 'Learning about making Robotic', 'Will Smith', 'Politeknik Negeri Batam', '2026', 65, NULL, 15, '2026-06-03 10:52:21', 'tersedia');
+(23, 'How to make Your own AI', 'masbro', 'Politeknik Negeri Batam', '2026', 46, '1781107019_download_(4).jpg', 18, '2026-06-03 10:51:17', 'tersedia'),
+(26, 'Harry Potter', 'J. K. Rowling', 'Politeknik Negeri Batam', '2010', 8, '1781045693_download.jpg', 18, '2026-06-09 22:54:53', 'tersedia'),
+(28, 'Informatika', 'Will Smith', 'Politeknik Negeri Batam', '2025', 50, '1781106978_download_(2).jpg', 14, '2026-06-10 15:56:18', 'tersedia'),
+(29, 'Learning about making Robotic', 'Will Smith', 'Politeknik Negeri Batam', '1998', 70, '1781107010_download_(5).jpg', 15, '2026-06-10 15:56:50', 'tersedia'),
+(30, 'Matahari', 'Will Smith', 'Politeknik Negeri Batam', '2025', 499, '1781107474_download_(1).jpg', 16, '2026-06-10 16:04:34', 'tersedia'),
+(31, 'Python and Pandon', 'Will Smith', 'Politeknik Negeri Batam', '2025', 50, '1781107654_download_(3).jpg', 14, '2026-06-10 16:07:34', 'tersedia'),
+(32, 'Pemrograman C++', 'Will Smith', 'Politeknik Negeri Batam', '2025', 50, '1781107684_download_(6).jpg', 14, '2026-06-10 16:08:04', 'tersedia'),
+(33, 'Multimedia', 'Will Smith', 'Politeknik Negeri Batam', '2025', 48, '1781107711_f9ad5800bed9b48f2b35457687b5c8b5.jpg', 14, '2026-06-10 16:08:31', 'tersedia');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `denda`
+--
+
+CREATE TABLE `denda` (
+  `id` int NOT NULL,
+  `peminjaman_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `jumlah_denda` int NOT NULL,
+  `status` enum('pending','lunas') NOT NULL DEFAULT 'pending',
+  `metode_pembayaran` varchar(50) NOT NULL DEFAULT 'tunai',
+  `kode_konfirmasi` varchar(20) NOT NULL,
+  `tanggal_bayar` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `denda`
+--
+
+INSERT INTO `denda` (`id`, `peminjaman_id`, `user_id`, `jumlah_denda`, `status`, `metode_pembayaran`, `kode_konfirmasi`, `tanggal_bayar`) VALUES
+(12, 22, 18, 18000, 'lunas', 'tunai', 'CASH-B45C78', '2026-06-18 09:55:55'),
+(13, 22, 18, 18000, 'pending', 'tunai', 'CASH-50BB50', '2026-06-18 10:06:45'),
+(14, 22, 18, 18000, 'lunas', 'tunai', 'CASH-F5B7D6', '2026-06-18 10:19:43'),
+(15, 22, 18, 18000, 'lunas', 'tunai', 'CASH-789EFF', '2026-06-18 11:31:19'),
+(16, 22, 18, 18000, 'lunas', 'tunai', 'CASH-673B77', '2026-06-18 19:30:30');
 
 -- --------------------------------------------------------
 
@@ -79,7 +112,6 @@ CREATE TABLE `kategori` (
 
 INSERT INTO `kategori` (`id`, `nama_kategori`) VALUES
 (18, 'Artificial Intelligence'),
-(19, 'gg'),
 (14, 'Informatika'),
 (17, 'IoT'),
 (16, 'PKN'),
@@ -105,9 +137,8 @@ CREATE TABLE `peminjaman` (
 --
 
 INSERT INTO `peminjaman` (`id`, `user_id`, `buku_id`, `tanggal_pinjam`, `tanggal_kembali`, `status`) VALUES
-(14, 16, 24, '2026-06-03', '2026-06-17', 'dipinjam'),
-(15, 16, 23, '2026-06-03', '2026-06-03', 'dipinjam'),
-(16, 16, 24, '2026-06-03', '2026-06-01', 'dipinjam');
+(18, 18, 23, '2026-06-09', '2026-06-23', 'dipinjam'),
+(22, 18, 30, '2026-06-17', '2026-06-09', 'dipinjam');
 
 -- --------------------------------------------------------
 
@@ -152,8 +183,10 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `nama`, `email`, `password`, `role`, `created_at`) VALUES
 (1, 'Admin Perpus', 'admin@gmail.com', '123456', 'admin', '2026-04-27 14:19:15'),
-(16, 'Rahmat ', 'arief@gmail.com', '$2y$12$ksQpQOSi0sa8xgph5fQAyOKUd8nqRQ.xrLuwVh4cDuLdb42/O7VJO', 'anggota', '2026-06-01 19:52:28'),
-(17, 'john doe', 'johnny@gmail.com', '$2y$12$hAileiNXO0tPuU09/xRpS.E5DIob4YrWft4QiXZ1EYHukB2Ar.zu6', 'admin', '2026-06-02 13:16:31');
+(17, 'john doe', 'johnny@gmail.com', '$2y$12$hAileiNXO0tPuU09/xRpS.E5DIob4YrWft4QiXZ1EYHukB2Ar.zu6', 'admin', '2026-06-02 13:16:31'),
+(18, 'Rahmat Arief', 'arief@gmail.com', '$2y$12$0PuQuk4M/v0FQoviGzYb7OAxkhSffFaGzof3fpXajOGMKQrAn431u', 'anggota', '2026-06-09 14:12:18'),
+(19, 'nafis', 'Nafis@gmail.com', '$2y$12$zFHkFOUWqtB69YcHmqhU0.YDyE08o5..4auA2gBtQOYID7W3.UVNe', 'anggota', '2026-06-10 14:30:10'),
+(21, 'test', 'test@gmail.com', '$2y$12$YhoSg9vJYEUJx5rlJuxU0urpvpIwfY9JYiMd.EfX8Ovt27l2N.K6K', 'anggota', '2026-06-11 10:48:13');
 
 --
 -- Indexes for dumped tables
@@ -172,6 +205,14 @@ ALTER TABLE `aktivitas`
 ALTER TABLE `buku`
   ADD PRIMARY KEY (`id`),
   ADD KEY `kategori_id` (`kategori`);
+
+--
+-- Indexes for table `denda`
+--
+ALTER TABLE `denda`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `peminjaman_id` (`peminjaman_id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `kategori`
@@ -214,7 +255,13 @@ ALTER TABLE `aktivitas`
 -- AUTO_INCREMENT for table `buku`
 --
 ALTER TABLE `buku`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+
+--
+-- AUTO_INCREMENT for table `denda`
+--
+ALTER TABLE `denda`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `kategori`
@@ -226,7 +273,7 @@ ALTER TABLE `kategori`
 -- AUTO_INCREMENT for table `peminjaman`
 --
 ALTER TABLE `peminjaman`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `pengumuman`
@@ -238,7 +285,7 @@ ALTER TABLE `pengumuman`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- Constraints for dumped tables
