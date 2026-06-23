@@ -1,64 +1,23 @@
 <?php
+/**
+ * VIEW TEMPLATE: User Peminjaman
+ * Data disiapkan oleh public/peminjaman_user.php
+ * Variabel yang tersedia:
+ * @var int $totalSemua
+ * @var int $totalDipinjam
+ * @var int $totalTerlambat
+ * @var int $totalKembali
+ * @var int $totalBatal
+ * @var string $peminjamanTableHtml
+ * @var string $toastMessage
+ * @var string $toastType
+ */
 
-// ===== PUBLIC ENTRYPOINT =====
-// Bagian ini berisi: session check, authentication, controller logic, data preparation
-// Jangan letakkan HTML atau tampilan di sini
-
-session_start();
-
-// Cek login
-if(!isset($_SESSION['user_id'])) {
-    header("Location: ../auth/login.php");
+if (!isset($totalSemua)) {
+    header('Location: ../../public/peminjaman_user.php');
     exit;
 }
-
-require_once "../controllers/UserPinjamController.php";
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-    $controller = new PeminjamanController();
-    $user_id = $_SESSION['user_id'];
-
-    if(isset($_POST['create'])){
-        $buku_id = $_POST['buku_id'] ?? 0;
-        $result = $controller->createPeminjaman($user_id, $buku_id);
-        
-        if($result['success']){
-            $_SESSION['toast'] = ['success' => $result['message']];
-        } else {
-            $_SESSION['toast'] = ['error' => $result['message']];
-        }
-        
-        header("Location: peminjaman.php");
-        exit;
-    }
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-    $controller = new PeminjamanController();
-    $controller->handleAjaxRequest();
-    exit;
-}
-
-$controller = new PeminjamanController();
-$dataPeminjaman = $controller->getPeminjamanByUser($_SESSION['user_id']);
-
-require_once "../models/Buku.php";
-$bukuModel = new Buku();
-$daftarBuku = $bukuModel->getAll();
-
-$toastMessage = '';
-$toastType = '';
-if(isset($_SESSION['toast'])) {
-    $toastType = isset($_SESSION['toast']['success']) ? 'success' : 'error';
-    $toastMessage = $_SESSION['toast'][$toastType];
-    unset($_SESSION['toast']);
-}
-
-// ===== VIEW / PRESENTATION =====
-// Dari sini ke bawah adalah HTML, CSS, dan tampilan data
-// Letakkan semua markup dan styling di bagian ini
 ?>
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -428,78 +387,145 @@ body{
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 5px 14px;
-    border-radius: 30px;
+    padding: 6px 12px;
+    border-radius: 16px;
     font-size: 11px;
     font-weight: 600;
     white-space: nowrap;
+    transition: all 0.3s ease;
+}
+
+.status-pill:hover {
+    transform: translateY(-1px);
 }
 
 .status-pill i {
-    font-size: 10px;
+    font-size: 12px;
+}
+
+.status-pill-primary {
+    background-color: #dbeafe;
+    color: #1e40af;
+    box-shadow: 0 2px 6px rgba(30, 64, 175, 0.1);
+}
+
+.status-pill-danger {
+    background-color: #fee2e2;
+    color: #991b1b;
+    box-shadow: 0 2px 6px rgba(153, 27, 27, 0.1);
+}
+
+.status-pill-success {
+    background-color: #dcfce7;
+    color: #166534;
+    box-shadow: 0 2px 6px rgba(22, 101, 52, 0.1);
+}
+
+.status-pill-secondary {
+    background-color: #e5e7eb;
+    color: #4b5563;
+    box-shadow: 0 2px 6px rgba(75, 85, 99, 0.1);
 }
 
 .s-dipinjam {
-    background: #fef3c7;
+    background-color: #fef3c7;
     color: #92400e;
+    box-shadow: 0 2px 6px rgba(146, 64, 14, 0.1);
+}
+
+.s-dipinjam i {
+    color: #b45309;
 }
 
 .s-terlambat {
-    background: #fee2e2;
+    background-color: #fee2e2;
     color: #991b1b;
+    box-shadow: 0 2px 6px rgba(153, 27, 27, 0.1);
+}
+
+.s-terlambat i {
+    color: #dc2626;
 }
 
 .s-kembali {
-    background: #dcfce7;
+    background-color: #dcfce7;
     color: #166534;
+    box-shadow: 0 2px 6px rgba(22, 101, 52, 0.1);
+}
+
+.s-kembali i {
+    color: #059669;
 }
 
 .s-batal {
-    background: #e2e3e5;
-    color: #383d41;
+    background-color: #e5e7eb;
+    color: #4b5563;
+    box-shadow: 0 2px 6px rgba(75, 85, 99, 0.1);
+}
+
+.s-batal i {
+    color: #6b7280;
 }
 
 /* Tombol Aksi */
 .btn-lihat {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     border: none;
-    padding: 6px 16px;
+    padding: 6px 12px;
     border-radius: 8px;
-    background: #0d6efd;
+    background: #2563eb;
     color: white;
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.25s ease;
+    box-shadow: 0 1px 6px rgba(37, 99, 235, 0.15);
+    white-space: nowrap;
+    margin-right: 10px;
+    margin-bottom: 8px;
+}
+
+.btn-lihat i {
+    font-size: 13px;
+    color: white;
 }
 
 .btn-lihat:hover {
-    background: #0a58ca;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+    background: #1d4ed8;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
 }
 
 .btn-batalkan {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     border: none;
-    padding: 6px 16px;
+    padding: 6px 12px;
     border-radius: 8px;
-    background: #ffc107;
-    color: #000;
+    background: #fcd34d;
+    color: #1f2937;
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.25s ease;
+    box-shadow: 0 1px 6px rgba(252, 211, 77, 0.15);
+    white-space: nowrap;
+}
+
+.btn-batalkan i {
+    font-size: 14px;
+    color: #1f2937;
 }
 
 .btn-batalkan:hover {
-    background: #e0a800;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+    background: #fbbf24;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(252, 211, 77, 0.2);
 }
 
 .btn-batalkan:disabled {
@@ -800,11 +826,15 @@ body{
     .action-group {
         flex-direction: column;
         gap: 4px;
+        align-items: flex-start;
     }
     .btn-lihat, .btn-batalkan {
         padding: 4px 12px;
         font-size: 11px;
         margin-right: 0;
+    }
+    .btn-batalkan i {
+        font-size: 12px;
     }
     .row-2cols {
         flex-direction: column;
@@ -845,7 +875,7 @@ body{
         <small class="text-muted"><?= htmlspecialchars($_SESSION['nim'] ?? 'Library User'); ?></small>
     </div>
     <ul class="nav flex-column">
-        <li class="nav-item"><a class="nav-link-custom" href="dashboard.php"><i class="bi bi-grid-fill me-2"></i>Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link-custom" href="../views/dashboard/userindex.php"><i class="bi bi-grid-fill me-2"></i>Dashboard</a></li>
         <li class="nav-item"><a class="nav-link-custom active" href="peminjaman.php"><i class="bi bi-journal-check me-2"></i>Peminjaman</a></li>
         <li class="nav-item"><a class="nav-link-custom" href="katalog.php"><i class="bi bi-book-half me-2"></i>Katalog</a></li>
     </ul>
@@ -866,22 +896,6 @@ body{
     </div>
     
     <!-- ========== FILTER STATUS ========== -->
-    <?php 
-    // Hitung jumlah per status
-    $totalDipinjam = 0;
-    $totalTerlambat = 0;
-    $totalKembali = 0;
-    $totalBatal = 0;
-    
-    foreach($dataPeminjaman as $d) {
-        if($d['status'] == 'dipinjam') $totalDipinjam++;
-        elseif($d['status'] == 'terlambat') $totalTerlambat++;
-        elseif($d['status'] == 'kembali') $totalKembali++;
-        elseif($d['status'] == 'batal') $totalBatal++;
-    }
-    $totalSemua = count($dataPeminjaman);
-    ?>
-    
     <div class="filter-container">
         <button class="filter-btn active" data-filter="all" onclick="filterTable('all')">
             <i class="bi bi-grid-3x3-gap-fill"></i> Semua
@@ -906,70 +920,25 @@ body{
     </div>
     
     <div class="table-responsive">
-      <?php if(empty($dataPeminjaman)): ?>
-        <div class="alert-empty">
-          <i class="bi bi-inbox"></i>
-          <h5>Belum Ada Data Peminjaman</h5>
-          <p class="text-muted">Anda belum melakukan peminjaman buku apapun</p>
-        </div>
-      <?php else: ?>
-        <table class="pinjam-table" id="peminjamanTable">
-          <thead>
-            <tr>
-              <th width="5%">No</th>
-              <th width="35%">Judul Buku</th>
-              <th width="15%">Nama Peminjam</th>
-              <th width="12%">Tgl Pinjam</th>
-              <th width="12%">Tgl Kembali</th>
-              <th width="12%">Status</th>
-              <th width="9%">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php 
-            $no = 1;
-            foreach($dataPeminjaman as $d): 
-                $statusClass = $d['status'] == 'dipinjam' ? 's-dipinjam' : ($d['status'] == 'terlambat' ? 's-terlambat' : ($d['status'] == 'batal' ? 's-batal' : 's-kembali'));
-                $statusIcon = $d['status'] == 'dipinjam' ? 'bi-book' : ($d['status'] == 'terlambat' ? 'bi-exclamation-triangle-fill' : ($d['status'] == 'batal' ? 'bi-x-circle' : 'bi-check-circle-fill'));
-                $statusLabel = $d['status'] == 'dipinjam' ? 'Dipinjam' : ($d['status'] == 'terlambat' ? 'Terlambat' : ($d['status'] == 'batal' ? 'Dibatalkan' : 'Dikembalikan'));
-                $dataStatus = $d['status'];
-            ?>
-            <tr data-status="<?= $dataStatus ?>">
-              <td><?= $no++ ?></td>
-              <td><strong><?= htmlspecialchars($d['judul']); ?></strong></td>
-              <td><?= htmlspecialchars($d['nama']); ?></td>
-              <td><?= $d['tglPinjam']; ?></td>
-              <td><?= $d['tglKembali']; ?></td>
-              <td>
-                <span class="status-pill <?= $statusClass ?>">
-                  <i class="bi <?= $statusIcon ?>"></i>
-                  <?= $statusLabel ?>
-                </span>
-              </td>
-              <td class="action-group">
-                <button class="btn-lihat" onclick="showDetail(<?= $d['id']; ?>)">
-                  <i class="bi bi-eye"></i> Lihat
-                </button>
-                <?php if($d['status'] == 'dipinjam' || $d['status'] == 'terlambat'): ?>
-                  <button class="btn-batalkan" onclick="batalkanPeminjaman(<?= $d['id']; ?>, '<?= addslashes($d['judul']); ?>')">
-                    <i class="bi bi-x-circle"></i> Batalkan
-                  </button>
-                <?php else: ?>
-                  <button class="btn-batalkan" disabled>
-                    <i class="bi bi-x-circle"></i> Batalkan
-                  </button>
-                <?php endif; ?>
-              </td>
-            </tr>
-            <?php endforeach; ?>
-          </tbody>
-        </table>
-        
-        <!-- Info jumlah data yang ditampilkan -->
-        <div style="margin-top: 15px; text-align: right; font-size: 13px; color: #6c757d;">
-            <span id="rowCounter">Menampilkan <?= $totalSemua ?> data</span>
-        </div>
-      <?php endif; ?>
+      <table class="pinjam-table" id="peminjamanTable">
+        <thead>
+          <tr>
+            <th width="5%">No</th>
+            <th width="35%">Judul Buku</th>
+            <th width="15%">Nama Peminjam</th>
+            <th width="12%">Tgl Pinjam</th>
+            <th width="12%">Tgl Kembali</th>
+            <th width="12%">Status</th>
+            <th width="9%">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+            <?= $peminjamanTableHtml ?>
+        </tbody>
+      </table>
+      <div style="margin-top: 15px; text-align: right; font-size: 13px; color: #6c757d;">
+          <span id="rowCounter">Menampilkan <?= $totalSemua ?> data</span>
+      </div>
     </div>
   </div>
 </div>

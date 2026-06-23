@@ -5,7 +5,7 @@ abstract class Database {
     private $host = "localhost";
     private $user = "root";
     private $pass = "";
-    private $db   = "perpustakaan_digital";
+    private $db   = "perpustakaan_digitall";
 
     protected $conn;
 

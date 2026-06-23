@@ -1,75 +1,23 @@
+
 <?php
+/**
+ * VIEW TEMPLATE: User Dashboard
+ * Data disiapkan oleh public/dashboard_anggota.php
+ * @var bool $is_locked
+ * @var string $user_nama
+ * @var string $user_nim
+ * @var int $totalKoleksi
+ * @var int $totalDipinjam
+ * @var int $totalTerlambat
+ * @var array $bukuPopuler
+ */
 
-// PUBLIC ENTRYPOINT
-// Di bagian atas file public ini: lakukan session check, redirect login, require controller,
-// inisialisasi controller, dan ambil data dari controller.
-// Jangan letakkan HTML markup atau tampilan di bagian logika public.
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-if(!isset($_SESSION['user_id'])) {
-    header("Location: ../views/auth/login.php");
-    exit;
-}
-
-require_once "../controllers/UserDashController.php";
-
-$dashboardController = new UserDashController();
-
-$dashboardController->handleAjaxRequest();
-
-$data = $dashboardController->getDashboardData();
-$totalKoleksi = $data['totalKoleksi'];
-$totalDipinjam = $data['totalDipinjam'];
-$totalTerlambat = $data['totalTerlambat'];
-$bukuPopuler = $data['bukuPopuler'];
-$user_nama = $data['user_nama'];
-$user_nim = $data['user_nim'];
-$is_locked = $data['is_locked'];
-$total_late_days = $data['total_late_days'];
-$total_denda = $data['total_denda'];
-$late_books_detail = $data['late_books_detail'];
-$denda_per_hari = 2000;
-
-$bukuPopuler = array_slice($bukuPopuler, 0, 4);
-
-function getBadgeText($book){
-    if ($book['stok'] <= 0) return 'Habis';
-    if ($book['stok'] <= 3) return $book['stok'] . ' Tersisa';
-    return 'Tersedia';
-}
-
-function getBadgeClass($book){
-    if ($book['stok'] <= 0) return 'badge-habis';
-    if ($book['stok'] <= 3) return 'badge-terbatas';
-    return 'badge-tersedia';
-}
-
-function getCoverBg($kategori_id){
-    $bgColors = [1 => '#d4e8f4', 2 => '#d4e8f4', 3 => '#fde8d8', 4 => '#e8f4d4', 5 => '#f4d4e8', 6 => '#f4f0d4'];
-    return $bgColors[$kategori_id] ?? '#d4eaf4';
-}
-
-function getCoverEmoji($kategori_id){
-    $emojis = [1 => '📘', 2 => '📘', 3 => '📙', 4 => '📗', 5 => '📕', 6 => '📒'];
-    return $emojis[$kategori_id] ?? '📔';
-}
-
-function formatRupiah($amount){
-    return 'Rp ' . number_format($amount, 0, ',', '.');
-}
-
-function formatDate($date){
-    if(!$date) return '-';
-    $timestamp = strtotime($date);
-    return date('d F Y', $timestamp);
+if (!isset($is_locked)) {
+  header('Location: ../../public/dashboard_anggota.php');
+  exit;
 }
 ?>
 
-<!-- VIEW TEMPLATE -->
-<!-- Di bawah ini adalah bagian tampilan. Semua HTML, CSS, dan output data harus ada di sini. -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -924,7 +872,7 @@ small, .small {
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link-custom <?= $is_locked ? 'disabled-nav' : '' ?>" href="peminjaman.php" <?= $is_locked ? 'onclick="showLockAlert(); return false;"' : '' ?>>
+        <a class="nav-link-custom <?= $is_locked ? 'disabled-nav' : '' ?>" href="../views/peminjaman/userindex.php" <?= $is_locked ? 'onclick="showLockAlert(); return false;"' : '' ?>>
           <i class="bi bi-journal-check me-2"></i>Peminjaman
           <?php if($is_locked): ?><span class="ms-2"><i class="bi bi-lock-fill"></i></span><?php endif; ?>
         </a>
