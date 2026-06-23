@@ -886,7 +886,7 @@ small, .small {
     </ul>
   </div>
   <div class="sidebar-footer">
-    <a href="logout.php" class="btn btn-danger w-100 rounded-4" onclick="return confirmLogout()">
+    <a href="../public/logout.php" class="btn btn-danger w-100 rounded-4" onclick="return confirmLogout()">
       <i class="bi bi-box-arrow-right me-2"></i>Logout
     </a>
   </div>
