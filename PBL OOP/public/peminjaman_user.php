@@ -1,40 +1,48 @@
 <?php
-
+ob_start();
 session_start();
 
 // Cek login
 if(!isset($_SESSION['user_id'])) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        ob_end_clean();
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['success' => false, 'message' => 'Sesi berakhir, silakan login ulang']);
+        exit;
+    }
     header("Location: ../auth/login.php");
     exit;
 }
 
 require_once "../controllers/UserPinjamController.php";
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-    $controller = new PeminjamanController();
-    $user_id = $_SESSION['user_id'];
-
-    if(isset($_POST['create'])){
-        $buku_id = $_POST['buku_id'] ?? 0;
-        $result = $controller->createPeminjaman($user_id, $buku_id);
-        
-        if($result['success']){
-            $_SESSION['toast'] = ['success' => $result['message']];
-        } else {
-            $_SESSION['toast'] = ['error' => $result['message']];
-        }
-        
-        header("Location: peminjaman.php");
-        exit;
-    }
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
+// Handle AJAX POST (action=batalkan, action=kembalikan, dll)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    ob_end_clean();
+    header('Content-Type: application/json; charset=utf-8');
     $controller = new PeminjamanController();
     $controller->handleAjaxRequest();
     exit;
 }
 
+// Handle form POST biasa (create peminjaman)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create'])) {
+    $controller = new PeminjamanController();
+    $user_id = $_SESSION['user_id'];
+    $buku_id = $_POST['buku_id'] ?? 0;
+    $result = $controller->createPeminjaman($user_id, $buku_id);
+    
+    if($result['success']){
+        $_SESSION['toast'] = ['success' => $result['message']];
+    } else {
+        $_SESSION['toast'] = ['error' => $result['message']];
+    }
+    
+    header("Location: peminjaman.php");
+    exit;
+}
+
+// ==================== RENDER HALAMAN ====================
 $controller = new PeminjamanController();
 $dataPeminjaman = $controller->getPeminjamanByUser($_SESSION['user_id']);
 
@@ -124,5 +132,5 @@ if(isset($_SESSION['toast'])) {
 }
 
 // Sambungkan ke view peminjaman user
+ob_end_flush();
 require_once "../views/peminjaman/userindex.php";
-?>

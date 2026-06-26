@@ -26,6 +26,7 @@ class AuthController {
             if(password_verify($password,$user['password'])){
 
                 $_SESSION['id'] = $user['id'];
+                $_SESSION['user_id'] = $user['id']; // <-- DITAMBAHKAN AGAR CONTROLLER ANGGOTA BISA BACA
                 $_SESSION['nama'] = $user['nama'];
                 $_SESSION['email'] = $user['email'];
                 $_SESSION['role'] = $user['role'];

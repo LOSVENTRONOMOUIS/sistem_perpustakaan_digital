@@ -19,7 +19,7 @@ class KatalogController extends Database {
             ]));
         }
     }
-    
+
     public function handleRequest() {
         try {
             // 🔥 Mulai session untuk akses data user
@@ -67,6 +67,21 @@ class KatalogController extends Database {
             error_log("HandleRequest error: " . $e->getMessage());
             echo json_encode(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
         }
+    }
+    
+    public function isUserLocked($user_id) {
+        $user_id = (int) $user_id;
+        $query = "SELECT COUNT(*) as jumlah_terlambat 
+                  FROM peminjaman 
+                  WHERE user_id = $user_id 
+                  AND status = 'dipinjam' 
+                  AND tanggal_kembali < CURDATE()";
+        $result = mysqli_query($this->db, $query);
+        if ($result) {
+            $row = mysqli_fetch_assoc($result);
+            return $row['jumlah_terlambat'] > 0;
+        }
+        return false;
     }
     
     /**

@@ -87,6 +87,7 @@ class PeminjamanUser extends Database {
         $stmt = $this->conn->prepare("
             SELECT peminjaman.*,
                    users.nama,
+                   users.email,
                    buku.judul,
                    buku.penulis
             FROM peminjaman

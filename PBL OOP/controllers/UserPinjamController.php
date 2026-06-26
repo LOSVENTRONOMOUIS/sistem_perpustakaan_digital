@@ -343,203 +343,188 @@ class PeminjamanController {
     // ==================== PROSES PEMINJAMAN VIA AJAX ====================
     
     public function prosesPinjam(){
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-            $buku_id = $_POST['buku_id'] ?? null;
-            $user_id = $_POST['user_id'] ?? ($_SESSION['user_id'] ?? 0);
-            $nama = $_POST['nama'] ?? ($_SESSION['nama'] ?? 'User');
-            
-            if (!$buku_id) {
-                echo json_encode(['success' => false, 'message' => 'Data buku tidak lengkap']);
-                exit;
-            }
-            
-            // Cek apakah user memiliki buku yang terlambat
-            $cekTerlambat = $this->pinjam->cekUserTerlambat($user_id);
-            if ($cekTerlambat) {
-                echo json_encode([
-                    'success' => false, 
-                    'message' => 'Anda memiliki buku yang terlambat dikembalikan. Silakan kembalikan terlebih dahulu.'
-                ]);
-                exit;
-            }
-            
-            $buku = $this->buku->getById($buku_id);
-            if (!$buku) {
-                echo json_encode(['success' => false, 'message' => 'Buku tidak ditemukan']);
-                exit;
-            }
-            
-            if ($buku['stok'] <= 0) {
-                echo json_encode(['success' => false, 'message' => 'Stok buku habis']);
-                exit;
-            }
-            
-            // Cek apakah user sedang meminjam buku yang sama
-            if ($this->pinjam->cekPeminjamanAktif($user_id, $buku_id)) {
-                $existing = $this->pinjam->getPeminjamanAktif($user_id, $buku_id);
-                $tanggalPinjam = $this->formatTanggal($existing['tanggal_pinjam']);
-                echo json_encode([
-                    'success' => false, 
-                    'message' => "Anda sedang meminjam buku ini (sejak $tanggalPinjam). Silakan kembalikan terlebih dahulu."
-                ]);
-                exit;
-            }
-            
-            // Cek batas maksimal peminjaman (3 buku)
-            if ($this->pinjam->cekBatasPeminjaman($user_id, 3)) {
-                echo json_encode(['success' => false, 'message' => 'Batas peminjaman maksimal 3 buku']);
-                exit;
-            }
-            
-            // CREATE - Tambah peminjaman baru
-            $tanggal_pinjam = date('Y-m-d');
-            $tanggal_kembali = date('Y-m-d', strtotime('+14 days'));
-            
-            // Kurangi stok
-            $this->buku->kurangiStok($buku_id, 1);
-            
-            $data = [
-                'user_id' => $user_id,
-                'buku_id' => $buku_id,
-                'tanggal_pinjam' => $tanggal_pinjam,
-                'tanggal_kembali' => $tanggal_kembali,
-                'status' => 'dipinjam'
-            ];
-            
-            $peminjaman_id = $this->pinjam->tambah($data);
-            
+        $buku_id = $_POST['buku_id'] ?? null;
+        $user_id = $_POST['user_id'] ?? ($_SESSION['user_id'] ?? 0);
+        $nama = $_POST['nama'] ?? ($_SESSION['nama'] ?? 'User');
+        
+        if (!$buku_id) {
+            echo json_encode(['success' => false, 'message' => 'Data buku tidak lengkap']);
+            exit;
+        }
+        
+        // Cek apakah user memiliki buku yang terlambat
+        $cekTerlambat = $this->pinjam->cekUserTerlambat($user_id);
+        if ($cekTerlambat) {
             echo json_encode([
-                'success' => true,
-                'message' => 'Peminjaman berhasil',
-                'data' => [
-                    'peminjaman_id' => $peminjaman_id,
-                    'buku' => $buku,
-                    'user_nama' => $nama,
-                    'tanggal_pinjam' => $this->formatTanggal($tanggal_pinjam),
-                    'tanggal_kembali' => $this->formatTanggal($tanggal_kembali)
-                ]
+                'success' => false, 
+                'message' => 'Anda memiliki buku yang terlambat dikembalikan. Silakan kembalikan terlebih dahulu.'
             ]);
             exit;
         }
+        
+        $buku = $this->buku->getById($buku_id);
+        if (!$buku) {
+            echo json_encode(['success' => false, 'message' => 'Buku tidak ditemukan']);
+            exit;
+        }
+        
+        if ($buku['stok'] <= 0) {
+            echo json_encode(['success' => false, 'message' => 'Stok buku habis']);
+            exit;
+        }
+        
+        // Cek apakah user sedang meminjam buku yang sama
+        if ($this->pinjam->cekPeminjamanAktif($user_id, $buku_id)) {
+            $existing = $this->pinjam->getPeminjamanAktif($user_id, $buku_id);
+            $tanggalPinjam = $this->formatTanggal($existing['tanggal_pinjam']);
+            echo json_encode([
+                'success' => false, 
+                'message' => "Anda sedang meminjam buku ini (sejak $tanggalPinjam). Silakan kembalikan terlebih dahulu."
+            ]);
+            exit;
+        }
+        
+        // Cek batas maksimal peminjaman (3 buku)
+        if ($this->pinjam->cekBatasPeminjaman($user_id, 3)) {
+            echo json_encode(['success' => false, 'message' => 'Batas peminjaman maksimal 3 buku']);
+            exit;
+        }
+        
+        // CREATE - Tambah peminjaman baru
+        $tanggal_pinjam = date('Y-m-d');
+        $tanggal_kembali = date('Y-m-d', strtotime('+14 days'));
+        
+        // Kurangi stok
+        $this->buku->kurangiStok($buku_id, 1);
+        
+        $data = [
+            'user_id' => $user_id,
+            'buku_id' => $buku_id,
+            'tanggal_pinjam' => $tanggal_pinjam,
+            'tanggal_kembali' => $tanggal_kembali,
+            'status' => 'dipinjam'
+        ];
+        
+        $peminjaman_id = $this->pinjam->tambah($data);
+        
+        echo json_encode([
+            'success' => true,
+            'message' => 'Peminjaman berhasil',
+            'data' => [
+                'peminjaman_id' => $peminjaman_id,
+                'buku' => $buku,
+                'user_nama' => $nama,
+                'tanggal_pinjam' => $this->formatTanggal($tanggal_pinjam),
+                'tanggal_kembali' => $this->formatTanggal($tanggal_kembali)
+            ]
+        ]);
+        exit;
     }
     
     // ==================== PROSES UPDATE STATUS VIA AJAX ====================
     
     public function prosesUpdateToReturned(){
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-            $id = $_POST['id'] ?? null;
-            $action = $_POST['action'] ?? '';
-            
-            if ($action === 'kembalikan' && $id) {
-                $result = $this->updatePeminjamanToReturned($id);
-                echo json_encode($result);
-                exit;
-            }
-            
-            echo json_encode(['success' => false, 'message' => 'Aksi tidak dikenal']);
+        $id = $_POST['id'] ?? null;
+        
+        if ($id) {
+            $result = $this->updatePeminjamanToReturned($id);
+            echo json_encode($result);
             exit;
         }
+        
+        echo json_encode(['success' => false, 'message' => 'ID tidak ditemukan']);
+        exit;
     }
     
     public function prosesUpdateToCancelled(){
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-            $id = $_POST['id'] ?? null;
-            $action = $_POST['action'] ?? '';
-            
-            if ($action === 'batalkan' && $id) {
-                $result = $this->updatePeminjamanToCancelled($id);
-                echo json_encode($result);
-                exit;
-            }
-            
-            echo json_encode(['success' => false, 'message' => 'Aksi tidak dikenal']);
+        $id = $_POST['id'] ?? null;
+        
+        if ($id) {
+            $result = $this->updatePeminjamanToCancelled($id);
+            echo json_encode($result);
             exit;
         }
+        
+        echo json_encode(['success' => false, 'message' => 'ID tidak ditemukan']);
+        exit;
     }
     
     // ==================== PROSES DELETE VIA AJAX ====================
     
     public function prosesDeletePeminjaman(){
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-            $id = $_POST['id'] ?? null;
-            $action = $_POST['action'] ?? '';
-            
-            if ($action === 'hapus' && $id) {
-                $result = $this->deletePeminjaman($id);
-                echo json_encode($result);
-                exit;
-            }
-            
-            echo json_encode(['success' => false, 'message' => 'Aksi tidak dikenal']);
+        $id = $_POST['id'] ?? null;
+        
+        if ($id) {
+            $result = $this->deletePeminjaman($id);
+            echo json_encode($result);
             exit;
         }
+        
+        echo json_encode(['success' => false, 'message' => 'ID tidak ditemukan']);
+        exit;
     }
     
     // ==================== GET DETAIL PEMINJAMAN VIA AJAX ====================
     
     public function getDetailPeminjaman(){
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-            $id = $_POST['id'] ?? null;
-            
-            if (!$id) {
-                echo json_encode(['success' => false, 'message' => 'ID tidak ditemukan']);
-                exit;
-            }
-            
-            $detail = $this->pinjam->getDetailById($id);
-            
-            if(!$detail || $detail['user_id'] != $_SESSION['user_id']){
-                echo json_encode(['success' => false, 'message' => 'Anda tidak memiliki akses']);
-                exit;
-            }
-            
-            $status = $this->hitungStatusPeminjaman($detail['tanggal_kembali'], $detail['status']);
-            
-            echo json_encode([
-                'success' => true,
-                'data' => [
-                    'id' => $detail['id'],
-                    'judul' => $detail['judul'],
-                    'nama' => $detail['nama'],
-                    'nim' => $detail['nim'] ?? '-',
-                    'tanggal_pinjam' => $this->formatTanggal($detail['tanggal_pinjam']),
-                    'tanggal_kembali' => $this->formatTanggal($detail['tanggal_kembali']),
-                    'status' => $status,
-                    'denda' => $detail['denda'] ?? 0,
-                    'tanggal_pengembalian' => $detail['tanggal_pengembalian'] ?? null
-                ]
-            ]);
+        $id = $_POST['id'] ?? null;
+        
+        if (!$id) {
+            echo json_encode(['success' => false, 'message' => 'ID tidak ditemukan']);
             exit;
         }
+        
+        $detail = $this->pinjam->getDetailById($id);
+        
+        if(!$detail || $detail['user_id'] != $_SESSION['user_id']){
+            echo json_encode(['success' => false, 'message' => 'Anda tidak memiliki akses']);
+            exit;
+        }
+        
+        $status = $this->hitungStatusPeminjaman($detail['tanggal_kembali'], $detail['status']);
+        
+        echo json_encode([
+            'success' => true,
+            'data' => [
+                'id' => $detail['id'],
+                'judul' => $detail['judul'],
+                'nama' => $detail['nama'],
+                'email' => $detail['email'] ?? '-',
+                'tanggal_pinjam' => $this->formatTanggal($detail['tanggal_pinjam']),
+                'tanggal_kembali' => $this->formatTanggal($detail['tanggal_kembali']),
+                'status' => $status,
+                'denda' => $detail['denda'] ?? 0,
+                'tanggal_pengembalian' => $detail['tanggal_pengembalian'] ?? null
+            ]
+        ]);
+        exit;
     }
     
     // ==================== HANDLE ALL AJAX REQUESTS ====================
     
     public function handleAjaxRequest(){
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-            $action = $_POST['action'] ?? '';
-            
-            switch($action) {
-                case 'get_detail':
-                    $this->getDetailPeminjaman();
-                    break;
-                case 'kembalikan':
-                    $this->prosesUpdateToReturned();
-                    break;
-                case 'batalkan':
-                    $this->prosesUpdateToCancelled();
-                    break;
-                case 'hapus':
-                    $this->prosesDeletePeminjaman();
-                    break;
-                default:
-                    echo json_encode(['success' => false, 'message' => 'Aksi tidak dikenal: ' . $action]);
-                    exit;
-            }
-        } else {
-            // Jika bukan AJAX request
-            echo json_encode(['success' => false, 'message' => 'Invalid request']);
-            exit;
+        // Bersihkan output buffer agar JSON bersih
+        if (ob_get_level()) ob_end_clean();
+        header('Content-Type: application/json; charset=utf-8');
+        
+        $action = $_POST['action'] ?? '';
+        
+        switch($action) {
+            case 'get_detail':
+                $this->getDetailPeminjaman();
+                break;
+            case 'kembalikan':
+                $this->prosesUpdateToReturned();
+                break;
+            case 'batalkan':
+                $this->prosesUpdateToCancelled();
+                break;
+            case 'hapus':
+                $this->prosesDeletePeminjaman();
+                break;
+            default:
+                echo json_encode(['success' => false, 'message' => 'Aksi tidak dikenal: ' . $action]);
+                exit;
         }
     }
     
@@ -559,4 +544,3 @@ class PeminjamanController {
         return $this->pinjam->getById($id);
     }
 }
-?>

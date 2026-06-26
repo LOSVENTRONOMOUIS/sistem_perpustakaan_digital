@@ -866,7 +866,7 @@ small, .small {
     </div>
     <ul class="nav flex-column">
       <li class="nav-item">
-        <a class="nav-link-custom <?= $is_locked ? 'disabled-nav' : 'active' ?>" href="dashboard.php" <?= $is_locked ? 'onclick="showLockAlert(); return false;"' : '' ?>>
+        <a class="nav-link-custom <?= $is_locked ? 'disabled-nav' : 'active' ?>" href="dashboard_anggota.php" <?= $is_locked ? 'onclick="showLockAlert(); return false;"' : '' ?>>
           <i class="bi bi-grid-fill me-2"></i>Dashboard
           <?php if($is_locked): ?><span class="ms-2"><i class="bi bi-lock-fill"></i></span><?php endif; ?>
         </a>

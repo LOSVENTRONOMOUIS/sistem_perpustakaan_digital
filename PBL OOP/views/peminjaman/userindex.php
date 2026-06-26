@@ -875,8 +875,8 @@ body{
         <small class="text-muted"><?= htmlspecialchars($_SESSION['nim'] ?? 'Library User'); ?></small>
     </div>
     <ul class="nav flex-column">
-        <li class="nav-item"><a class="nav-link-custom" href="../views/dashboard/userindex.php"><i class="bi bi-grid-fill me-2"></i>Dashboard</a></li>
-        <li class="nav-item"><a class="nav-link-custom active" href="peminjaman.php"><i class="bi bi-journal-check me-2"></i>Peminjaman</a></li>
+        <li class="nav-item"><a class="nav-link-custom" href="dashboard_anggota.php"><i class="bi bi-grid-fill me-2"></i>Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link-custom active" href="peminjaman_user.php"><i class="bi bi-journal-check me-2"></i>Peminjaman</a></li>
         <li class="nav-item"><a class="nav-link-custom" href="katalog.php"><i class="bi bi-book-half me-2"></i>Katalog</a></li>
     </ul>
     <div class="mt-auto border-top pt-3">
@@ -966,8 +966,8 @@ body{
             <div class="form-control-custom" id="formNamaValue">Budi Santoso</div>
           </div>
           <div class="form-group-box">
-            <label><i class="bi bi-qr-code"></i> NIM</label>
-            <div class="form-control-custom" id="formNimValue">-</div>
+            <label><i class="bi bi-envelope"></i> Email</label>
+            <div class="form-control-custom" id="formEmailValue">-</div>
           </div>
         </div>
         
@@ -1127,15 +1127,24 @@ function batalkanPeminjaman(id, judul) {
             targetButton.disabled = true;
         }
         
-        fetch(window.location.href, {
+        fetch('peminjaman_user.php', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-Requested-With': 'XMLHttpRequest'
+                'Content-Type': 'application/x-www-form-urlencoded'
             },
             body: 'action=batalkan&id=' + id
         })
-        .then(response => response.json())
+        .then(response => {
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                return response.json();
+            }
+            // Jika bukan JSON, baca sebagai text untuk debugging
+            return response.text().then(text => {
+                console.error('Server mengembalikan non-JSON:', text.substring(0, 500));
+                throw new Error('Server error: respons bukan JSON');
+            });
+        })
         .then(data => {
             if (data.success) {
                 showToast('✅ Berhasil', data.message, 'success');
@@ -1150,7 +1159,7 @@ function batalkanPeminjaman(id, judul) {
         })
         .catch(error => {
             console.error('Error:', error);
-            showToast('❌ Error', 'Terjadi kesalahan jaringan: ' + error.message, 'error');
+            showToast('❌ Error', 'Terjadi kesalahan: ' + error.message, 'error');
             if (targetButton) {
                 targetButton.innerHTML = '<i class="bi bi-x-circle"></i> Batalkan';
                 targetButton.disabled = false;
@@ -1249,15 +1258,23 @@ function hitungProgressPeminjaman(tglPinjam, tglKembaliDatabase, today) {
 function showDetail(id) {
     const modalElement = document.getElementById('detailFormModal');
     
-    fetch(window.location.href, {
+    fetch('peminjaman_user.php', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-Requested-With': 'XMLHttpRequest'
+            'Content-Type': 'application/x-www-form-urlencoded'
         },
         body: 'action=get_detail&id=' + id
     })
-    .then(response => response.json())
+    .then(response => {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return response.json();
+        }
+        return response.text().then(text => {
+            console.error('Server mengembalikan non-JSON:', text.substring(0, 500));
+            throw new Error('Server error: respons bukan JSON');
+        });
+    })
     .then(result => {
         if(result.success) {
             const data = result.data;
@@ -1266,7 +1283,7 @@ function showDetail(id) {
             document.getElementById('formJudulBuku').innerHTML = data.judul;
             document.getElementById('formNamaPeminjam').innerHTML = data.nama;
             document.getElementById('formNamaValue').innerHTML = data.nama;
-            document.getElementById('formNimValue').innerHTML = data.nim || '-';
+            document.getElementById('formEmailValue').innerHTML = data.email || '-';
             document.getElementById('formTglPinjam').innerHTML = data.tanggal_pinjam;
             document.getElementById('formTglKembali').innerHTML = data.tanggal_kembali;
             

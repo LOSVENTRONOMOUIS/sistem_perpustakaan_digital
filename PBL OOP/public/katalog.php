@@ -1,8 +1,38 @@
 <?php
+session_start();
+
+// Cek login
+if(!isset($_SESSION['user_id']) && !isset($_SESSION['id'])) {
+    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+        echo json_encode(['success' => false, 'message' => 'Sesi berakhir, silakan login ulang']);
+        exit;
+    }
+    header("Location: login.php");
+    exit;
+}
 
 require_once "../controllers/KatalogController.php";
 
 $controller = new KatalogController();
 
-$controller->index();
+// Handle AJAX requests
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
+    $controller->handleRequest();
+    exit;
+}
+
+$bukuList = $controller->getAllBooks();
+
+$user_id = $_SESSION['user_id'] ?? $_SESSION['id'];
+
+// Cek apakah user terkunci karena denda (terlambat)
+$is_locked = $controller->isUserLocked($user_id);
+
+$currentUser = [
+    'id' => $_SESSION['id'] ?? '',
+    'nama' => $_SESSION['nama'] ?? '',
+    'email' => $_SESSION['email'] ?? ''
+];
+
+require_once "../views/katalog/userindex.php";
 ?>

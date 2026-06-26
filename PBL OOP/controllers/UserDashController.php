@@ -29,7 +29,7 @@ class UserDashController extends Database {
         
         // VALIDASI SESSION
         if (!isset($_SESSION['user_id'])) {
-            header("Location: ../login.php");
+            header("Location: login.php");
             exit();
         }
         
@@ -38,7 +38,7 @@ class UserDashController extends Database {
         // CEK APAKAH USER ID VALID
         if (!$this->isValidUser($this->user_id)) {
             session_destroy();
-            header("Location: ../login.php?error=invalid_user");
+            header("Location: login.php?error=invalid_user");
             exit();
         }
         
@@ -51,7 +51,7 @@ class UserDashController extends Database {
             $_SESSION['nim'] = $this->user_nim;
         } else {
             session_destroy();
-            header("Location: ../login.php?error=user_not_found");
+            header("Location: login.php?error=user_not_found");
             exit();
         }
     }
