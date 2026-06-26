@@ -1010,7 +1010,13 @@ body{
                  data-title="<?= strtolower($buku['judul']); ?>"
                  data-author="<?= strtolower($buku['penulis']); ?>">
 
-                <div class="book-icon">📘</div>
+                <div class="book-icon" style="overflow:hidden; padding:0; background:transparent; box-shadow:none;">
+                    <?php if(!empty($buku['cover'])): ?>
+                        <img src="../assets/images/covers/<?= htmlspecialchars($buku['cover']); ?>" alt="Cover <?= htmlspecialchars($buku['judul']); ?>" style="width:100%; height:100%; object-fit:cover; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.08);">
+                    <?php else: ?>
+                        <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#f8f9fa; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.08); font-size:28px;">📘</div>
+                    <?php endif; ?>
+                </div>
 
                 <div class="book-info">
                     <h4><?= htmlspecialchars($buku['judul']); ?></h4>
@@ -1024,7 +1030,7 @@ body{
                             <button class="btn-pinjam" disabled>Stok Habis</button>
                         <?php else: ?>
                             <button class="btn-pinjam" 
-                                onclick="pinjamBuku('<?= $buku['id']; ?>', '<?= addslashes(htmlspecialchars($buku['judul'])); ?>', '<?= addslashes(htmlspecialchars($buku['penulis'])); ?>')">
+                                onclick="pinjamBuku('<?= $buku['id']; ?>', '<?= addslashes(htmlspecialchars($buku['judul'])); ?>', '<?= addslashes(htmlspecialchars($buku['penulis'])); ?>', '<?= addslashes(htmlspecialchars($buku['cover'] ?? '')); ?>')">
                                 Pinjam
                             </button>
                         <?php endif; ?>
@@ -1061,7 +1067,7 @@ body{
         </div>
 
         <div class="book-preview">
-            <div class="book-preview-cover" style="background:#d4e8f4;">📘</div>
+            <div class="book-preview-cover" id="modalPreviewCover" style="background:#d4e8f4; overflow:hidden;">📘</div>
             <div>
                 <div class="book-preview-title" id="mJudul2">—</div>
                 <div class="book-preview-author" id="mPenulis2">—</div>
@@ -1171,12 +1177,21 @@ document.getElementById('searchKatalog').addEventListener('input', filterBooks);
 let currentBook = {};
 
 // MEMPERSIAPKAN DATA MODAL SAAT TOMBOL PINJAM DIKLIK
-function pinjamBuku(id, judul, penulis) {
+function pinjamBuku(id, judul, penulis, cover) {
     currentBook = { id: id, judul: judul, penulis: penulis };
 
     document.getElementById('idBuku').value = id;
     document.getElementById('mJudul2').innerText = judul;
     document.getElementById('mPenulis2').innerText = penulis;
+
+    let coverEl = document.getElementById('modalPreviewCover');
+    if (cover && cover.trim() !== '') {
+        coverEl.innerHTML = `<img src="../assets/images/covers/${cover}" style="width:100%; height:100%; object-fit:cover; border-radius:10px;">`;
+        coverEl.style.background = 'transparent';
+    } else {
+        coverEl.innerHTML = '📘';
+        coverEl.style.background = '#d4e8f4';
+    }
 
     // Set Tanggal Pinjam & Kembali otomatis (format YYYY-MM-DD)
     let today = new Date();
