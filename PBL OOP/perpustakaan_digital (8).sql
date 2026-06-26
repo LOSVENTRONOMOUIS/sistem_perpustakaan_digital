@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jun 18, 2026 at 01:07 PM
+-- Generation Time: Jun 26, 2026 at 07:46 PM
 -- Server version: 8.4.6
 -- PHP Version: 8.4.16
 
@@ -59,13 +59,14 @@ CREATE TABLE `buku` (
 
 INSERT INTO `buku` (`id`, `judul`, `penulis`, `penerbit`, `tahun`, `stok`, `cover`, `kategori`, `created_at`, `status`) VALUES
 (23, 'How to make Your own AI', 'masbro', 'Politeknik Negeri Batam', '2026', 46, '1781107019_download_(4).jpg', 18, '2026-06-03 10:51:17', 'tersedia'),
-(26, 'Harry Potter', 'J. K. Rowling', 'Politeknik Negeri Batam', '2010', 8, '1781045693_download.jpg', 18, '2026-06-09 22:54:53', 'tersedia'),
-(28, 'Informatika', 'Will Smith', 'Politeknik Negeri Batam', '2025', 50, '1781106978_download_(2).jpg', 14, '2026-06-10 15:56:18', 'tersedia'),
+(26, 'Harry Potter', 'J. K. Rowling', 'Politeknik Negeri Batam', '2010', 5, '1781045693_download.jpg', 18, '2026-06-09 22:54:53', 'tersedia'),
+(28, 'Informatika', 'Will Smith', 'Politeknik Negeri Batam', '2025', 48, '1781106978_download_(2).jpg', 14, '2026-06-10 15:56:18', 'tersedia'),
 (29, 'Learning about making Robotic', 'Will Smith', 'Politeknik Negeri Batam', '1998', 70, '1781107010_download_(5).jpg', 15, '2026-06-10 15:56:50', 'tersedia'),
-(30, 'Matahari', 'Will Smith', 'Politeknik Negeri Batam', '2025', 499, '1781107474_download_(1).jpg', 16, '2026-06-10 16:04:34', 'tersedia'),
+(30, 'Matahari', 'Will Smith', 'Politeknik Negeri Batam', '2025', 498, '1781107474_download_(1).jpg', 16, '2026-06-10 16:04:34', 'tersedia'),
 (31, 'Python and Pandon', 'Will Smith', 'Politeknik Negeri Batam', '2025', 50, '1781107654_download_(3).jpg', 14, '2026-06-10 16:07:34', 'tersedia'),
 (32, 'Pemrograman C++', 'Will Smith', 'Politeknik Negeri Batam', '2025', 50, '1781107684_download_(6).jpg', 14, '2026-06-10 16:08:04', 'tersedia'),
-(33, 'Multimedia', 'Will Smith', 'Politeknik Negeri Batam', '2025', 48, '1781107711_f9ad5800bed9b48f2b35457687b5c8b5.jpg', 14, '2026-06-10 16:08:31', 'tersedia');
+(33, 'Multimedia', 'Will Smith', 'Politeknik Negeri Batam', '2025', 48, '1781107711_f9ad5800bed9b48f2b35457687b5c8b5.jpg', 14, '2026-06-10 16:08:31', 'tersedia'),
+(45, 'Claude', 'Will Smith', 'Politeknik Negeri Batam', '2002', 2, '1782502945_images.png', 17, '2026-06-26 19:42:25', 'tersedia');
 
 -- --------------------------------------------------------
 
@@ -78,22 +79,31 @@ CREATE TABLE `denda` (
   `peminjaman_id` int NOT NULL,
   `user_id` int NOT NULL,
   `jumlah_denda` int NOT NULL,
-  `status` enum('pending','lunas') NOT NULL DEFAULT 'pending',
+  `status` enum('pending','lunas','unpaid') DEFAULT 'unpaid',
   `metode_pembayaran` varchar(50) NOT NULL DEFAULT 'tunai',
   `kode_konfirmasi` varchar(20) NOT NULL,
-  `tanggal_bayar` datetime DEFAULT NULL
+  `tanggal_bayar` datetime DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `denda`
 --
 
-INSERT INTO `denda` (`id`, `peminjaman_id`, `user_id`, `jumlah_denda`, `status`, `metode_pembayaran`, `kode_konfirmasi`, `tanggal_bayar`) VALUES
-(12, 22, 18, 18000, 'lunas', 'tunai', 'CASH-B45C78', '2026-06-18 09:55:55'),
-(13, 22, 18, 18000, 'pending', 'tunai', 'CASH-50BB50', '2026-06-18 10:06:45'),
-(14, 22, 18, 18000, 'lunas', 'tunai', 'CASH-F5B7D6', '2026-06-18 10:19:43'),
-(15, 22, 18, 18000, 'lunas', 'tunai', 'CASH-789EFF', '2026-06-18 11:31:19'),
-(16, 22, 18, 18000, 'lunas', 'tunai', 'CASH-673B77', '2026-06-18 19:30:30');
+INSERT INTO `denda` (`id`, `peminjaman_id`, `user_id`, `jumlah_denda`, `status`, `metode_pembayaran`, `kode_konfirmasi`, `tanggal_bayar`, `created_at`) VALUES
+(12, 22, 18, 18000, 'lunas', 'tunai', 'CASH-B45C78', '2026-06-18 09:55:55', '2026-06-26 18:43:55'),
+(14, 22, 18, 18000, 'lunas', 'tunai', 'CASH-F5B7D6', '2026-06-18 10:19:43', '2026-06-26 18:43:55'),
+(15, 22, 18, 18000, 'lunas', 'tunai', 'CASH-789EFF', '2026-06-18 11:31:19', '2026-06-26 18:43:55'),
+(16, 22, 18, 18000, 'lunas', 'tunai', 'CASH-673B77', '2026-06-18 19:30:30', '2026-06-26 18:43:55'),
+(17, 18, 18, 8000, 'pending', 'tunai', '5AD63F432C', '2026-06-27 01:43:55', '2026-06-26 18:43:55'),
+(18, 18, 18, 8000, 'pending', 'tunai', 'DEDB738B47', '2026-06-27 01:44:08', '2026-06-26 18:44:08'),
+(19, 18, 18, 8000, 'pending', 'tunai', 'A35198C740', '2026-06-27 01:44:24', '2026-06-26 18:44:24'),
+(20, 18, 18, 8000, 'pending', 'tunai', 'C6B9E86C39', '2026-06-27 01:44:53', '2026-06-26 18:44:53'),
+(21, 18, 18, 8000, 'pending', 'tunai', '1BAFC8B48A', '2026-06-27 01:48:29', '2026-06-26 18:48:29'),
+(22, 18, 18, 8000, 'pending', 'tunai', 'EF81BEF1C7', '2026-06-27 01:49:42', '2026-06-26 18:49:42'),
+(23, 18, 18, 8000, 'pending', 'tunai', '266A2DDC21', '2026-06-27 01:51:54', '2026-06-26 18:51:54'),
+(24, 18, 18, 8000, 'pending', 'tunai', '45EC3E6475', '2026-06-27 01:55:35', '2026-06-26 18:55:35'),
+(25, 18, 18, 8000, 'lunas', 'tunai', '73CB482205', '2026-06-27 01:57:14', '2026-06-26 18:57:14');
 
 -- --------------------------------------------------------
 
@@ -129,7 +139,7 @@ CREATE TABLE `peminjaman` (
   `buku_id` int DEFAULT NULL,
   `tanggal_pinjam` date DEFAULT NULL,
   `tanggal_kembali` date DEFAULT NULL,
-  `status` enum('dipinjam','dikembalikan') COLLATE utf8mb4_general_ci DEFAULT 'dipinjam'
+  `status` enum('dipinjam','dikembalikan','dibatalkan','dihapus') COLLATE utf8mb4_general_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -137,8 +147,15 @@ CREATE TABLE `peminjaman` (
 --
 
 INSERT INTO `peminjaman` (`id`, `user_id`, `buku_id`, `tanggal_pinjam`, `tanggal_kembali`, `status`) VALUES
-(18, 18, 23, '2026-06-09', '2026-06-23', 'dipinjam'),
-(22, 18, 30, '2026-06-17', '2026-06-09', 'dipinjam');
+(18, 18, 23, '2026-06-09', '2026-06-23', 'dikembalikan'),
+(22, 18, 30, '2026-06-17', '2026-06-09', 'dikembalikan'),
+(30, 18, 23, '2026-06-25', '2026-07-09', 'dibatalkan'),
+(31, 18, 29, '2026-06-25', '2026-07-09', 'dibatalkan'),
+(32, 18, 28, '2026-06-25', '2026-07-09', 'dibatalkan'),
+(33, 18, 26, '2026-06-26', '2026-07-10', 'dibatalkan'),
+(34, 18, 26, '2026-06-26', '2026-07-10', 'dibatalkan'),
+(35, 18, 32, '2026-06-26', '2026-07-10', 'dibatalkan'),
+(37, 18, 30, '2026-06-26', '2026-07-10', 'dipinjam');
 
 -- --------------------------------------------------------
 
@@ -255,13 +272,13 @@ ALTER TABLE `aktivitas`
 -- AUTO_INCREMENT for table `buku`
 --
 ALTER TABLE `buku`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 
 --
 -- AUTO_INCREMENT for table `denda`
 --
 ALTER TABLE `denda`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `kategori`
@@ -273,7 +290,7 @@ ALTER TABLE `kategori`
 -- AUTO_INCREMENT for table `peminjaman`
 --
 ALTER TABLE `peminjaman`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT for table `pengumuman`
