@@ -1,534 +1,295 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Kategori Buku</title>
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-<link rel="stylesheet"
-href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-
-<style>
-
-body{
-    background:#f4f7fe;
-    font-family:'Poppins',sans-serif;
-    overflow-x:hidden;
-}
-
-#mainWrapper{
-    transition:0.3s ease;
-}
-
-.shifted{
-    margin-left:280px;
-}
-
-.navbar{
-    height:75px;
-    border-radius:0 0 20px 20px;
-    transition:0.3s;
-    z-index:1020;
-}
-
-.content{
-    padding:30px;
-}
-
-.card-dashboard{
-    border:none;
-    border-radius:24px;
-    padding:25px;
-    background:white;
-    box-shadow:0 10px 25px rgba(0,0,0,0.05);
-}
-
-.icon-box{
-    width:65px;
-    height:65px;
-    border-radius:18px;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    color:white;
-    font-size:28px;
-    margin-bottom:18px;
-}
-
-.bg-purple{
-    background:#6f42c1;
-}
-
-.table-box{
-    background:white;
-    border-radius:24px;
-    padding:25px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.05);
-}
-
-.nav-link{
-    padding:14px 18px;
-    border-radius:14px;
-    color:#444;
-    font-weight:500;
-    margin-bottom:8px;
-}
-
-.nav-link:hover,
-.nav-link.active{
-    background:#0d6efd;
-    color:white !important;
-}
-
-.table th{
-    border:none;
-    color:#666;
-}
-
-.table td{
-    vertical-align:middle;
-    border-color:#f1f1f1;
-}
-
-@media (min-width: 992px) {
-    /* 1. Paksa sidebar selalu muncul & menempel di kiri */
-    #sidebar {
-        transform: none !important; 
-        visibility: visible !important; 
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100vh;
-        background-color: white;
-        z-index: 1030;
-        display: block !important;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kategori Buku - Admin</title>
     
-    /* 2. Paksa pembungkus utama selalu geser ke kanan 280px */
-    #mainWrapper {
-        margin-left: 280px !important;
-    }
-}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-</style>
-
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+    </style>
 </head>
-
-<body>
-
-<div id="mainWrapper">
-
-<!-- NAVBAR -->
-<nav class="navbar navbar-light bg-white shadow-sm px-4">
-
-<div class="d-flex align-items-center">
-
-<button class="btn btn-outline-primary d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#sidebar">
-    <i class="bi bi-list fs-4"></i>
-</button>
-
-</button>
-
-<h4 class="ms-3 mt-2 fw-bold">
-Kategori Buku
-</h4>
-
-</div>
-
-<div class="d-flex align-items-center gap-3">
-
-<i class="bi bi-bell fs-5"></i>
-
-<a href="#">
-
-<img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-width="45"
-class="rounded-circle">
-
-</a>
-
-</div>
-
-</nav>
-
-<!-- CONTENT -->
-<div class="content">
-
-<div class="mb-4">
-
-<h1 class="fw-bold">
-Manajemen Kategori
-</h1>
-
-<p class="text-muted">
-Kelola kategori buku perpustakaan
-</p>
-
-</div>
-
-<!-- CARD -->
-<div class="row g-4 mb-4">
-
-<div class="col-md-4">
-
-<div class="card-dashboard">
-
-<div class="icon-box bg-purple">
-
-<i class="bi bi-tags-fill"></i>
-
-</div>
-
-<h2 class="fw-bold">
-
-<?= $totalKategori ?>
-
-</h2>
-
-<p class="text-muted mb-0">
-
-Total Kategori
-
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- TABLE -->
-<div class="table-box">
-
-<div class="d-flex justify-content-between align-items-center mb-4">
-
-<h4 class="fw-bold">
-Data Kategori
-</h4>
-
-<button class="btn btn-primary rounded-4"
-data-bs-toggle="modal"
-data-bs-target="#modalTambah">
-
-<i class="bi bi-plus-circle"></i>
-Tambah Kategori
-
-</button>
-
-</div>
-
-<table class="table align-middle">
-
-<thead>
-
-<tr>
-
-<th>No</th>
-<th>Nama Kategori</th>
-<th>Aksi</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<?php $no=1; ?>
-
-<?php foreach($kategori as $k){ ?>
-
-<tr>
-
-<td><?= $no++ ?></td>
-
-<td>
-
-<?= $k['nama_kategori'] ?>
-
-</td>
-
-<td>
-
-<button class="btn btn-warning btn-sm rounded-3"
-data-bs-toggle="modal"
-data-bs-target="#edit<?= $k['id'] ?>">
-
-<i class="bi bi-pencil-fill"></i>
-
-</button>
-
-<a href="hapus_kategori.php?id=<?= $k['id'] ?>"
-class="btn btn-danger btn-sm rounded-3"
-onclick="return confirm('Yakin hapus?')">
-
-<i class="bi bi-trash-fill"></i>
-
-</a>
-
-</td>
-
-</tr>
-
-<!-- MODAL EDIT -->
-<div class="modal fade"
-id="edit<?= $k['id'] ?>">
-
-<div class="modal-dialog">
-
-<div class="modal-content rounded-4 border-0">
-
-<form action="update_kategori.php"
-method="POST">
-
-<div class="modal-header border-0">
-
-<h5>Edit Kategori</h5>
-
-<button class="btn-close"
-data-bs-dismiss="modal">
-</button>
-
-</div>
-
-<div class="modal-body">
-
-<input type="hidden"
-name="id"
-value="<?= $k['id'] ?>">
-
-<input type="text"
-name="nama_kategori"
-value="<?= $k['nama_kategori'] ?>"
-class="form-control rounded-4"
-required>
-
-</div>
-
-<div class="modal-footer border-0">
-
-<button class="btn btn-success rounded-4">
-Simpan
-</button>
-
-</div>
-
-</form>
-
-</div>
-
-</div>
-
-</div>
-
-<?php } ?>
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- MODAL TAMBAH -->
-<div class="modal fade"
-id="modalTambah">
-
-<div class="modal-dialog">
-
-<div class="modal-content rounded-4 border-0">
-
-<form action="store_kategori.php"
-method="POST">
-
-<div class="modal-header border-0">
-
-<h5>Tambah Kategori</h5>
-
-<button class="btn-close"
-data-bs-dismiss="modal">
-</button>
-
-</div>
-
-<div class="modal-body">
-
-<input type="text"
-name="nama_kategori"
-class="form-control rounded-4"
-placeholder="Nama kategori"
-required>
-
-</div>
-
-<div class="modal-footer border-0">
-
-<button class="btn btn-primary rounded-4">
-
-Tambah
-
-</button>
-
-</div>
-
-</form>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- SIDEBAR -->
-<div class="offcanvas offcanvas-start"
-tabindex="-1"
-id="sidebar"
-style="width:280px;"
-data-bs-backdrop="false">
-
-<div class="offcanvas-header border-bottom">
-
-<h4 class="fw-bold text-primary">
-
-<i class="bi bi-book-half"></i>
-Digital Library
-
-</h4>
-
-<button class="btn-close"
-data-bs-dismiss="offcanvas">
-</button>
-
-</div>
-
-<div class="offcanvas-body d-flex flex-column">
-
-<div class="text-center mb-4">
-
-<img src="https://cdn-icons-png.flaticon.com/512/2232/2232688.png"
-width="110"
-class="mb-3">
-
-<h5 class="fw-bold mb-0">
-Administrator
-</h5>
-
-<small class="text-muted">
-Admin Perpustakaan
-</small>
-
-</div>
-
-<ul class="nav flex-column">
-
-<li>
-<a class="nav-link"
-href="dashboard.php">
-
-<i class="bi bi-grid-fill me-2"></i>
-Dashboard
-
-</a>
-</li>
-
-<li>
-<a class="nav-link"
-href="buku.php">
-
-<i class="bi bi-book-fill me-2"></i>
-Kelola Buku
-
-</a>
-</li>
-
-<li>
-<a class="nav-link"
-href="anggota.php">
-
-<i class="bi bi-people-fill me-2"></i>
-Data Anggota
-
-</a>
-</li>
-
-<li>
-<a class="nav-link"
-href="peminjaman.php">
-
-<i class="bi bi-journal-check me-2"></i>
-Peminjaman
-
-</a>
-</li>
-
-<li>
-<a class="nav-link active"
-href="kategori.php">
-
-<i class="bi bi-tags-fill me-2"></i>
-Kategori Buku
-
-</a>
-</li>
-
-</ul>
-
-<div class="mt-auto border-top pt-3">
-
-<a href="logout.php"
-class="btn btn-danger w-100 rounded-4">
-
-<i class="bi bi-box-arrow-right"></i>
-Logout
-
-</a>
-
-</div>
-
-</div>
-
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-
-const sidebar = document.getElementById('sidebar');
-const wrapper = document.getElementById('mainWrapper');
-
-function isDesktop(){
-    return window.innerWidth > 992;
-}
-
-sidebar.addEventListener('shown.bs.offcanvas', function () {
-
-    if(isDesktop()){
-        wrapper.classList.add('shifted');
-    }
-
-});
-
-sidebar.addEventListener('hidden.bs.offcanvas', function () {
-
-    wrapper.classList.remove('shifted');
-
-});
-
-window.addEventListener('resize', function(){
-
-    if(window.innerWidth <= 992){
-        wrapper.classList.remove('shifted');
-    }
-
-});
-
-</script>
-
+<body class="text-slate-800 antialiased bg-slate-50 overflow-x-hidden">
+
+    <!-- Sidebar Overlay (Mobile) -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/50 z-40 hidden lg:hidden transition-opacity opacity-0"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed top-0 left-0 h-screen w-72 bg-white shadow-xl z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col">
+        
+        <!-- Sidebar Header -->
+        <div class="h-20 flex items-center justify-between px-6 border-b border-slate-100">
+            <h4 class="text-xl font-bold text-blue-600 flex items-center gap-2">
+                <i class="bi bi-book-half"></i> Digital Library
+            </h4>
+            <button id="closeSidebarBtn" class="lg:hidden text-slate-400 hover:text-red-500 text-2xl transition-colors">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <!-- Sidebar User Profile -->
+        <div class="flex flex-col items-center justify-center py-8">
+            <div class="w-24 h-24 rounded-full bg-blue-50 p-2 mb-4">
+                <img src="https://cdn-icons-png.flaticon.com/512/2232/2232688.png" alt="Admin" class="w-full h-full object-cover">
+            </div>
+            <h5 class="font-bold text-lg text-slate-800">Administrator</h5>
+            <span class="text-sm text-slate-500">Admin Perpustakaan</span>
+        </div>
+
+        <!-- Sidebar Navigation -->
+        <nav class="flex-1 px-4 overflow-y-auto space-y-2">
+            <a href="dashboard.php" class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-all">
+                <i class="bi bi-grid-fill text-lg"></i>
+                <span class="font-medium">Dashboard</span>
+            </a>
+            <a href="buku.php" class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-all">
+                <i class="bi bi-book-fill text-lg"></i>
+                <span class="font-medium">Kelola Buku</span>
+            </a>
+            <a href="anggota.php" class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-all">
+                <i class="bi bi-people-fill text-lg"></i>
+                <span class="font-medium">Data Anggota</span>
+            </a>
+            <a href="peminjaman.php" class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-all">
+                <i class="bi bi-journal-check text-lg"></i>
+                <span class="font-medium">Peminjaman</span>
+            </a>
+            <a href="kategori.php" class="flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-xl shadow-md shadow-blue-200 transition-all">
+                <i class="bi bi-tags-fill text-lg"></i>
+                <span class="font-medium">Kategori Buku</span>
+            </a>
+        </nav>
+
+        <!-- Sidebar Footer -->
+        <div class="p-4 border-t border-slate-100">
+            <a href="logout.php" class="flex items-center justify-center gap-2 w-full py-3 bg-red-50 text-red-600 hover:bg-red-500 hover:text-white rounded-xl transition-all font-medium">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content Wrapper -->
+    <div class="lg:ml-72 transition-all duration-300 min-h-screen flex flex-col">
+        
+        <!-- Navbar -->
+        <header class="h-20 bg-white shadow-sm flex items-center justify-between px-6 lg:px-10 z-30 sticky top-0 rounded-b-3xl">
+            <div class="flex items-center gap-4">
+                <button id="openSidebarBtn" class="lg:hidden text-slate-600 hover:text-blue-600 bg-slate-50 p-2 rounded-lg transition-colors">
+                    <i class="bi bi-list text-2xl"></i>
+                </button>
+                <h4 class="text-xl font-bold text-slate-800 hidden sm:block">Kategori Buku</h4>
+            </div>
+
+            <div class="flex items-center gap-5">
+                <button class="relative text-slate-500 hover:text-blue-600 transition-colors">
+                    <i class="bi bi-bell text-xl"></i>
+                    <span class="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                </button>
+                <a href="#" class="block w-10 h-10 rounded-full overflow-hidden border-2 border-slate-100 hover:border-blue-300 transition-colors">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" class="w-full h-full object-cover">
+                </a>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6 lg:p-10">
+            
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-slate-800">Manajemen Kategori</h1>
+                <p class="text-slate-500 mt-1 text-base">Kelola kategori buku perpustakaan</p>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-3xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all border border-slate-50">
+                    <div class="w-16 h-16 rounded-2xl bg-purple-600 text-white flex items-center justify-center text-3xl mb-4 shadow-lg shadow-purple-200">
+                        <i class="bi bi-tags-fill"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold text-slate-800"><?= isset($totalKategori) ? $totalKategori : 0 ?></h2>
+                    <p class="text-slate-500 mt-1 text-base">Total Kategori</p>
+                </div>
+            </div>
+
+            <!-- Table Section -->
+            <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-50">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                    <h4 class="text-xl font-bold text-slate-800 m-0">Data Kategori</h4>
+                    <button onclick="openModal('modalTambah')" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-xl shadow-md transition-colors">
+                        <i class="bi bi-plus-circle text-lg"></i> Tambah Kategori
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-100 text-slate-500">
+                                <th class="pb-4 font-semibold w-16">No</th>
+                                <th class="pb-4 font-semibold px-4">Nama Kategori</th>
+                                <th class="pb-4 font-semibold pl-4 w-32">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+                            <?php if(!empty($kategori)){ $no=1; foreach($kategori as $k){ ?>
+                            <tr class="hover:bg-slate-50 transition-colors group">
+                                <td class="py-4 text-slate-600 font-medium"><?= $no++ ?></td>
+                                <td class="py-4 px-4 text-slate-800 font-semibold text-lg"><?= htmlspecialchars($k['nama_kategori']) ?></td>
+                                <td class="py-4 pl-4">
+                                    <div class="flex items-center gap-2">
+                                        <button onclick="openModal('edit<?= $k['id'] ?>')" class="w-8 h-8 rounded-lg bg-yellow-100 text-yellow-600 hover:bg-yellow-500 hover:text-white flex items-center justify-center transition-colors" title="Edit">
+                                            <i class="bi bi-pencil-fill"></i>
+                                        </button>
+                                        <a href="hapus_kategori.php?id=<?= $k['id'] ?>" class="w-8 h-8 rounded-lg bg-red-100 text-red-600 hover:bg-red-500 hover:text-white flex items-center justify-center transition-colors" onclick="return confirm('Yakin ingin hapus kategori ini?')" title="Hapus">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <?php }} else { ?>
+                            <tr>
+                                <td colspan="3" class="text-center text-slate-500 py-12 text-lg">
+                                    <i class="bi bi-inbox text-4xl mb-3 block text-slate-300"></i>
+                                    Data kategori belum ada
+                                </td>
+                            </tr>
+                            <?php } ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL TAMBAH -->
+    <div id="modalTambah" class="fixed inset-0 z-[60] hidden flex-col items-center justify-center p-4 sm:p-0">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0" onclick="closeModal('modalTambah')"></div>
+        
+        <!-- Modal Content -->
+        <div class="relative bg-white rounded-3xl shadow-xl w-full max-w-md transform scale-95 opacity-0 transition-all duration-300 overflow-hidden">
+            <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <h5 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <i class="bi bi-tags text-blue-600"></i> Tambah Kategori
+                </h5>
+                <button onclick="closeModal('modalTambah')" class="text-slate-400 hover:text-red-500 text-xl transition-colors">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            
+            <form action="store_kategori.php" method="POST">
+                <div class="p-6">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Nama Kategori</label>
+                    <input type="text" name="nama_kategori" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-slate-700" placeholder="Masukkan nama kategori" required>
+                </div>
+                
+                <div class="px-6 py-5 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('modalTambah')" class="px-5 py-2.5 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition-colors">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 shadow-md transition-colors">Tambah Kategori</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL EDIT LOOP -->
+    <?php if(!empty($kategori)){ foreach($kategori as $k){ ?>
+    <div id="edit<?= $k['id'] ?>" class="fixed inset-0 z-[60] hidden flex-col items-center justify-center p-4 sm:p-0">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0" onclick="closeModal('edit<?= $k['id'] ?>')"></div>
+        
+        <!-- Modal Content -->
+        <div class="relative bg-white rounded-3xl shadow-xl w-full max-w-md transform scale-95 opacity-0 transition-all duration-300 overflow-hidden">
+            <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <h5 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <i class="bi bi-pencil-square text-yellow-500"></i> Edit Kategori
+                </h5>
+                <button onclick="closeModal('edit<?= $k['id'] ?>')" class="text-slate-400 hover:text-red-500 text-xl transition-colors">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            
+            <form action="update_kategori.php" method="POST">
+                <div class="p-6 space-y-4">
+                    <input type="hidden" name="id" value="<?= $k['id'] ?>">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Nama Kategori</label>
+                        <input type="text" name="nama_kategori" value="<?= htmlspecialchars($k['nama_kategori']) ?>" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-slate-700" required>
+                    </div>
+                </div>
+                
+                <div class="px-6 py-5 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('edit<?= $k['id'] ?>')" class="px-5 py-2.5 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition-colors">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 text-sm font-medium text-white bg-green-600 rounded-xl hover:bg-green-700 shadow-md transition-colors">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <?php }} ?>
+
+    <!-- Scripts -->
+    <script>
+        // Sidebar Script
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const openBtn = document.getElementById('openSidebarBtn');
+        const closeBtn = document.getElementById('closeSidebarBtn');
+
+        function openSidebar() {
+            sidebar.classList.remove('-translate-x-full');
+            overlay.classList.remove('hidden');
+            setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+            document.body.classList.add('overflow-hidden'); 
+        }
+
+        function closeSidebar() {
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('opacity-0');
+            setTimeout(() => overlay.classList.add('hidden'), 300);
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        openBtn.addEventListener('click', openSidebar);
+        closeBtn.addEventListener('click', closeSidebar);
+        overlay.addEventListener('click', closeSidebar);
+
+        // Modal Scripts
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            const backdrop = modal.querySelector('.fixed.inset-0.bg-slate-900\\/50');
+            const content = modal.querySelector('.relative.bg-white');
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.classList.add('overflow-hidden');
+            
+            setTimeout(() => {
+                backdrop.classList.remove('opacity-0');
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            const backdrop = modal.querySelector('.fixed.inset-0.bg-slate-900\\/50');
+            const content = modal.querySelector('.relative.bg-white');
+            
+            backdrop.classList.add('opacity-0');
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                
+                // Cek jika sidebar overlay aktif, jangan remove body overflow-hidden
+                if(overlay.classList.contains('hidden')) {
+                    document.body.classList.remove('overflow-hidden');
+                }
+            }, 300);
+        }
+    </script>
 </body>
 </html>

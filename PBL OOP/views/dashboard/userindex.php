@@ -1,4 +1,3 @@
-
 <?php
 /**
  * VIEW TEMPLATE: User Dashboard
@@ -25,1057 +24,251 @@ if (!isset($is_locked)) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard - Sistem Perpustakaan Digital <?= $is_locked ? '- Akses Terkunci' : '' ?></title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
-/* ==================== CSS ==================== */
-:root{
-  --bg:#f4f7fe;
-  --card-bg:#ffffff;
-  --text:#1a1a1a;
-  --text-muted:#6c757d;
-  --sidebar-width: 280px;
-  --navbar-height: 75px;
-}
-
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
-
-body{
-  background: <?= $is_locked ? '#0f0f1a' : 'var(--bg)' ?>;
-  font-family:'Poppins','DM Sans',sans-serif;
-  min-height:100vh;
-  overflow-x:hidden;
-  transition: all 0.3s ease;
-  color: <?= $is_locked ? '#e0e0e0' : '#333' ?>;
-}
-
-.navbar{
-  height: var(--navbar-height);
-  border-radius:0 0 20px 20px;
-  position:fixed;
-  top:0;
-  left:0;
-  right:0;
-  z-index:1000;
-  background: <?= $is_locked ? 'linear-gradient(135deg, #16213e, #0f0f1a)' : 'white' ?> !important;
-  border-bottom: <?= $is_locked ? '2px solid #ef4444' : 'none' ?>;
-  box-shadow: <?= $is_locked ? '0 4px 20px rgba(239, 68, 68, 0.2)' : '0 2px 10px rgba(0,0,0,0.05)' ?>;
-}
-
-.navbar .fw-bold {
-  color: <?= $is_locked ? '#ffffff' : '#0d6efd' ?>;
-}
-
-.sidebar-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  z-index: 1040;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-
-.sidebar-overlay.show {
-  opacity: 1;
-  visibility: visible;
-}
-
-.sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: var(--sidebar-width);
-  height: 100vh;
-  background: <?= $is_locked ? '#16213e' : 'white' ?>;
-  box-shadow: 2px 0 20px rgba(0,0,0,0.1);
-  z-index: 1050;
-  transform: translateX(-100%);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  flex-direction: column;
-}
-
-.sidebar.show {
-  transform: translateX(0);
-}
-
-.sidebar-header {
-  padding: 20px;
-  border-bottom: 1px solid <?= $is_locked ? '#ef4444' : '#e9ecef' ?>;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.sidebar-header h4 {
-  margin: 0;
-  font-size: 1.2rem;
-  color: <?= $is_locked ? '#ef4444' : '#0d6efd' ?>;
-}
-
-.sidebar-body {
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto;
-}
-
-.sidebar-footer {
-  padding: 20px;
-  border-top: 1px solid <?= $is_locked ? '#2a2a3e' : '#e9ecef' ?>;
-}
-
-.sidebar-close-btn {
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: <?= $is_locked ? '#ef4444' : '#6c757d' ?>;
-  transition: all 0.2s ease;
-}
-
-.sidebar-close-btn:hover {
-  color: #0d6efd;
-  transform: rotate(90deg);
-}
-
-.nav-link-custom{
-  padding: 14px 18px;
-  border-radius: 14px;
-  color: <?= $is_locked ? '#c0c0c0' : '#444' ?>;
-  font-weight: 500;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.nav-link-custom:not(.disabled-nav):hover,
-.nav-link-custom:not(.disabled-nav).active{
-  background: <?= $is_locked ? '#ef4444' : '#0d6efd' ?>;
-  color: white !important;
-  transform: translateX(5px);
-}
-
-.nav-link-custom.disabled-nav {
-  background: <?= $is_locked ? '#2a2a3e' : '#e9ecef' ?>;
-  color: <?= $is_locked ? '#6c6c8c' : '#adb5bd' ?> !important;
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-.content{
-  margin-top: var(--navbar-height);
-  padding: 30px;
-  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  min-height: calc(100vh - var(--navbar-height));
-}
-
-@media (min-width: 992px) {
-  body.sidebar-open .sidebar {
-    transform: translateX(0);
-  }
-  body.sidebar-open .content {
-    margin-left: var(--sidebar-width);
-  }
-  .sidebar-overlay {
-    display: none;
-  }
-}
-
-@media (max-width: 991px) {
-  body.sidebar-open {
-    overflow: hidden;
-  }
-  .content {
-    margin-left: 0;
-  }
-}
-
-.sidebar-toggle {
-  background: transparent;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: <?= $is_locked ? '#ef4444' : '#0d6efd' ?>;
-  padding: 8px;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-}
-
-.sidebar-toggle:hover {
-  background: rgba(0,0,0,0.05);
-  transform: scale(1.05);
-}
-
-.card-dashboard{
-  border: none;
-  border-radius: 24px;
-  padding: 25px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: <?= $is_locked ? '#1e1e2e' : 'white' ?>;
-  height: 100%;
-  min-height: 180px;
-  display: flex;
-  flex-direction: column;
-  animation: fadeInUp 0.5s ease-out;
-  border: <?= $is_locked ? '1px solid #2a2a3e' : 'none' ?>;
-}
-
-.card-dashboard:hover{
-  transform: translateY(-5px);
-  <?php if($is_locked): ?>
-  border-color: #ef4444;
-  box-shadow: 0 15px 35px rgba(239, 68, 68, 0.15);
-  <?php else: ?>
-  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-  <?php endif; ?>
-}
-
-.card-dashboard.locked-card {
-  background: linear-gradient(135deg, #7f1a1a, #991b1b);
-  color: white;
-  border: 2px solid #ef4444;
-}
-
-.card-dashboard.locked-card .stat-value,
-.card-dashboard.locked-card .stat-label {
-  color: white;
-}
-
-.icon-box{
-  width: 55px;
-  height: 55px;
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 24px;
-  margin-bottom: 16px;
-  transition: transform 0.2s ease;
-}
-
-.card-dashboard:hover .icon-box {
-  transform: scale(1.05);
-}
-
-.bg-blue{background:linear-gradient(135deg, #0d6efd, #0a58ca);}
-.bg-green{background:linear-gradient(135deg, #198754, #146c43);}
-.bg-orange{background:linear-gradient(135deg, #fd7e14, #e06a0c);}
-.bg-red{background:linear-gradient(135deg, #dc2626, #7f1a1a);}
-
-.stat-value{
-  font-size: 32px;
-  font-weight: 700;
-  color: <?= $is_locked ? '#ffffff' : '#1a1a2e' ?>;
-  margin-bottom: 5px;
-}
-
-.stat-label{
-  font-size: 14px;
-  color: <?= $is_locked ? '#a0a0b0' : '#6c757d' ?>;
-  font-weight: 500;
-}
-
-.action-badge{
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: <?= $is_locked ? 'rgba(239, 68, 68, 0.2)' : '#fff3cd' ?>;
-  color: <?= $is_locked ? '#fecaca' : '#856404' ?>;
-  padding: 6px 12px;
-  border-radius: 30px;
-  font-size: 11px;
-  font-weight: 600;
-  margin-top: 10px;
-  width: fit-content;
-  border: <?= $is_locked ? '1px solid #fca5a5' : '1px solid #ffecb5' ?>;
-  cursor: default;
-}
-
-.warning-banner {
-  background: linear-gradient(135deg, #991b1b, #7f1a1a);
-  color: white;
-  border-radius: 20px;
-  padding: 20px 25px;
-  margin-bottom: 25px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 15px;
-  border: 1px solid #ef4444;
-  animation: fadeInUp 0.5s ease-out;
-}
-
-.btn-warning-light {
-  background: rgba(255,255,255,0.2);
-  border: 1px solid rgba(255,255,255,0.3);
-  color: white;
-  border-radius: 30px;
-  padding: 10px 25px;
-  font-weight: 600;
-  transition: all 0.2s ease;
-}
-
-.btn-warning-light:hover {
-  background: rgba(255,255,255,0.3);
-  transform: scale(1.02);
-}
-
-.table-box{
-  background: <?= $is_locked ? '#1a1a2e' : 'white' ?>;
-  border-radius: 24px;
-  padding: 25px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-  border: <?= $is_locked ? '1px solid #2a2a3e' : '1px solid #f0f2f5' ?>;
-  animation: fadeInUp 0.5s ease-out 0.1s backwards;
-}
-
-.book-list-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.book-list-item {
-  display: flex;
-  gap: 15px;
-  padding: 12px;
-  background: <?= $is_locked ? '#252540' : '#f8f9fa' ?>;
-  border-radius: 16px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid <?= $is_locked ? '#3a3a5e' : '#e9ecef' ?>;
-  cursor: pointer;
-  animation: cardFadeIn 0.4s ease-out backwards;
-}
-
-.book-list-item:not(.disabled-book):hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-  border-color: <?= $is_locked ? '#ef4444' : '#0d6efd' ?>;
-}
-
-.book-icon {
-  width: 55px;
-  height: 75px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  flex-shrink: 0;
-}
-
-.book-detail h6 {
-  font-size: 14px;
-  font-weight: 700;
-  margin-bottom: 4px;
-  color: <?= $is_locked ? '#e0e0e0' : '#333' ?>;
-}
-
-.book-detail p {
-  font-size: 11px;
-  color: <?= $is_locked ? '#9ca3af' : '#6c757d' ?>;
-  margin-bottom: 6px;
-}
-
-.badge-custom {
-  font-size: 10px;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-weight: 600;
-}
-
-.badge-tersedia {
-  background: <?= $is_locked ? '#14532d' : '#d4edda' ?>;
-  color: <?= $is_locked ? '#86efac' : '#276432' ?>;
-}
-.badge-habis {
-  background: <?= $is_locked ? '#7f1a1a' : '#f8d7da' ?>;
-  color: <?= $is_locked ? '#fecaca' : '#842029' ?>;
-}
-.badge-terbatas {
-  background: <?= $is_locked ? '#78350f' : '#fff3cd' ?>;
-  color: <?= $is_locked ? '#fde68a' : '#856404' ?>;
-}
-
-.locked-message {
-  text-align: center;
-  padding: 60px 20px;
-  background: <?= $is_locked ? 'linear-gradient(135deg, #1e1e2e, #0f0f1a)' : 'linear-gradient(135deg, #fef2f2, #fee2e2)' ?>;
-  border-radius: 24px;
-  border: 2px solid #dc2626;
-}
-
-.locked-message i {
-  font-size: 80px;
-  color: #ef4444;
-  margin-bottom: 20px;
-}
-
-.locked-message h5 {
-  color: <?= $is_locked ? '#fecaca' : '#991b1b' ?>;
-}
-
-.modal-content {
-  background: <?= $is_locked ? '#1a1a2e' : 'white' ?>;
-  border: <?= $is_locked ? '1px solid #ef4444' : 'none' ?>;
-  border-radius: 24px;
-}
-
-.modal-header {
-  background: linear-gradient(135deg, #dc2626, #991b1b);
-  color: white;
-  border-radius: 24px 24px 0 0;
-}
-
-/* ========== STYLE UNTUK FINE ITEM CARD ========== */
-.fine-item-card {
-  background: <?= $is_locked ? '#252540' : 'white' ?>;
-  border-radius: 20px;
-  padding: 20px;
-  margin-bottom: 16px;
-  border: 2px solid <?= $is_locked ? '#3a3a5e' : '#e9ecef' ?>;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  position: relative;
-}
-
-.fine-item-card:hover:not(.waiting-confirmation) {
-  border-color: #dc3545;
-  box-shadow: 0 8px 20px rgba(220, 53, 69, 0.15);
-  transform: translateX(5px);
-}
-
-.fine-item-card.selected {
-  border-color: #dc3545;
-  background: <?= $is_locked ? '#2e2e50' : '#fff5f5' ?>;
-  box-shadow: 0 8px 20px rgba(220, 53, 69, 0.2);
-}
-
-.fine-item-card.selected::before {
-  content: '✓';
-  position: absolute;
-  top: -10px;
-  right: -10px;
-  width: 30px;
-  height: 30px;
-  background: #dc3545;
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 18px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-}
-
-/* Status Menunggu Konfirmasi */
-.fine-item-card.waiting-confirmation {
-    border-color: #ffc107;
-    background: <?= $is_locked ? '#2e2e50' : '#fffef5' ?>;
-    cursor: default;
-    opacity: 0.95;
-}
-
-.fine-item-card.waiting-confirmation:hover {
-    transform: none;
-    box-shadow: none;
-}
-
-.custom-checkbox {
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-  border: 2px solid #dc3545;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: <?= $is_locked ? '#252540' : 'white' ?>;
-  transition: all 0.2s;
-  cursor: pointer;
-}
-
-.custom-checkbox.checked {
-  background: #dc3545;
-  color: white;
-}
-
-/* Status icon untuk buku yang menunggu konfirmasi */
-.status-waiting-icon {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: #fff3cd;
-    border: 2px solid #ffc107;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.1); opacity: 0.8; }
-}
-
-.status-badge-waiting {
-    background: #ffc107;
-    color: #856404;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.payment-card {
-  border: 2px solid <?= $is_locked ? '#3a3a5e' : '#e9ecef' ?>;
-  border-radius: 16px;
-  padding: 15px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background: <?= $is_locked ? '#252540' : 'white' ?>;
-}
-
-.payment-card:hover {
-  transform: translateY(-5px);
-  border-color: #0d6efd;
-}
-
-.payment-card.selected {
-  border-color: #0d6efd;
-  background: <?= $is_locked ? '#2e2e50' : '#e7f1ff' ?>;
-}
-
-.payment-card i {
-  font-size: 32px;
-  margin-bottom: 8px;
-  display: block;
-}
-
-.payment-card.selected i {
-  color: #0d6efd;
-}
-
-.qr-code-box {
-  background: <?= $is_locked ? '#252540' : 'white' ?>;
-  border-radius: 20px;
-  padding: 30px;
-  text-align: center;
-  border: 2px dashed <?= $is_locked ? '#3a3a5e' : '#e9ecef' ?>;
-}
-
-.qr-placeholder {
-  width: 200px;
-  height: 200px;
-  background: <?= $is_locked ? '#1a1a2e' : '#f8f9fa' ?>;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 20px;
-}
-
-.qr-placeholder i {
-  font-size: 80px;
-  color: #adb5bd;
-}
-
-.total-box {
-  background: linear-gradient(135deg, #dc3545, #991b1b);
-  border-radius: 20px;
-  padding: 25px;
-  color: white;
-  text-align: center;
-}
-
-.total-amount {
-  font-size: 32px;
-  font-weight: 800;
-  margin: 10px 0;
-}
-
-.btn-pay {
-  background: linear-gradient(135deg, #dc3545, #991b1b);
-  border: none;
-  border-radius: 40px;
-  padding: 14px 30px;
-  font-weight: 700;
-  font-size: 16px;
-  transition: all 0.3s ease;
-}
-
-.btn-pay:hover {
-  transform: scale(1.02);
-  box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
-}
-
-.btn-pay:disabled {
-  opacity: 0.5;
-  transform: none;
-}
-
-.toast-notification {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 9999;
-  animation: slideInRight 0.3s ease-out;
-}
-
-.toast-notification.hide {
-  animation: slideOutRight 0.3s ease-out forwards;
-}
-
-.toast-card {
-  background: white;
-  border-radius: 16px;
-  padding: 16px 20px;
-  min-width: 320px;
-  max-width: 450px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  border-left: 5px solid;
-}
-
-.toast-success {
-  border-left-color: #28a745;
-}
-.toast-error {
-  border-left-color: #dc3545;
-}
-.toast-warning {
-  border-left-color: #ffc107;
-}
-
-@keyframes slideInRight {
-  from { opacity: 0; transform: translateX(100px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes slideOutRight {
-  from { opacity: 1; transform: translateX(0); }
-  to { opacity: 0; transform: translateX(100px); }
-}
-
-.input-group {
-  border-radius: 40px;
-  overflow: hidden;
-}
-
-.input-group-text {
-  border: 1px solid <?= $is_locked ? '#3a3a5e' : '#e9ecef' ?>;
-  border-right: none;
-  background: <?= $is_locked ? '#252540' : 'white' ?>;
-  color: <?= $is_locked ? '#9ca3af' : '#6c757d' ?>;
-}
-
-.form-control {
-  border: 1px solid <?= $is_locked ? '#3a3a5e' : '#e9ecef' ?>;
-  border-left: none;
-  background: <?= $is_locked ? '#252540' : 'white' ?>;
-  color: <?= $is_locked ? '#e0e0e0' : '#333' ?>;
-}
-
-.form-control:focus {
-  box-shadow: none;
-  border-color: #ef4444;
-  background: <?= $is_locked ? '#2e2e50' : 'white' ?>;
-}
-
-.form-control::placeholder {
-  color: <?= $is_locked ? '#6c6c8c' : '#adb5bd' ?>;
-}
-
-<?php if($is_locked): ?>
-.text-muted {
-  color: #9ca3af !important;
-}
-.text-primary {
-  color: #ef4444 !important;
-}
-.btn-outline-primary {
-  color: #ef4444;
-  border-color: #ef4444;
-}
-.btn-outline-primary:hover {
-  background: #ef4444;
-  border-color: #ef4444;
-  color: white;
-}
-.border-1 {
-  border-color: #3a3a5e !important;
-}
-small, .small {
-  color: #9ca3af !important;
-}
-.card .text-muted,
-.table-box .text-muted {
-  color: #9ca3af !important;
-}
-.locked-message .btn-danger {
-  background: #ef4444;
-  border-color: #ef4444;
-}
-.modal-body .text-muted {
-  color: #9ca3af !important;
-}
-.warning-banner i,
-.total-box i,
-.qr-placeholder i,
-.payment-card i,
-.btn-pay i,
-.action-badge i,
-.locked-message i,
-.modal-header i,
-.total-box .bi,
-.total-box i.bi-receipt,
-.total-box i.bi-info-circle {
-    color: white !important;
-}
-.payment-card i {
-    color: #ef4444 !important;
-}
-.payment-card.selected i {
-    color: #0d6efd !important;
-}
-.payment-card.selected .fw-semibold {
-    color: #0d6efd !important;
-}
-.warning-banner .bi-exclamation-octagon-fill {
-    color: #fecaca !important;
-}
-.btn-pay i.bi-lock-fill,
-.btn-pay i.bi-cash-stack,
-.btn-pay i.bi-credit-card {
-    color: white !important;
-}
-.total-box .total-amount {
-    color: white !important;
-}
-.fine-item-card .custom-checkbox i {
-    color: white !important;
-}
-.fine-item-card.selected .custom-checkbox i {
-    color: white !important;
-}
-.card-dashboard .icon-box i {
-    color: white !important;
-}
-.sidebar .nav-link-custom i {
-    color: inherit !important;
-}
-.sidebar .nav-link-custom.active i {
-    color: white !important;
-}
-.navbar .bi-bell {
-    color: #ffffff !important;
-}
-<?php endif; ?>
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes cardFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@media (max-width: 768px){
-  .content{
-    padding: 15px;
-  }
-  .book-list-grid {
-    grid-template-columns: 1fr;
-  }
-  .stat-value {
-    font-size: 24px;
-  }
-  .icon-box {
-    width: 45px;
-    height: 45px;
-    font-size: 20px;
-  }
-  .total-amount {
-    font-size: 24px;
-  }
-  .qr-placeholder {
-    width: 150px;
-    height: 150px;
-  }
-}
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes cardFadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+.animate-fade-up { animation: fadeInUp 0.5s ease-out forwards; }
+.animate-card-fade-in { animation: cardFadeIn 0.4s ease-out backwards; }
+
+.custom-checkbox.checked i { opacity: 1 !important; }
+.custom-checkbox.checked { background-color: #ef4444 !important; border-color: #ef4444 !important; }
+.payment-card.selected { border-color: #3b82f6 !important; }
+.payment-card.selected i { color: #3b82f6 !important; }
+<?= $is_locked ? '.payment-card.selected { background-color: rgba(59,130,246,0.1) !important; }' : '.payment-card.selected { background-color: #eff6ff !important; }' ?>
 </style>
 </head>
-<body>
+<body class="font-['Poppins'] min-h-screen overflow-x-hidden transition-all duration-300 <?= $is_locked ? 'bg-[#0f0f1a] text-[#e0e0e0]' : 'bg-[#f4f7fe] text-[#333]' ?>">
 
-<!-- Sidebar Overlay untuk mobile -->
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<!-- Sidebar Overlay -->
+<div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[1040] opacity-0 invisible transition-all duration-300 lg:hidden" id="sidebarOverlay"></div>
 
 <!-- SIDEBAR -->
-<div class="sidebar" id="sidebar">
-  <div class="sidebar-header">
-    <h4 class="fw-bold mb-0">
+<aside class="fixed top-0 left-0 w-[280px] h-screen shadow-[2px_0_20px_rgba(0,0,0,0.1)] z-[1050] -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col <?= $is_locked ? 'bg-[#16213e]' : 'bg-white' ?>" id="sidebar">
+  <div class="p-5 border-b flex justify-between items-center <?= $is_locked ? 'border-[#ef4444]' : 'border-[#e9ecef]' ?>">
+    <h4 class="m-0 text-[1.2rem] font-bold <?= $is_locked ? 'text-[#ef4444]' : 'text-blue-600' ?>">
       <i class="bi bi-book-half"></i> Digital Library
     </h4>
-    <button class="sidebar-close-btn" id="closeSidebarBtn">
+    <button class="text-2xl cursor-pointer bg-transparent border-none lg:hidden transition-transform hover:rotate-90 <?= $is_locked ? 'text-[#ef4444] hover:text-[#ef4444]' : 'text-gray-500 hover:text-blue-600' ?>" id="closeSidebarBtn">
       <i class="bi bi-x-lg"></i>
     </button>
   </div>
-  <div class="sidebar-body">
-    <div class="text-center mb-4">
-      <img src="https://cdn-icons-png.flaticon.com/512/2232/2232688.png" width="110" class="mb-3" <?php if($is_locked): ?>style="filter: drop-shadow(0 0 10px rgba(239,68,68,0.5));"<?php endif; ?>>
-      <h5 class="fw-bold mb-0" style="color: <?= $is_locked ? '#ffffff' : '#1a1a2e' ?>"><?= htmlspecialchars($user_nama) ?></h5>
-      <small class="text-muted"><?= htmlspecialchars($user_nim) ?></small>
+  
+  <div class="flex-1 p-5 overflow-y-auto">
+    <div class="text-center mb-6">
+      <img src="https://cdn-icons-png.flaticon.com/512/2232/2232688.png" width="110" class="mb-3 mx-auto <?= $is_locked ? 'drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]' : '' ?>" alt="User">
+      <h5 class="font-bold mb-0 <?= $is_locked ? 'text-white' : 'text-[#1a1a2e]' ?>"><?= htmlspecialchars($user_nama) ?></h5>
+      <small class="text-gray-500"><?= htmlspecialchars($user_nim) ?></small>
     </div>
-    <ul class="nav flex-column">
-      <li class="nav-item">
-        <a class="nav-link-custom <?= $is_locked ? 'disabled-nav' : 'active' ?>" href="dashboard_anggota.php" <?= $is_locked ? 'onclick="showLockAlert(); return false;"' : '' ?>>
-          <i class="bi bi-grid-fill me-2"></i>Dashboard
-          <?php if($is_locked): ?><span class="ms-2"><i class="bi bi-lock-fill"></i></span><?php endif; ?>
+    
+    <ul class="flex flex-col gap-2">
+      <li>
+        <a class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 bg-blue-600 text-white translate-x-1" href="dashboard_anggota.php">
+          <i class="bi bi-grid-fill text-lg"></i> Dashboard
         </a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link-custom <?= $is_locked ? 'disabled-nav' : '' ?>" href="../views/peminjaman/userindex.php" <?= $is_locked ? 'onclick="showLockAlert(); return false;"' : '' ?>>
-          <i class="bi bi-journal-check me-2"></i>Peminjaman
-          <?php if($is_locked): ?><span class="ms-2"><i class="bi bi-lock-fill"></i></span><?php endif; ?>
+      <li>
+        <a class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 text-gray-600 hover:bg-blue-600 hover:text-white hover:translate-x-1" href="peminjaman_user.php">
+          <i class="bi bi-journal-check text-lg"></i> Peminjaman
         </a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link-custom <?= $is_locked ? 'disabled-nav' : '' ?>" href="katalog.php" <?= $is_locked ? 'onclick="showLockAlert(); return false;"' : '' ?>>
-          <i class="bi bi-book-half me-2"></i>Katalog
-          <?php if($is_locked): ?><span class="ms-2"><i class="bi bi-lock-fill"></i></span><?php endif; ?>
+      <li>
+        <a class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 text-gray-600 hover:bg-blue-600 hover:text-white hover:translate-x-1" href="katalog.php">
+          <i class="bi bi-book-half text-lg"></i> Katalog
         </a>
       </li>
     </ul>
   </div>
-  <div class="sidebar-footer">
-    <a href="../public/logout.php" class="btn btn-danger w-100 rounded-4" onclick="return confirmLogout()">
-      <i class="bi bi-box-arrow-right me-2"></i>Logout
+  
+  <div class="p-5 border-t <?= $is_locked ? 'border-[#2a2a3e]' : 'border-[#e9ecef]' ?>">
+    <a href="../public/logout.php" class="flex items-center justify-center gap-2 w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-colors font-medium" onclick="return confirmLogout()">
+      <i class="bi bi-box-arrow-right"></i> Logout
     </a>
   </div>
-</div>
+</aside>
 
 <!-- NAVBAR -->
-<nav class="navbar navbar-light shadow-sm px-4">
-  <div class="d-flex align-items-center">
-    <button class="sidebar-toggle" type="button" id="openSidebarBtn">
-      <i class="bi bi-list fs-3"></i>
+<nav class="fixed top-0 left-0 lg:left-[280px] right-0 h-[75px] rounded-b-[20px] z-[1000] flex justify-between items-center px-6 lg:px-10 <?= $is_locked ? 'bg-gradient-to-br from-[#16213e] to-[#0f0f1a] border-b-2 border-red-500 shadow-[0_4px_20px_rgba(239,68,68,0.2)]' : 'bg-white shadow-sm' ?>">
+  <div class="flex items-center">
+    <button class="bg-transparent border-none text-2xl cursor-pointer p-2 rounded-lg transition-all lg:hidden hover:bg-black/5 hover:scale-105 <?= $is_locked ? 'text-red-500' : 'text-blue-600' ?>" id="openSidebarBtn">
+      <i class="bi bi-list"></i>
     </button>
-    <h4 class="ms-3 mt-2 fw-bold" style="color: <?= $is_locked ? '#ffffff' : '#0d6efd' ?>;">📚 Dashboard Perpustakaan</h4>
+    <h4 class="ml-3 mt-1 font-bold text-lg hidden sm:block <?= $is_locked ? 'text-white' : 'text-blue-600' ?>">📚 Dashboard Perpustakaan</h4>
   </div>
-  <div class="d-flex align-items-center gap-3">
-    <i class="bi bi-bell fs-5"></i>
+  <div class="flex items-center gap-4">
+    <i class="bi bi-bell text-xl <?= $is_locked ? 'text-white' : 'text-gray-600' ?>"></i>
     <a href="../views/auth/profile.php">
-      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" width="45" class="rounded-circle">
+      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" width="45" class="rounded-full border-2 border-transparent hover:border-blue-500 transition-colors">
     </a>
   </div>
 </nav>
 
 <!-- MAIN CONTENT -->
-<div class="content" id="mainContent">
+<main class="mt-[75px] p-6 lg:p-8 transition-all duration-300 min-h-[calc(100vh-75px)] lg:ml-[280px]" id="mainContent">
 
-<div class="mb-4">
-<h1 class="fw-bold" style="color: <?= $is_locked ? '#ffffff' : '#0d6efd' ?>;">👋 Welcome Back, <?= htmlspecialchars($user_nama) ?>!</h1>
-<p class="text-muted">
-<i class="bi bi-building"></i> Sistem Perpustakaan Digital Modern — Temukan dan pinjam buku favorit Anda
-</p>
-</div>
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold <?= $is_locked ? 'text-white' : 'text-blue-600' ?>">👋 Welcome Back, <?= htmlspecialchars($user_nama) ?>!</h1>
+    <p class="mt-2 <?= $is_locked ? 'text-gray-400' : 'text-gray-500' ?>">
+      <i class="bi bi-building"></i> Sistem Perpustakaan Digital Modern — Temukan dan pinjam buku favorit Anda
+    </p>
+  </div>
 
-<!-- WARNING BANNER jika user terlambat -->
-<?php if($is_locked && !empty($late_books_detail)): ?>
-<div class="warning-banner">
-    <i class="bi bi-exclamation-octagon-fill fs-2"></i>
-    <div class="warning-content flex-grow-1">
-        <h5>⚠️ AKSES DIBLOKIR - KETERLAMBATAN PENGEMBALIAN</h5>
-        <p>Anda memiliki <strong><?= $totalTerlambat ?></strong> buku yang terlambat dikembalikan dengan total denda <strong><?= formatRupiah($total_denda) ?></strong></p>
-    </div>
-    <button class="btn-warning-light" onclick="openFinePaymentModal()">
-        <i class="bi bi-calculator-fill"></i> Lihat & Bayar Denda
-    </button>
-</div>
-<?php endif; ?>
+  <!-- WARNING BANNER jika user terlambat -->
+  <?php if($is_locked && !empty($late_books_detail)): ?>
+  <div class="animate-fade-up bg-gradient-to-br from-red-800 to-red-900 text-white rounded-2xl p-6 mb-8 flex flex-wrap items-center justify-between gap-4 border border-red-500 shadow-lg shadow-red-500/20">
+      <div class="flex items-center gap-4">
+          <i class="bi bi-exclamation-octagon-fill text-4xl text-red-200"></i>
+          <div>
+              <h5 class="text-xl font-bold mb-1">⚠️ AKSES DIBLOKIR - KETERLAMBATAN PENGEMBALIAN</h5>
+              <p class="m-0 text-red-100">Anda memiliki <strong><?= $totalTerlambat ?></strong> buku yang terlambat dikembalikan dengan total denda <strong><?= formatRupiah($total_denda) ?></strong></p>
+          </div>
+      </div>
+      <button class="bg-white/20 hover:bg-white/30 border border-white/30 text-white rounded-full px-6 py-3 font-semibold transition-all hover:scale-105" onclick="openFinePaymentModal()">
+          <i class="bi bi-calculator-fill mr-2"></i> Lihat & Bayar Denda
+      </button>
+  </div>
+  <?php endif; ?>
 
-<!-- CARD STATISTIK -->
-<div class="row g-4 mb-4">
-<div class="col-md-4">
-    <div class="card-dashboard">
-        <div class="icon-box bg-blue">
+  <!-- CARD STATISTIK -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="rounded-3xl p-6 transition-all duration-300 flex flex-col min-h-[180px] animate-fade-up hover:-translate-y-1 <?= $is_locked ? 'bg-[#1e1e2e] border border-[#2a2a3e] hover:border-red-500 hover:shadow-[0_15px_35px_rgba(239,68,68,0.15)]' : 'bg-white shadow-[0_10px_25px_rgba(0,0,0,0.05)] hover:shadow-[0_15px_35px_rgba(0,0,0,0.1)]' ?>">
+        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-white text-2xl mb-4 bg-gradient-to-br from-blue-600 to-blue-800 shadow-lg shadow-blue-500/30">
             <i class="bi bi-book-fill"></i>
         </div>
-        <div class="stat-value"><?= number_format($totalKoleksi) ?></div>
-        <div class="stat-label">Total Koleksi Buku</div>
+        <div class="text-3xl font-bold mb-1 <?= $is_locked ? 'text-white' : 'text-[#1a1a2e]' ?>"><?= number_format($totalKoleksi) ?></div>
+        <div class="text-sm font-medium <?= $is_locked ? 'text-gray-400' : 'text-gray-500' ?>">Total Koleksi Buku</div>
     </div>
-</div>
-<div class="col-md-4">
-    <div class="card-dashboard">
-        <div class="icon-box bg-green">
+    
+    <div class="rounded-3xl p-6 transition-all duration-300 flex flex-col min-h-[180px] animate-fade-up hover:-translate-y-1 <?= $is_locked ? 'bg-[#1e1e2e] border border-[#2a2a3e] hover:border-red-500 hover:shadow-[0_15px_35px_rgba(239,68,68,0.15)]' : 'bg-white shadow-[0_10px_25px_rgba(0,0,0,0.05)] hover:shadow-[0_15px_35px_rgba(0,0,0,0.1)]' ?>" style="animation-delay: 0.1s">
+        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-white text-2xl mb-4 bg-gradient-to-br from-green-600 to-green-800 shadow-lg shadow-green-500/30">
             <i class="bi bi-journal-check"></i>
         </div>
-        <div class="stat-value"><?= number_format($totalDipinjam) ?></div>
-        <div class="stat-label">Dipinjam Aktif</div>
+        <div class="text-3xl font-bold mb-1 <?= $is_locked ? 'text-white' : 'text-[#1a1a2e]' ?>"><?= number_format($totalDipinjam) ?></div>
+        <div class="text-sm font-medium <?= $is_locked ? 'text-gray-400' : 'text-gray-500' ?>">Dipinjam Aktif</div>
     </div>
-</div>
-<div class="col-md-4">
-    <div class="card-dashboard <?= $is_locked ? 'locked-card' : '' ?>">
-        <div class="icon-box <?= $is_locked ? 'bg-red' : 'bg-orange' ?>">
+    
+    <div class="rounded-3xl p-6 transition-all duration-300 flex flex-col min-h-[180px] animate-fade-up hover:-translate-y-1 <?= $is_locked ? 'bg-gradient-to-br from-red-800 to-red-900 text-white border-2 border-red-500 hover:shadow-[0_15px_35px_rgba(239,68,68,0.3)]' : 'bg-white shadow-[0_10px_25px_rgba(0,0,0,0.05)] hover:shadow-[0_15px_35px_rgba(0,0,0,0.1)]' ?>" style="animation-delay: 0.2s">
+        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-white text-2xl mb-4 <?= $is_locked ? 'bg-gradient-to-br from-red-600 to-red-900 shadow-lg shadow-red-500/30' : 'bg-gradient-to-br from-orange-500 to-orange-700 shadow-lg shadow-orange-500/30' ?>">
             <i class="bi bi-exclamation-triangle-fill"></i>
         </div>
-        <div class="stat-value"><?= $totalTerlambat ?></div>
-        <div class="stat-label">Terlambat</div>
-        <div class="action-badge">
+        <div class="text-3xl font-bold mb-1 <?= $is_locked ? 'text-white' : 'text-[#1a1a2e]' ?>"><?= $totalTerlambat ?></div>
+        <div class="text-sm font-medium <?= $is_locked ? 'text-white/80' : 'text-gray-500' ?>">Terlambat</div>
+        <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold mt-3 w-fit border <?= $is_locked ? 'bg-red-500/20 text-red-200 border-red-300' : 'bg-yellow-100 text-yellow-800 border-yellow-200' ?>">
             <i class="bi <?= $is_locked ? 'bi-lock-fill' : 'bi-clock-history' ?>"></i>
             <?= $is_locked ? 'AKSES TERKUNCI' : 'Perlu Tindakan' ?>
         </div>
     </div>
-</div>
-</div>
+  </div>
 
-<!-- BUKU PALING DIMINATI -->
-<div class="table-box">
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="fw-bold" style="color: <?= $is_locked ? '#ffffff' : '#1a1a2e' ?>;"><i class="bi bi-trophy-fill text-warning"></i> Buku Paling Diminati</h4>
-    <a href="katalog.php" class="btn btn-sm btn-outline-primary rounded-4 <?= $is_locked ? 'disabled' : '' ?>" <?= $is_locked ? 'onclick="showLockAlert(); return false;"' : '' ?>>
-        Lihat Semua <i class="bi bi-arrow-right"></i>
-    </a>
-</div>
-
-<!-- Search Box -->
-<div class="mb-4">
-    <div class="input-group">
-        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-        <input type="text" id="searchBookInput" class="form-control" placeholder="Cari buku favorit..." <?= $is_locked ? 'disabled' : '' ?>>
+  <!-- BUKU PALING DIMINATI -->
+  <div class="rounded-3xl p-6 lg:p-8 animate-fade-up <?= $is_locked ? 'bg-[#1a1a2e] border border-[#2a2a3e]' : 'bg-white shadow-sm border border-gray-100' ?>" style="animation-delay: 0.3s">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h4 class="text-xl font-bold m-0 <?= $is_locked ? 'text-white' : 'text-[#1a1a2e]' ?>"><i class="bi bi-trophy-fill text-yellow-500 mr-2"></i> Buku Paling Diminati</h4>
+        <a href="katalog.php" class="inline-flex items-center gap-2 px-4 py-2 border-2 rounded-full text-sm font-semibold transition-colors <?= $is_locked ? 'border-gray-600 text-gray-500 cursor-not-allowed opacity-70' : 'border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white' ?>" <?= $is_locked ? 'onclick="showLockAlert(); return false;"' : '' ?>>
+            Lihat Semua <i class="bi bi-arrow-right"></i>
+        </a>
     </div>
-</div>
 
-<?php if(!$is_locked): ?>
-<div class="book-list-grid" id="bookGrid">
-    <?php if(empty($bukuPopuler)): ?>
-    <div class="text-center text-muted py-4">Belum ada data buku</div>
+    <!-- Search Box -->
+    <div class="mb-6">
+        <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <i class="bi bi-search <?= $is_locked ? 'text-gray-500' : 'text-gray-400' ?>"></i>
+            </div>
+            <input type="text" id="searchBookInput" class="w-full pl-11 pr-4 py-3 rounded-full border focus:outline-none focus:ring-2 transition-all <?= $is_locked ? 'bg-[#252540] border-[#3a3a5e] text-gray-300 placeholder-gray-500 focus:ring-red-500 focus:border-red-500 cursor-not-allowed' : 'bg-gray-50 border-gray-200 text-gray-700 placeholder-gray-400 focus:bg-white focus:ring-blue-500 focus:border-blue-500' ?>" placeholder="Cari buku favorit..." <?= $is_locked ? 'disabled' : '' ?>>
+        </div>
+    </div>
+
+    <?php if(!$is_locked): ?>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4" id="bookGrid">
+        <?php if(empty($bukuPopuler)): ?>
+        <div class="text-center text-gray-500 py-8 col-span-full">Belum ada data buku</div>
+        <?php else: ?>
+        <?php $i=0; foreach($bukuPopuler as $book): $i++; ?>
+        <div class="flex gap-4 p-3 rounded-2xl border cursor-pointer animate-card-fade-in transition-all duration-300 bg-gray-50 border-gray-200 hover:-translate-y-1 hover:shadow-md hover:border-blue-500 group" style="animation-delay: <?= $i*0.05 ?>s" onclick="window.location.href='katalog.php'">
+            <div class="w-14 h-[75px] rounded-xl flex items-center justify-center text-3xl shrink-0 group-hover:scale-105 transition-transform" style="background: <?= getCoverBg($book['kategori_id'] ?? 1); ?>;">
+                <?= getCoverEmoji($book['kategori_id'] ?? 1); ?>
+            </div>
+            <div class="flex flex-col justify-center">
+                <h6 class="text-sm font-bold text-gray-800 mb-1 line-clamp-1"><?= htmlspecialchars($book['judul']); ?></h6>
+                <p class="text-xs text-gray-500 mb-2 line-clamp-1"><?= htmlspecialchars($book['penulis']); ?></p>
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold w-fit <?= getBadgeClass($book) === 'badge-tersedia' ? 'bg-green-100 text-green-700' : (getBadgeClass($book) === 'badge-habis' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700') ?>">
+                    <?= getBadgeText($book); ?>
+                </span>
+            </div>
+        </div>
+        <?php endforeach; ?>
+        <?php endif; ?>
+    </div>
     <?php else: ?>
-    <?php $i=0; foreach($bukuPopuler as $book): $i++; ?>
-    <div class="book-list-item" style="animation-delay: <?= $i*0.05 ?>s" onclick="window.location.href='katalog.php'">
-        <div class="book-icon" style="background: <?= getCoverBg($book['kategori_id'] ?? 1); ?>;">
-            <?= getCoverEmoji($book['kategori_id'] ?? 1); ?>
-        </div>
-        <div class="book-detail">
-            <h6><?= htmlspecialchars($book['judul']); ?></h6>
-            <p><?= htmlspecialchars($book['penulis']); ?></p>
-            <span class="badge-custom <?= getBadgeClass($book); ?>">
-                <?= getBadgeText($book); ?>
-            </span>
-        </div>
+    <div class="text-center p-10 rounded-3xl border-2 border-red-500 bg-gradient-to-br from-[#1e1e2e] to-[#0f0f1a]">
+        <i class="bi bi-lock-fill text-7xl text-red-500 mb-4 inline-block"></i>
+        <h5 class="font-bold mb-3 text-red-300 text-xl">⚠️ AKSES DITOLAK</h5>
+        <p class="text-gray-400 mb-6 max-w-md mx-auto">Anda tidak dapat mengakses Katalog Buku karena memiliki keterlambatan pengembalian.</p>
+        <button class="bg-red-600 hover:bg-red-700 text-white rounded-full px-8 py-3 font-semibold transition-all hover:scale-105 shadow-lg shadow-red-500/30" onclick="openFinePaymentModal()">
+            <i class="bi bi-cash-stack mr-2"></i> Lihat & Bayar Denda
+        </button>
     </div>
-    <?php endforeach; ?>
     <?php endif; ?>
-</div>
-<?php else: ?>
-<div class="locked-message">
-    <i class="bi bi-lock-fill"></i>
-    <h5 class="fw-bold mb-3">⚠️ AKSES DITOLAK</h5>
-    <p>Anda tidak dapat mengakses Katalog Buku karena memiliki keterlambatan pengembalian.</p>
-    <button class="btn btn-danger rounded-4" onclick="openFinePaymentModal()">
-        <i class="bi bi-cash-stack"></i> Lihat & Bayar Denda
-    </button>
-</div>
-<?php endif; ?>
 
-<div id="noBookResult" class="text-center text-muted py-4 d-none">
-    <i class="bi bi-emoji-frown" style="font-size: 48px;"></i>
-    <p class="mt-2">Buku tidak ditemukan</p>
-</div>
+    <div id="noBookResult" class="text-center text-gray-500 py-8 hidden">
+        <i class="bi bi-emoji-frown text-5xl mb-3 inline-block"></i>
+        <p>Buku tidak ditemukan</p>
+    </div>
 
-</div>
+  </div>
 
-</div>
+</main>
 
 <!-- MODAL DETAIL DENDA & PEMBAYARAN -->
-<div class="modal fade" id="finePaymentModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold"><i class="bi bi-calculator-fill me-2"></i>Detail Denda & Pembayaran</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+<div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[1060] flex items-center justify-center opacity-0 invisible transition-all duration-300 p-4" id="finePaymentModalOverlay">
+    <div class="rounded-[28px] w-full max-w-5xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.3)] transform scale-95 transition-transform duration-300 max-h-[90vh] overflow-hidden flex flex-col <?= $is_locked ? 'bg-[#1a1a2e]' : 'bg-white' ?>" id="finePaymentModalBox">
+        <div class="overflow-y-auto w-full">
+            <div class="bg-gradient-to-br from-red-600 to-red-800 p-5 flex justify-between items-center text-white sticky top-0 z-10">
+                <h5 class="text-xl font-bold m-0 flex items-center gap-2"><i class="bi bi-calculator-fill"></i> Detail Denda & Pembayaran</h5>
+                <button type="button" class="text-white hover:text-gray-200 text-2xl leading-none bg-transparent border-0 cursor-pointer" onclick="closeFinePaymentModal()">&times;</button>
             </div>
-            <div class="modal-body p-4">
-                <div class="row g-4">
+            
+            <div class="p-6">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     
                     <!-- KIRI: Daftar Buku -->
-                    <div class="col-lg-7">
-                        <div class="border rounded-4 p-3 mb-3" style="background: <?= $is_locked ? '#252540' : '#f8f9fa' ?>;">
-                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
-                                <h6 class="fw-bold mb-0" style="color: <?= $is_locked ? '#ffffff' : '#333' ?>;">
-                                    <i class="bi bi-journal-bookmark-fill text-danger me-2"></i>
-                                    Daftar Buku Terlambat
-                                </h6>
-                                <div class="d-flex gap-2">
-                                    <?php 
-                                    $hasUnpaidBooks = false;
-                                    foreach($late_books_detail as $book) {
-                                        if(($book['denda_status'] ?? '') !== 'pending') {
-                                            $hasUnpaidBooks = true;
-                                            break;
-                                        }
+                    <div class="lg:col-span-7 space-y-4">
+                        <div class="border rounded-2xl p-4 flex flex-wrap justify-between items-center gap-3 <?= $is_locked ? 'bg-[#252540] border-[#3a3a5e]' : 'bg-gray-50 border-gray-200' ?>">
+                            <h6 class="font-bold m-0 flex items-center gap-2 <?= $is_locked ? 'text-white' : 'text-gray-800' ?>">
+                                <i class="bi bi-journal-bookmark-fill text-red-500"></i> Daftar Buku Terlambat
+                            </h6>
+                            <div class="flex gap-2">
+                                <?php 
+                                $hasUnpaidBooks = false;
+                                foreach($late_books_detail as $book) {
+                                    if(($book['denda_status'] ?? '') !== 'pending') {
+                                        $hasUnpaidBooks = true;
+                                        break;
                                     }
-                                    ?>
-                                    <?php if($is_locked && $hasUnpaidBooks): ?>
-                                    <button class="btn btn-sm btn-outline-danger rounded-4" onclick="selectAllBooks()">
-                                        <i class="bi bi-check-all"></i> Pilih Semua
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-secondary rounded-4" onclick="deselectAllBooks()">
-                                        <i class="bi bi-x-circle"></i> Hapus Semua
-                                    </button>
-                                    <?php endif; ?>
-                                </div>
+                                }
+                                ?>
+                                <?php if($is_locked && $hasUnpaidBooks): ?>
+                                <button class="px-3 py-1.5 text-xs font-semibold border rounded-full transition-colors <?= $is_locked ? 'border-red-500 text-red-400 hover:bg-red-500 hover:text-white' : 'border-red-500 text-red-500 hover:bg-red-50' ?>" onclick="selectAllBooks()">
+                                    <i class="bi bi-check-all"></i> Pilih Semua
+                                </button>
+                                <button class="px-3 py-1.5 text-xs font-semibold border rounded-full transition-colors <?= $is_locked ? 'border-gray-500 text-gray-400 hover:bg-gray-600 hover:text-white' : 'border-gray-400 text-gray-600 hover:bg-gray-100' ?>" onclick="deselectAllBooks()">
+                                    <i class="bi bi-x-circle"></i> Batal
+                                </button>
+                                <?php endif; ?>
                             </div>
-                            <small class="text-muted">
-                                <i class="bi bi-info-circle"></i> 
-                                <?= $hasUnpaidBooks ? 'Centang checkbox untuk memilih buku yang akan dibayar' : 'Semua buku sudah dalam proses konfirmasi pembayaran' ?>
-                            </small>
                         </div>
                         
-                        <div id="fineBooksList">
+                        <div id="fineBooksList" class="space-y-4 max-h-[500px] overflow-y-auto pr-2">
                             <?php if(empty($late_books_detail)): ?>
-                                <div class="text-center py-5">
-                                    <i class="bi bi-emoji-smile fs-1 text-success"></i>
-                                    <h5 class="mt-3" style="color: <?= $is_locked ? '#ffffff' : '#333' ?>;">🎉 Tidak ada buku yang terlambat!</h5>
-                                    <p class="text-muted">Semua peminjaman Anda dalam status baik.</p>
+                                <div class="text-center py-12">
+                                    <i class="bi bi-emoji-smile text-6xl text-green-500 mb-4 inline-block"></i>
+                                    <h5 class="font-bold text-xl mb-2 <?= $is_locked ? 'text-white' : 'text-gray-800' ?>">🎉 Tidak ada buku yang terlambat!</h5>
+                                    <p class="text-gray-500">Semua peminjaman Anda dalam status baik.</p>
                                 </div>
                             <?php else: ?>
                                 <?php foreach($late_books_detail as $index => $book): 
@@ -1084,71 +277,73 @@ small, .small {
                                     $is_waiting_confirmation = ($denda_status === 'pending');
                                     $kode_konfirmasi = $book['kode_konfirmasi'] ?? '';
                                 ?>
-                                <div class="fine-item-card <?= $is_waiting_confirmation ? 'waiting-confirmation' : '' ?>" 
+                                <div class="fine-item-card <?= $is_waiting_confirmation ? 'waiting-confirmation' : '' ?> p-4 rounded-2xl border-2 transition-all cursor-pointer relative <?= $is_waiting_confirmation ? ($is_locked ? 'bg-[#2e2e50] border-yellow-500 opacity-95' : 'bg-yellow-50 border-yellow-500 opacity-95') : ($is_locked ? 'bg-[#252540] border-[#3a3a5e] hover:border-red-500' : 'bg-white border-gray-200 hover:border-red-500 hover:shadow-md') ?>" 
                                      data-id="<?= $book['buku_id'] ?>" 
                                      data-peminjaman-id="<?= $book['id'] ?>" 
                                      data-late-days="<?= $book['late_days'] ?>" 
                                      data-denda-status="<?= $denda_status ?>"
                                      onclick="<?= !$is_waiting_confirmation && $is_locked ? 'toggleSelectFineBook(this, event)' : '' ?>">
                                     
-                                    <div class="d-flex align-items-start gap-3">
+                                    <div class="flex items-start gap-4">
                                         <?php if($is_waiting_confirmation): ?>
-                                            <div class="status-waiting-icon">
-                                                <i class="bi bi-hourglass-split" style="font-size: 18px; color: #ffc107;"></i>
+                                            <div class="w-8 h-8 rounded-full bg-yellow-100 border-2 border-yellow-500 flex items-center justify-center animate-pulse shrink-0">
+                                                <i class="bi bi-hourglass-split text-yellow-600 text-sm"></i>
                                             </div>
                                         <?php else: ?>
-                                            <div class="custom-checkbox" id="fineCheckbox_<?= $book['buku_id'] ?>">
-                                                <i class="bi bi-check-lg" style="font-size: 14px;"></i>
+                                            <div class="custom-checkbox w-6 h-6 rounded border-2 border-red-500 flex items-center justify-center shrink-0 transition-colors mt-1 <?= $is_locked ? 'bg-[#252540]' : 'bg-white' ?>" id="fineCheckbox_<?= $book['buku_id'] ?>">
+                                                <i class="bi bi-check-lg text-sm opacity-0 text-white transition-opacity"></i>
                                             </div>
                                         <?php endif; ?>
                                         
-                                        <div class="book-icon-small" style="width: 50px; height: 60px; background: <?= getCoverBg($book['kategori_id'] ?? 1); ?>; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 28px;">
+                                        <div class="w-12 h-16 rounded-xl flex items-center justify-center text-3xl shrink-0" style="background: <?= getCoverBg($book['kategori_id'] ?? 1); ?>;">
                                             <?= getCoverEmoji($book['kategori_id'] ?? 1); ?>
                                         </div>
                                         
-                                        <div class="flex-grow-1">
-                                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                                                <h6 class="fw-bold mb-2" style="color: <?= $is_locked ? '#ffffff' : '#1a1a2e' ?>;">
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex flex-wrap justify-between items-start gap-2 mb-2">
+                                                <h6 class="font-bold m-0 text-base line-clamp-1 <?= $is_locked ? 'text-white' : 'text-gray-900' ?>">
                                                     <?= htmlspecialchars($book['judul']) ?>
                                                 </h6>
                                                 <?php if($is_waiting_confirmation): ?>
-                                                    <span class="status-badge-waiting">
-                                                        <i class="bi bi-clock-history"></i> Menunggu Konfirmasi Admin
+                                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-yellow-100 text-yellow-800 text-[10px] font-bold rounded-full">
+                                                        <i class="bi bi-clock-history"></i> Menunggu Konfirmasi
                                                     </span>
                                                 <?php else: ?>
-                                                    <span class="badge bg-danger">
+                                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-100 text-red-700 text-[10px] font-bold rounded-full">
                                                         <i class="bi bi-exclamation-triangle"></i> Belum Dibayar
                                                     </span>
                                                 <?php endif; ?>
                                             </div>
                                             
-                                            <div class="row g-2 mb-2">
-                                                <div class="col-6">
-                                                    <small class="text-muted">📅 Jatuh Tempo:</small>
-                                                    <div class="fw-semibold" style="color: <?= $is_locked ? '#e0e0e0' : '#333' ?>;"><?= formatDate($book['tanggal_kembali']) ?></div>
+                                            <div class="grid grid-cols-2 gap-2 mb-3">
+                                                <div>
+                                                    <small class="text-gray-500 text-[10px] block mb-0.5">📅 Jatuh Tempo</small>
+                                                    <div class="font-semibold text-xs <?= $is_locked ? 'text-gray-300' : 'text-gray-700' ?>"><?= formatDate($book['tanggal_kembali']) ?></div>
                                                 </div>
-                                                <div class="col-6">
-                                                    <small class="text-muted">⏰ Terlambat:</small>
-                                                    <div class="fw-semibold text-danger"><?= $book['late_days'] ?> Hari</div>
+                                                <div>
+                                                    <small class="text-gray-500 text-[10px] block mb-0.5">⏰ Terlambat</small>
+                                                    <div class="font-semibold text-xs text-red-500"><?= $book['late_days'] ?> Hari</div>
                                                 </div>
                                             </div>
                                             
-                                            <div class="d-flex justify-content-between align-items-center mt-2">
-                                                <span class="badge bg-warning text-dark">Denda/hari: <?= formatRupiah($denda_per_hari) ?></span>
-                                                <strong class="<?= $is_waiting_confirmation ? 'text-warning' : 'text-danger' ?> fs-5" id="fineAmount_<?= $book['buku_id'] ?>">
-                                                    <?= $is_waiting_confirmation ? 'Menunggu Konfirmasi' : formatRupiah($fine_amount) ?>
+                                            <div class="flex justify-between items-center bg-black/5 p-2 rounded-lg <?= $is_locked ? 'bg-white/5' : 'bg-gray-50' ?>">
+                                                <span class="text-[10px] font-medium <?= $is_locked ? 'text-yellow-400' : 'text-yellow-600' ?>">Denda: <?= formatRupiah($denda_per_hari) ?>/hari</span>
+                                                <strong class="text-sm <?= $is_waiting_confirmation ? 'text-yellow-500' : 'text-red-600' ?>" id="fineAmount_<?= $book['buku_id'] ?>">
+                                                    <?= $is_waiting_confirmation ? 'Menunggu...' : formatRupiah($fine_amount) ?>
                                                 </strong>
                                             </div>
                                             
                                             <?php if($is_waiting_confirmation && $kode_konfirmasi): ?>
-                                            <div class="mt-2 pt-2 border-top">
-                                                <small class="text-muted">
-                                                    <i class="bi bi-upc-scan"></i> Kode Konfirmasi: 
-                                                    <code class="fw-bold"><?= htmlspecialchars($kode_konfirmasi) ?></code>
-                                                    <a href="konfirmasi_pembayaran.php?kode=<?= $kode_konfirmasi ?>" class="btn btn-link btn-sm p-0 ms-2" target="_blank">
-                                                        <i class="bi bi-eye"></i> Detail
+                                            <div class="mt-3 pt-3 border-t <?= $is_locked ? 'border-gray-700' : 'border-gray-200' ?>">
+                                                <div class="flex items-center justify-between">
+                                                    <small class="text-gray-500 flex items-center gap-2">
+                                                        <i class="bi bi-upc-scan"></i> Kode: 
+                                                        <code class="font-bold text-gray-900 bg-gray-200 px-2 py-0.5 rounded <?= $is_locked ? 'text-gray-200 bg-gray-700' : '' ?>"><?= htmlspecialchars($kode_konfirmasi) ?></code>
+                                                    </small>
+                                                    <a href="konfirmasi_pembayaran.php?kode=<?= $kode_konfirmasi ?>" class="text-xs font-semibold text-blue-600 hover:underline" target="_blank">
+                                                        Detail <i class="bi bi-box-arrow-up-right ml-1"></i>
                                                     </a>
-                                                </small>
+                                                </div>
                                             </div>
                                             <?php endif; ?>
                                         </div>
@@ -1160,7 +355,7 @@ small, .small {
                     </div>
                     
                     <!-- KANAN: Total & Pembayaran -->
-                    <div class="col-lg-5">
+                    <div class="lg:col-span-5 space-y-6">
                         <?php
                         $allWaiting = true;
                         $anyUnpaid = false;
@@ -1174,102 +369,91 @@ small, .small {
                         ?>
                         
                         <?php if($allWaiting && !empty($late_books_detail)): ?>
-                            <div class="text-center p-4 border rounded-4" style="background: <?= $is_locked ? '#252540' : '#fff3cd' ?>;">
-                                <div class="status-waiting-icon mx-auto" style="width: 60px; height: 60px;">
-                                    <i class="bi bi-hourglass-split" style="font-size: 30px; color: #ffc107;"></i>
+                            <div class="text-center p-6 border rounded-3xl <?= $is_locked ? 'bg-[#252540] border-[#3a3a5e]' : 'bg-yellow-50 border-yellow-200' ?>">
+                                <div class="w-16 h-16 bg-yellow-100 rounded-full border-2 border-yellow-400 flex items-center justify-center text-3xl mx-auto mb-4 animate-pulse">
+                                    <i class="bi bi-hourglass-split text-yellow-600"></i>
                                 </div>
-                                <h5 class="mt-3 fw-bold text-warning">Menunggu Konfirmasi Admin</h5>
-                                <p class="mb-0">Semua buku yang terlambat sudah dalam proses konfirmasi pembayaran.</p>
-                                <small class="text-muted">Silakan tunggu admin mengkonfirmasi pembayaran Anda.</small>
-                                <hr>
+                                <h5 class="font-bold text-lg text-yellow-600 mb-2">Menunggu Konfirmasi</h5>
+                                <p class="text-sm text-gray-600 mb-4 <?= $is_locked ? 'text-gray-400' : '' ?>">Semua buku yang terlambat sudah dalam proses konfirmasi pembayaran oleh Admin.</p>
                                 <?php 
                                 $firstKode = $late_books_detail[0]['kode_konfirmasi'] ?? '';
                                 if($firstKode):
                                 ?>
-                                <a href="konfirmasi_pembayaran.php?kode=<?= $firstKode ?>" class="btn btn-warning rounded-4 mt-2">
-                                    <i class="bi bi-eye"></i> Lihat Status Pembayaran
+                                <a href="konfirmasi_pembayaran.php?kode=<?= $firstKode ?>" class="inline-block w-full text-center bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-4 rounded-xl transition-colors">
+                                    <i class="bi bi-eye mr-2"></i> Lihat Status
                                 </a>
                                 <?php endif; ?>
                             </div>
                         <?php elseif($anyUnpaid): ?>
-                            <div class="total-box mb-4">
-                                <i class="bi bi-receipt fs-2" style="color: white;"></i>
-                                <h6 class="mb-2" style="color: white;">Total Yang Akan Dibayar</h6>
-                                <div class="total-amount" id="totalFineAmountDisplay" style="color: white;">Rp 0</div>
-                                <small style="color: rgba(255,255,255,0.7);"><i class="bi bi-info-circle" style="color: rgba(255,255,255,0.7);"></i> Denda akan terus bertambah setiap hari</small>
+                            <div class="bg-gradient-to-br from-red-600 to-red-800 rounded-3xl p-6 text-white text-center shadow-lg">
+                                <i class="bi bi-receipt text-3xl mb-2 inline-block opacity-80"></i>
+                                <h6 class="text-red-100 font-medium mb-1">Total Yang Akan Dibayar</h6>
+                                <div class="text-4xl font-black mb-3" id="totalFineAmountDisplay">Rp 0</div>
+                                <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-black/20 rounded-full text-[11px] text-red-100">
+                                    <i class="bi bi-info-circle"></i> Denda terus bertambah setiap hari
+                                </div>
                             </div>
                             
-                            <div class="border rounded-4 p-3 mb-3" style="background: <?= $is_locked ? '#252540' : '#f8f9fa' ?>;">
-                                <h6 class="fw-bold mb-3" style="color: <?= $is_locked ? '#ffffff' : '#333' ?>;"><i class="bi bi-credit-card text-primary me-2"></i>Pilih Metode Pembayaran</h6>
-                                <div class="row g-3">
-                                    <div class="col-6">
-                                        <div class="payment-card" data-method="qris" onclick="selectPaymentMethod('qris')">
-                                            <i class="bi bi-qr-code-scan"></i>
-                                            <div class="fw-semibold">QRIS</div>
-                                            <small class="text-muted">Scan QR Code</small>
-                                        </div>
+                            <div class="border rounded-2xl p-5 <?= $is_locked ? 'bg-[#252540] border-[#3a3a5e]' : 'bg-gray-50 border-gray-200' ?>">
+                                <h6 class="font-bold mb-4 flex items-center gap-2 <?= $is_locked ? 'text-white' : 'text-gray-800' ?>">
+                                    <i class="bi bi-credit-card text-blue-500"></i> Metode Pembayaran
+                                </h6>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div class="payment-card border-2 rounded-xl p-3 text-center cursor-pointer transition-all <?= $is_locked ? 'bg-[#1a1a2e] border-[#3a3a5e] hover:border-blue-500 text-gray-300' : 'bg-white border-gray-200 hover:border-blue-500 text-gray-600' ?>" data-method="qris" onclick="selectPaymentMethod('qris')">
+                                        <i class="bi bi-qr-code-scan text-2xl mb-1 block <?= $is_locked ? 'text-gray-400' : 'text-gray-400' ?>"></i>
+                                        <div class="font-bold text-sm">QRIS</div>
+                                        <div class="text-[10px] text-gray-500">Scan QR Code</div>
                                     </div>
-                                    <div class="col-6">
-                                        <div class="payment-card" data-method="transfer" onclick="selectPaymentMethod('transfer')">
-                                            <i class="bi bi-building"></i>
-                                            <div class="fw-semibold">Transfer Bank</div>
-                                            <small class="text-muted">BCA/BRI/Mandiri</small>
-                                        </div>
+                                    <div class="payment-card border-2 rounded-xl p-3 text-center cursor-pointer transition-all <?= $is_locked ? 'bg-[#1a1a2e] border-[#3a3a5e] hover:border-blue-500 text-gray-300' : 'bg-white border-gray-200 hover:border-blue-500 text-gray-600' ?>" data-method="transfer" onclick="selectPaymentMethod('transfer')">
+                                        <i class="bi bi-bank text-2xl mb-1 block <?= $is_locked ? 'text-gray-400' : 'text-gray-400' ?>"></i>
+                                        <div class="font-bold text-sm">Transfer</div>
+                                        <div class="text-[10px] text-gray-500">BCA/BRI/Mandiri</div>
                                     </div>
-                                    <div class="col-6">
-                                        <div class="payment-card" data-method="ewallet" onclick="selectPaymentMethod('ewallet')">
-                                            <i class="bi bi-phone"></i>
-                                            <div class="fw-semibold">E-Wallet</div>
-                                            <small class="text-muted">OVO/GoPay/DANA</small>
-                                        </div>
+                                    <div class="payment-card border-2 rounded-xl p-3 text-center cursor-pointer transition-all <?= $is_locked ? 'bg-[#1a1a2e] border-[#3a3a5e] hover:border-blue-500 text-gray-300' : 'bg-white border-gray-200 hover:border-blue-500 text-gray-600' ?>" data-method="ewallet" onclick="selectPaymentMethod('ewallet')">
+                                        <i class="bi bi-phone text-2xl mb-1 block <?= $is_locked ? 'text-gray-400' : 'text-gray-400' ?>"></i>
+                                        <div class="font-bold text-sm">E-Wallet</div>
+                                        <div class="text-[10px] text-gray-500">OVO/GoPay/DANA</div>
                                     </div>
-                                    <div class="col-6">
-                                        <div class="payment-card" data-method="tunai" onclick="selectPaymentMethod('tunai')">
-                                            <i class="bi bi-cash-stack"></i>
-                                            <div class="fw-semibold">Tunai</div>
-                                            <small class="text-muted">Di perpustakaan</small>
-                                        </div>
+                                    <div class="payment-card border-2 rounded-xl p-3 text-center cursor-pointer transition-all <?= $is_locked ? 'bg-[#1a1a2e] border-[#3a3a5e] hover:border-blue-500 text-gray-300' : 'bg-white border-gray-200 hover:border-blue-500 text-gray-600' ?>" data-method="tunai" onclick="selectPaymentMethod('tunai')">
+                                        <i class="bi bi-cash-stack text-2xl mb-1 block <?= $is_locked ? 'text-gray-400' : 'text-gray-400' ?>"></i>
+                                        <div class="font-bold text-sm">Tunai</div>
+                                        <div class="text-[10px] text-gray-500">Di perpustakaan</div>
                                     </div>
                                 </div>
                             </div>
                             
-                            <div class="qr-code-box mb-3" id="paymentDetailBox">
-                                <div class="qr-placeholder" id="qrPlaceholder">
+                            <div class="border-2 border-dashed rounded-2xl p-6 text-center <?= $is_locked ? 'bg-[#1a1a2e] border-[#3a3a5e]' : 'bg-white border-gray-200' ?>" id="paymentDetailBox">
+                                <div class="w-32 h-32 mx-auto mb-4 rounded-xl flex items-center justify-center text-5xl <?= $is_locked ? 'bg-[#252540] text-gray-600' : 'bg-gray-100 text-gray-400' ?>" id="qrPlaceholder">
                                     <i class="bi bi-qr-code"></i>
                                 </div>
-                                <h6 class="fw-bold" id="paymentTitle" style="color: <?= $is_locked ? '#ffffff' : '#333' ?>;">Scan QR Code untuk membayar</h6>
-                                <p class="text-muted small mb-0" id="paymentDesc">Gunakan aplikasi mobile banking atau e-wallet</p>
+                                <h6 class="font-bold mb-1 <?= $is_locked ? 'text-white' : 'text-gray-800' ?>" id="paymentTitle">Pilih Metode Pembayaran</h6>
+                                <p class="text-xs text-gray-500 m-0" id="paymentDesc">Silakan pilih salah satu metode di atas</p>
                             </div>
                             
-                            <button class="btn btn-pay w-100" id="payFineButton" onclick="processFinePayment()" disabled>
-                                <i class="bi bi-lock-fill me-2"></i> Pilih Buku Terlebih Dahulu
+                            <button class="w-full py-4 rounded-full font-bold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-red-600 hover:bg-red-700 hover:shadow-[0_8px_20px_rgba(220,38,38,0.3)]" id="payFineButton" onclick="processFinePayment()" disabled>
+                                <i class="bi bi-lock-fill mr-2"></i> Pilih Buku Terlebih Dahulu
                             </button>
                         <?php else: ?>
-                            <div class="text-center p-4 border rounded-4" style="background: <?= $is_locked ? '#252540' : '#d4edda' ?>;">
-                                <i class="bi bi-check-circle-fill fs-1 text-success"></i>
-                                <h5 class="mt-2 fw-bold text-success">Tidak Ada Denda</h5>
-                                <p class="mb-0">Semua peminjaman Anda dalam status baik.</p>
+                            <div class="text-center p-8 border rounded-3xl <?= $is_locked ? 'bg-[#252540] border-[#3a3a5e]' : 'bg-green-50 border-green-200' ?>">
+                                <i class="bi bi-check-circle-fill text-6xl text-green-500 mb-4 inline-block"></i>
+                                <h5 class="font-bold text-xl text-green-600 mb-2">Tidak Ada Denda</h5>
+                                <p class="text-gray-500 mb-0">Terima kasih telah mengembalikan tepat waktu.</p>
                             </div>
                         <?php endif; ?>
                         
-                        <div class="text-center mt-3">
-                            <small class="text-muted">
-                                <i class="bi bi-clock-history"></i> <?= date('j/n/Y') ?>
-                            </small>
-                        </div>
                     </div>
-                    
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary rounded-4" data-bs-dismiss="modal">Tutup</button>
+            
+            <div class="p-4 border-t flex justify-end <?= $is_locked ? 'bg-[#16213e] border-[#2a2a3e]' : 'bg-gray-50 border-gray-200' ?>">
+                <button type="button" class="px-6 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-xl transition-colors" onclick="closeFinePaymentModal()">Tutup</button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Toast Container -->
-<div id="toastContainer"></div>
+<div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -1283,32 +467,25 @@ const closeBtn = document.getElementById('closeSidebarBtn');
 const body = document.body;
 
 function openSidebar() {
-    sidebar.classList.add('show');
-    overlay.classList.add('show');
-    body.classList.add('sidebar-open');
+    sidebar.classList.remove('-translate-x-full');
+    overlay.classList.remove('opacity-0', 'invisible');
+    overlay.classList.add('opacity-100', 'visible');
     isSidebarOpen = true;
-    if (window.innerWidth < 992) body.style.overflow = 'hidden';
+    if (window.innerWidth < 1024) body.style.overflow = 'hidden';
 }
 
 function closeSidebar() {
-    sidebar.classList.remove('show');
-    overlay.classList.remove('show');
-    body.classList.remove('sidebar-open');
+    sidebar.classList.add('-translate-x-full');
+    overlay.classList.remove('opacity-100', 'visible');
+    overlay.classList.add('opacity-0', 'invisible');
     isSidebarOpen = false;
-    if (window.innerWidth < 992) body.style.overflow = '';
-}
-
-function initSidebarState() {
-    if (window.innerWidth >= 992) overlay.style.display = 'none';
-    else { overlay.style.display = ''; closeSidebar(); }
+    if (window.innerWidth < 1024) body.style.overflow = '';
 }
 
 if (openBtn) openBtn.addEventListener('click', openSidebar);
 if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
 if (overlay) overlay.addEventListener('click', closeSidebar);
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && isSidebarOpen) closeSidebar(); });
-window.addEventListener('resize', initSidebarState);
-initSidebarState();
 
 // ==================== DATA DARI PHP ====================
 let lateBooks = <?php echo json_encode($late_books_detail); ?>;
@@ -1343,25 +520,38 @@ function showToast(title, message, type = 'success', duration = 4000) {
     const container = document.getElementById('toastContainer');
     if (!container) return;
     
-    const toastId = 'toast_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-    const icons = { success: '✓', error: '✕', warning: '⚠', info: 'ℹ' };
-    const icon = icons[type] || 'ℹ';
+    const toastId = 'toast_' + Date.now();
+    const icons = { success: 'bi-check-circle', error: 'bi-x-circle', warning: 'bi-exclamation-triangle', info: 'bi-info-circle' };
+    const icon = icons[type] || 'bi-info-circle';
+    const bgColors = { success: 'bg-green-100 text-green-600', error: 'bg-red-100 text-red-600', warning: 'bg-yellow-100 text-yellow-600', info: 'bg-blue-100 text-blue-600' };
+    const borderColors = { success: 'border-green-500', error: 'border-red-500', warning: 'border-yellow-500', info: 'border-blue-500' };
     
     const toastHTML = `
-        <div id="${toastId}" class="toast-notification">
-            <div class="toast-card toast-${type}">
-                <div class="toast-icon" style="width: 40px; height: 40px; background: ${type === 'success' ? '#e8f5e9' : type === 'error' ? '#fee' : '#fff8e7'}; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">${icon}</div>
-                <div class="toast-content">
-                    <div class="toast-title fw-bold">${title}</div>
-                    <div class="toast-message">${message}</div>
-                </div>
-                <button class="toast-close" onclick="this.closest('.toast-notification').remove()">×</button>
+        <div id="${toastId}" class="bg-white rounded-xl shadow-lg border-l-4 ${borderColors[type]} flex items-start gap-3 p-4 min-w-[300px] max-w-[400px] transform transition-all duration-300 translate-x-full">
+            <div class="w-8 h-8 rounded-full ${bgColors[type]} flex items-center justify-center shrink-0">
+                <i class="bi ${icon} text-lg"></i>
             </div>
+            <div class="flex-1">
+                <h6 class="font-bold text-gray-800 m-0 text-sm">${title}</h6>
+                <p class="text-gray-500 text-xs m-0 mt-1">${message}</p>
+            </div>
+            <button class="text-gray-400 hover:text-gray-700" onclick="this.closest('#${toastId}').remove()"><i class="bi bi-x-lg"></i></button>
         </div>
     `;
     
     container.insertAdjacentHTML('beforeend', toastHTML);
-    setTimeout(() => { const toast = document.getElementById(toastId); if (toast) toast.remove(); }, duration);
+    const toastEl = document.getElementById(toastId);
+    
+    // Animate in
+    setTimeout(() => { toastEl.classList.remove('translate-x-full'); }, 10);
+    
+    // Auto remove
+    setTimeout(() => { 
+        if(toastEl) {
+            toastEl.classList.add('translate-x-full');
+            setTimeout(() => toastEl.remove(), 300);
+        }
+    }, duration);
 }
 
 // ==================== AUTO CHECK STATUS ====================
@@ -1398,23 +588,59 @@ function openFinePaymentModal() {
     
     document.querySelectorAll('.payment-card').forEach(card => card.classList.remove('selected'));
     
-    const modal = new bootstrap.Modal(document.getElementById('finePaymentModal'));
-    modal.show();
+    const qrPlaceholder = document.getElementById('qrPlaceholder');
+    const paymentTitle = document.getElementById('paymentTitle');
+    const paymentDesc = document.getElementById('paymentDesc');
+    if(qrPlaceholder) {
+        qrPlaceholder.innerHTML = '<i class="bi bi-qr-code"></i>';
+        qrPlaceholder.className = `w-32 h-32 mx-auto mb-4 rounded-xl flex items-center justify-center text-5xl ${isLocked ? 'bg-[#252540] text-gray-600' : 'bg-gray-100 text-gray-400'}`;
+    }
+    if(paymentTitle) paymentTitle.innerHTML = 'Pilih Metode Pembayaran';
+    if(paymentDesc) paymentDesc.innerHTML = 'Silakan pilih salah satu metode di atas';
+    const overlay = document.getElementById('finePaymentModalOverlay');
+    const box = document.getElementById('finePaymentModalBox');
+    if (overlay && box) {
+        overlay.classList.remove('opacity-0', 'invisible');
+        box.classList.remove('scale-95');
+        box.classList.add('scale-100');
+        document.body.classList.add('overflow-hidden');
+    }
+}
+
+function closeFinePaymentModal() {
+    const overlay = document.getElementById('finePaymentModalOverlay');
+    const box = document.getElementById('finePaymentModalBox');
+    if (overlay && box) {
+        overlay.classList.add('opacity-0', 'invisible');
+        box.classList.remove('scale-100');
+        box.classList.add('scale-95');
+        document.body.classList.remove('overflow-hidden');
+    }
 }
 
 function toggleSelectFineBook(element, event) {
-    if (event.target.closest('.custom-checkbox')) event.stopPropagation();
-    
     const bookId = element.dataset.id;
     const checkbox = document.getElementById('fineCheckbox_' + bookId);
     
     if (selectedFineBooks.has(bookId)) {
         selectedFineBooks.delete(bookId);
-        element.classList.remove('selected');
+        if(isLocked) {
+            element.classList.remove('border-red-500', 'bg-[#2e2e50]');
+            element.classList.add('border-[#3a3a5e]', 'bg-[#252540]');
+        } else {
+            element.classList.remove('border-red-500', 'bg-red-50');
+            element.classList.add('border-gray-200', 'bg-white');
+        }
         if (checkbox) checkbox.classList.remove('checked');
     } else {
         selectedFineBooks.add(bookId);
-        element.classList.add('selected');
+        if(isLocked) {
+            element.classList.remove('border-[#3a3a5e]', 'bg-[#252540]');
+            element.classList.add('border-red-500', 'bg-[#2e2e50]');
+        } else {
+            element.classList.remove('border-gray-200', 'bg-white');
+            element.classList.add('border-red-500', 'bg-red-50');
+        }
         if (checkbox) checkbox.classList.add('checked');
     }
     
@@ -1427,8 +653,14 @@ function selectAllBooks() {
         const bookId = card.dataset.id;
         if (!selectedFineBooks.has(bookId)) {
             selectedFineBooks.add(bookId);
-            card.classList.add('selected');
             const checkbox = document.getElementById('fineCheckbox_' + bookId);
+            if(isLocked) {
+                card.classList.remove('border-[#3a3a5e]', 'bg-[#252540]');
+                card.classList.add('border-red-500', 'bg-[#2e2e50]');
+            } else {
+                card.classList.remove('border-gray-200', 'bg-white');
+                card.classList.add('border-red-500', 'bg-red-50');
+            }
             if (checkbox) checkbox.classList.add('checked');
         }
     });
@@ -1439,8 +671,14 @@ function selectAllBooks() {
 function deselectAllBooks() {
     selectedFineBooks.clear();
     document.querySelectorAll('.fine-item-card').forEach(card => {
-        card.classList.remove('selected');
         const checkbox = document.getElementById('fineCheckbox_' + card.dataset.id);
+        if(isLocked) {
+            card.classList.remove('border-red-500', 'bg-[#2e2e50]');
+            card.classList.add('border-[#3a3a5e]', 'bg-[#252540]');
+        } else {
+            card.classList.remove('border-red-500', 'bg-red-50');
+            card.classList.add('border-gray-200', 'bg-white');
+        }
         if (checkbox) checkbox.classList.remove('checked');
     });
     updateFineTotal();
@@ -1473,13 +711,13 @@ function updatePayButton() {
                 }
             });
             payButton.disabled = false;
-            payButton.innerHTML = '<i class="bi bi-cash-stack me-2"></i> Bayar ' + formatRupiah(total);
+            payButton.innerHTML = '<i class="bi bi-cash-stack mr-2"></i> Bayar ' + formatRupiah(total);
         } else if (selectedFineBooks.size > 0) {
             payButton.disabled = true;
-            payButton.innerHTML = '<i class="bi bi-credit-card me-2"></i> Pilih Metode Pembayaran';
+            payButton.innerHTML = '<i class="bi bi-credit-card mr-2"></i> Pilih Metode Pembayaran';
         } else {
             payButton.disabled = true;
-            payButton.innerHTML = '<i class="bi bi-lock-fill me-2"></i> Pilih Buku Terlebih Dahulu';
+            payButton.innerHTML = '<i class="bi bi-lock-fill mr-2"></i> Pilih Buku Terlebih Dahulu';
         }
     }
 }
@@ -1496,26 +734,27 @@ function selectPaymentMethod(method) {
     const paymentDesc = document.getElementById('paymentDesc');
     
     if (qrPlaceholder && paymentTitle && paymentDesc) {
+        qrPlaceholder.className = `w-32 h-32 mx-auto mb-4 rounded-xl flex items-center justify-center text-5xl bg-red-100 text-red-500`;
         switch(method) {
             case 'qris':
-                qrPlaceholder.innerHTML = '<i class="bi bi-qr-code" style="color: #ef4444;"></i>';
+                qrPlaceholder.innerHTML = '<i class="bi bi-qr-code"></i>';
                 paymentTitle.innerHTML = 'Scan QR Code untuk membayar';
                 paymentDesc.innerHTML = 'Gunakan aplikasi mobile banking atau e-wallet';
                 break;
             case 'transfer':
-                qrPlaceholder.innerHTML = '<i class="bi bi-building" style="color: #ef4444;"></i>';
+                qrPlaceholder.innerHTML = '<i class="bi bi-bank"></i>';
                 paymentTitle.innerHTML = 'Transfer Bank';
-                paymentDesc.innerHTML = 'BCA: 1234567890 a.n Perpustakaan Digital<br>BRI: 0987654321 a.n Perpustakaan Digital';
+                paymentDesc.innerHTML = 'BCA: 1234567890 a.n Perpustakaan<br>BRI: 0987654321 a.n Perpustakaan';
                 break;
             case 'ewallet':
-                qrPlaceholder.innerHTML = '<i class="bi bi-phone" style="color: #ef4444;"></i>';
+                qrPlaceholder.innerHTML = '<i class="bi bi-phone"></i>';
                 paymentTitle.innerHTML = 'Pembayaran E-Wallet';
                 paymentDesc.innerHTML = 'OVO/GoPay/DANA: 081234567890';
                 break;
             case 'tunai':
-                qrPlaceholder.innerHTML = '<i class="bi bi-cash-stack" style="color: #ef4444;"></i>';
+                qrPlaceholder.innerHTML = '<i class="bi bi-cash-stack"></i>';
                 paymentTitle.innerHTML = 'Pembayaran Tunai';
-                paymentDesc.innerHTML = 'Silakan datang ke petugas perpustakaan untuk membayar denda';
+                paymentDesc.innerHTML = 'Silakan datang ke petugas perpustakaan';
                 break;
         }
     }
@@ -1609,7 +848,7 @@ function processPaymentToServer(bookIds, method, total) {
     const originalText = payButton ? payButton.innerHTML : '';
     if (payButton) {
         payButton.disabled = true;
-        payButton.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> Memproses...';
+        payButton.innerHTML = '<i class="bi bi-hourglass-split mr-2"></i> Memproses...';
     }
     
     fetch(window.location.href, {
@@ -1625,12 +864,11 @@ function processPaymentToServer(bookIds, method, total) {
         if (data.success) {
             if (method === 'tunai') {
                 startStatusCheck();
-                const modal = bootstrap.Modal.getInstance(document.getElementById('finePaymentModal'));
-                if (modal) modal.hide();
+                closeFinePaymentModal();
                 showToast('⏳ Menunggu Konfirmasi', 'Status pembayaran akan diperbarui otomatis', 'info', 5000);
                 
                 Swal.fire({
-                    title: '💰 Menunggu Konfirmasi Petugas',
+                    title: '💰 Menunggu Konfirmasi',
                     html: `
                         <div style="text-align: left;">
                             <div class="alert alert-success">
@@ -1639,16 +877,6 @@ function processPaymentToServer(bookIds, method, total) {
                             <div class="alert alert-info mt-3" style="background: #e3f2fd;">
                                 <strong>Kode Konfirmasi Anda:</strong><br>
                                 <code style="font-size: 28px; font-weight: bold; letter-spacing: 2px;">${data.kode_konfirmasi}</code>
-                            </div>
-                            <div class="alert alert-warning mt-3">
-                                <i class="bi bi-exclamation-triangle-fill"></i>
-                                <strong>Langkah Selanjutnya:</strong>
-                                <ol class="mt-2" style="text-align: left;">
-                                    <li>Simpan kode konfirmasi di atas</li>
-                                    <li>Datang ke petugas perpustakaan</li>
-                                    <li>Tunjukkan kode ini dan lakukan pembayaran tunai</li>
-                                    <li>Petugas akan memverifikasi dan memulihkan akses Anda</li>
-                                </ol>
                             </div>
                         </div>
                     `,
@@ -1719,7 +947,7 @@ function confirmLogout() {
         confirmButtonColor: '#dc3545'
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = 'logout.php';
+            window.location.href = '../public/logout.php';
         }
     });
     return false;
@@ -1763,11 +991,11 @@ function updateBookGrid(books) {
     
     if (books.length === 0) {
         if (grid) grid.innerHTML = '';
-        if (noResultDiv) noResultDiv.classList.remove('d-none');
+        if (noResultDiv) noResultDiv.classList.remove('hidden');
         return;
     }
     
-    if (noResultDiv) noResultDiv.classList.add('d-none');
+    if (noResultDiv) noResultDiv.classList.add('hidden');
     if (grid) {
         grid.style.opacity = '0';
         grid.style.transform = 'translateY(20px)';
@@ -1775,15 +1003,19 @@ function updateBookGrid(books) {
         setTimeout(() => {
             grid.innerHTML = books.map((book, index) => {
                 const badgeText = book.stok <= 0 ? 'Habis' : (book.stok <= 3 ? book.stok + ' Tersisa' : 'Tersedia');
-                const badgeClass = book.stok <= 0 ? 'badge-habis' : (book.stok <= 3 ? 'badge-terbatas' : 'badge-tersedia');
+                const badgeClass = book.stok <= 0 ? 'bg-red-100 text-red-700' : (book.stok <= 3 ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700');
                 
                 return `
-                <div class="book-list-item" style="animation-delay: ${index * 0.05}s" onclick="window.location.href='katalog.php'">
-                    <div class="book-icon" style="background: ${book.bg || '#d4eaf4'};">${book.cover || '📔'}</div>
-                    <div class="book-detail">
-                        <h6>${escapeHtml(book.judul)}</h6>
-                        <p>${escapeHtml(book.penulis)}</p>
-                        <span class="badge-custom ${badgeClass}">${badgeText}</span>
+                <div class="flex gap-4 p-3 rounded-2xl border cursor-pointer animate-card-fade-in transition-all duration-300 bg-gray-50 border-gray-200 hover:-translate-y-1 hover:shadow-md hover:border-blue-500 group" style="animation-delay: ${index * 0.05}s" onclick="window.location.href='katalog.php'">
+                    <div class="w-14 h-[75px] rounded-xl flex items-center justify-center text-3xl shrink-0 group-hover:scale-105 transition-transform" style="background: ${book.bg || '#d4eaf4'};">
+                        ${book.cover || '📔'}
+                    </div>
+                    <div class="flex flex-col justify-center">
+                        <h6 class="text-sm font-bold text-gray-800 mb-1 line-clamp-1">${escapeHtml(book.judul)}</h6>
+                        <p class="text-xs text-gray-500 mb-2 line-clamp-1">${escapeHtml(book.penulis)}</p>
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold w-fit ${badgeClass}">
+                            ${badgeText}
+                        </span>
                     </div>
                 </div>
                 `;

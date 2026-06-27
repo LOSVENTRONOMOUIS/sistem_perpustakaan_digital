@@ -1,348 +1,257 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Buku - Admin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
-        body {
-            background: #f4f7fe;
-            font-family: 'Poppins', sans-serif;
-            overflow-x: hidden;
-        }
-
-        #mainWrapper {
-            transition: 0.3s ease;
-        }
-
-        .shifted {
-            margin-left: 280px;
-        }
-
-        .navbar {
-            height: 75px;
-            border-radius: 0 0 20px 20px;
-            transition: 0.3s;
-            z-index: 1020;
-        }
-
-        .content {
-            padding: 30px;
-        }
-
-        .offcanvas {
-            border: none;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.08);
-        }
-
-        .nav-link {
-            padding: 14px 18px;
-            border-radius: 14px;
-            color: #444;
-            font-weight: 500;
-            margin-bottom: 8px;
-            font-size: 15px; /* Diperbesar sedikit */
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-            background: #0d6efd;
-            color: white !important;
-        }
-
-        .card-dashboard {
-            border: none;
-            border-radius: 24px;
-            padding: 25px;
-            background: white;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-        }
-
-        .icon-box {
-            width: 65px;
-            height: 65px;
-            border-radius: 18px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-size: 28px;
-            margin-bottom: 18px;
-        }
-
-        .bg-blue { background: #0d6efd; }
-        .bg-green { background: #198754; }
-        .bg-red { background: #dc3545; }
-
-        .table-box {
-            background: white;
-            border-radius: 24px;
-            padding: 25px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-        }
-
-        /* ===== PERBESARAN FONT TABEL ===== */
-        .table th {
-            border: none;
-            color: #666;
-            font-size: 16px; /* Diperbesar dari 14px */
-            padding-bottom: 15px;
-        }
-
-        .table td {
-            vertical-align: middle;
-            border-color: #f8f9fa;
-            font-size: 15px; /* Diperbesar dari 14px */
-        }
-
-        .badge {
-            padding: 8px 14px;
-            border-radius: 12px;
-            font-weight: 500;
-            font-size: 13px; /* Diperbesar */
-        }
-
-        /* ===== PERBESARAN GAMBAR DAN JUDUL ===== */
-        .cover-thumbnail {
-            width: 65px; /* Diperbesar dari 45px */
-            height: 95px; /* Diperbesar dari 65px */
-            object-fit: cover;
-            border-radius: 8px;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-            border: 1px solid #eaeaea;
-        }
-
-        .book-title-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 18px; /* Jarak gambar dan teks diperlebar sedikit */
-        }
-
-        .book-title-text h6 {
-            margin: 0;
-            font-weight: 700;
-            font-size: 16px; /* Diperbesar dari 14px */
-            color: #2b2b2b;
-            line-height: 1.4;
-        }
-
-        @media (min-width: 992px) {
-            #sidebar {
-                transform: none !important; 
-                visibility: visible !important; 
-                position: fixed;
-                top: 0;
-                left: 0;
-                height: 100vh;
-                background-color: white;
-                z-index: 1030;
-                display: block !important;
-            }
-            #mainWrapper {
-                margin-left: 280px !important;
-            }
-        }
+        body { font-family: 'Poppins', sans-serif; }
     </style>
 </head>
+<body class="text-slate-800 antialiased bg-slate-50 overflow-x-hidden">
 
-<body>
+    <!-- Sidebar Overlay (Mobile) -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/50 z-40 hidden lg:hidden transition-opacity opacity-0"></div>
 
-<div id="mainWrapper">
-
-    <nav class="navbar navbar-light bg-white shadow-sm px-4">
-        <div class="d-flex align-items-center">
-            <button class="btn btn-outline-primary d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#sidebar">
-                <i class="bi bi-list fs-4"></i>
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed top-0 left-0 h-screen w-72 bg-white shadow-xl z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col">
+        
+        <!-- Sidebar Header -->
+        <div class="h-20 flex items-center justify-between px-6 border-b border-slate-100">
+            <h4 class="text-xl font-bold text-blue-600 flex items-center gap-2">
+                <i class="bi bi-book-half"></i> Digital Library
+            </h4>
+            <button id="closeSidebarBtn" class="lg:hidden text-slate-400 hover:text-red-500 text-2xl transition-colors">
+                <i class="bi bi-x-lg"></i>
             </button>
-            <h4 class="ms-3 mt-2 fw-bold">Kelola Buku</h4>
         </div>
 
-        <div class="d-flex align-items-center gap-3">
-            <i class="bi bi-bell fs-5"></i>
-            <a href="#">
-                <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" width="45" class="rounded-circle">
+        <!-- Sidebar User Profile -->
+        <div class="flex flex-col items-center justify-center py-8">
+            <div class="w-24 h-24 rounded-full bg-blue-50 p-2 mb-4">
+                <img src="https://cdn-icons-png.flaticon.com/512/2232/2232688.png" alt="Admin" class="w-full h-full object-cover">
+            </div>
+            <h5 class="font-bold text-lg text-slate-800">Administrator</h5>
+            <span class="text-sm text-slate-500">Admin Perpustakaan</span>
+        </div>
+
+        <!-- Sidebar Navigation -->
+        <nav class="flex-1 px-4 overflow-y-auto space-y-2">
+            <a href="dashboard.php" class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-all">
+                <i class="bi bi-grid-fill text-lg"></i>
+                <span class="font-medium">Dashboard</span>
+            </a>
+            <a href="buku.php" class="flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-xl shadow-md shadow-blue-200 transition-all">
+                <i class="bi bi-book-fill text-lg"></i>
+                <span class="font-medium">Kelola Buku</span>
+            </a>
+            <a href="anggota.php" class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-all">
+                <i class="bi bi-people-fill text-lg"></i>
+                <span class="font-medium">Data Anggota</span>
+            </a>
+            <a href="peminjaman.php" class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-all">
+                <i class="bi bi-journal-check text-lg"></i>
+                <span class="font-medium">Peminjaman</span>
+            </a>
+            <a href="kategori.php" class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-all">
+                <i class="bi bi-tags-fill text-lg"></i>
+                <span class="font-medium">Kategori Buku</span>
+            </a>
+        </nav>
+
+        <!-- Sidebar Footer -->
+        <div class="p-4 border-t border-slate-100">
+            <a href="logout.php" class="flex items-center justify-center gap-2 w-full py-3 bg-red-50 text-red-600 hover:bg-red-500 hover:text-white rounded-xl transition-all font-medium">
+                <i class="bi bi-box-arrow-right"></i> Logout
             </a>
         </div>
-    </nav>
+    </aside>
 
-    <div class="content">
-        <div class="mb-4">
-            <h1 class="fw-bold">Manajemen Buku</h1>
-            <p class="text-muted fs-6">Kelola seluruh data buku perpustakaan digital</p>
-        </div>
-
-        <div class="row g-4 mb-4">
-            <div class="col-md-4">
-                <div class="card-dashboard">
-                    <div class="icon-box bg-blue">
-                        <i class="bi bi-book-fill"></i>
-                    </div>
-                    <h2 class="fw-bold"><?= isset($totalBuku) ? $totalBuku : 0 ?></h2>
-                    <p class="text-muted mb-0 fs-6">Total Buku</p>
-                </div>
+    <!-- Main Content Wrapper -->
+    <div class="lg:ml-72 transition-all duration-300 min-h-screen flex flex-col">
+        
+        <!-- Navbar -->
+        <header class="h-20 bg-white shadow-sm flex items-center justify-between px-6 lg:px-10 z-30 sticky top-0 rounded-b-3xl">
+            <div class="flex items-center gap-4">
+                <button id="openSidebarBtn" class="lg:hidden text-slate-600 hover:text-blue-600 bg-slate-50 p-2 rounded-lg transition-colors">
+                    <i class="bi bi-list text-2xl"></i>
+                </button>
+                <h4 class="text-xl font-bold text-slate-800 hidden sm:block">Kelola Buku</h4>
             </div>
 
-            <div class="col-md-4">
-                <div class="card-dashboard">
-                    <div class="icon-box bg-green">
-                        <i class="bi bi-check-circle-fill"></i>
-                    </div>
-                    <h2 class="fw-bold"><?= isset($totalTersedia) ? $totalTersedia : 0 ?></h2>
-                    <p class="text-muted mb-0 fs-6">Buku Tersedia</p>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card-dashboard">
-                    <div class="icon-box bg-red">
-                        <i class="bi bi-x-circle-fill"></i>
-                    </div>
-                    <h2 class="fw-bold"><?= isset($totalHabis) ? $totalHabis : 0 ?></h2>
-                    <p class="text-muted mb-0 fs-6">Buku Habis</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="table-box">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="fw-bold m-0">Daftar Buku</h4>
-                <a href="tambah_buku.php" class="btn btn-primary rounded-4 px-4 py-2">
-                    <i class="bi bi-plus-circle me-2"></i> Tambah Buku
+            <div class="flex items-center gap-5">
+                <button class="relative text-slate-500 hover:text-blue-600 transition-colors">
+                    <i class="bi bi-bell text-xl"></i>
+                    <span class="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                </button>
+                <a href="#" class="block w-10 h-10 rounded-full overflow-hidden border-2 border-slate-100 hover:border-blue-300 transition-colors">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" class="w-full h-full object-cover">
                 </a>
             </div>
+        </header>
 
-            <div class="table-responsive">
-                <table class="table align-middle">
-                    <thead>
-                        <tr>
-                            <th style="min-width: 300px;">Buku</th> 
-                            <th>Penulis</th>
-                            <th>Penerbit</th>
-                            <th>Tahun</th>
-                            <th>Kategori</th>
-                            <th>Stok</th>
-                            <th>Status</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if(!empty($books)){ ?>
-                            <?php foreach($books as $b){ ?>
-                            <tr>
-                                <td>
-                                    <div class="book-title-wrapper">
-                                        <?php 
-                                        if(!empty($b['cover'])) {
-                                            $imgSrc = "../assets/images/covers/" . htmlspecialchars($b['cover']); 
-                                        } else {
-                                            $imgSrc = 'https://placehold.co/65x95/e9ecef/a3a3a3?text=No+Cover';
-                                        }
-                                        ?>
-                                        <img src="<?= $imgSrc ?>" alt="Cover Buku" class="cover-thumbnail">
-                                        
-                                        <div class="book-title-text">
-                                            <h6><?= isset($b['judul']) ? htmlspecialchars($b['judul']) : '-' ?></h6>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><?= isset($b['penulis']) ? htmlspecialchars($b['penulis']) : '-' ?></td>
-                                <td><?= isset($b['penerbit']) ? htmlspecialchars($b['penerbit']) : '-' ?></td>
-                                <td><?= isset($b['tahun']) ? htmlspecialchars($b['tahun']) : '-' ?></td>
-                                <td><span class="badge bg-light text-primary border border-primary-subtle"><?= isset($b['nama_kategori']) ? htmlspecialchars($b['nama_kategori']) : '-' ?></span></td>
-                                <td><span class="fw-bold"><?= isset($b['stok']) ? htmlspecialchars($b['stok']) : 0 ?></span></td>
-                                <td>
-                                    <?php if(isset($b['stok']) && $b['stok'] > 0){ ?>
-                                        <span class="badge bg-success bg-opacity-10 text-success border border-success-subtle">Tersedia</span>
-                                    <?php } else { ?>
-                                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger-subtle">Habis</span>
-                                    <?php } ?>
-                                </td>
-                                <td>
-                                    <a href="edit_buku.php?id=<?= $b['id'] ?>" class="btn btn-warning btn-sm rounded-3 text-white px-2 py-1">
-                                        <i class="bi bi-pencil-fill"></i>
-                                    </a>
-                                    <a href="hapus_buku.php?id=<?= $b['id'] ?>" class="btn btn-danger btn-sm rounded-3 px-2 py-1" onclick="return confirm('Yakin ingin hapus buku ini?')">
-                                        <i class="bi bi-trash-fill"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                            <?php } ?>
-                        <?php } else { ?>
-                            <tr>
-                                <td colspan="8" class="text-center text-muted py-5 fs-5">Data buku belum ada</td>
-                            </tr>
-                        <?php } ?>
-                    </tbody>
-                </table>
+        <!-- Main Content -->
+        <main class="flex-1 p-6 lg:p-10">
+            
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-slate-800">Manajemen Buku</h1>
+                <p class="text-slate-500 mt-1 text-base">Kelola seluruh data buku perpustakaan digital</p>
             </div>
-        </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                
+                <div class="bg-white p-6 rounded-3xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all border border-slate-50">
+                    <div class="w-16 h-16 rounded-2xl bg-blue-500 text-white flex items-center justify-center text-3xl mb-4 shadow-lg shadow-blue-200">
+                        <i class="bi bi-book-fill"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold text-slate-800"><?= isset($totalBuku) ? $totalBuku : 0 ?></h2>
+                    <p class="text-slate-500 mt-1 text-base">Total Buku</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all border border-slate-50">
+                    <div class="w-16 h-16 rounded-2xl bg-emerald-500 text-white flex items-center justify-center text-3xl mb-4 shadow-lg shadow-emerald-200">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold text-slate-800"><?= isset($totalTersedia) ? $totalTersedia : 0 ?></h2>
+                    <p class="text-slate-500 mt-1 text-base">Buku Tersedia</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all border border-slate-50">
+                    <div class="w-16 h-16 rounded-2xl bg-red-500 text-white flex items-center justify-center text-3xl mb-4 shadow-lg shadow-red-200">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold text-slate-800"><?= isset($totalHabis) ? $totalHabis : 0 ?></h2>
+                    <p class="text-slate-500 mt-1 text-base">Buku Habis</p>
+                </div>
+
+            </div>
+
+            <!-- Table Section -->
+            <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-50">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                    <h4 class="text-xl font-bold text-slate-800 m-0">Daftar Buku</h4>
+                    <a href="tambah_buku.php" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-xl shadow-md transition-colors">
+                        <i class="bi bi-plus-circle text-lg"></i> Tambah Buku
+                    </a>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-100 text-slate-500">
+                                <th class="pb-4 font-semibold min-w-[280px]">Buku</th>
+                                <th class="pb-4 font-semibold px-4">Penulis</th>
+                                <th class="pb-4 font-semibold px-4">Penerbit</th>
+                                <th class="pb-4 font-semibold px-4">Tahun</th>
+                                <th class="pb-4 font-semibold px-4">Kategori</th>
+                                <th class="pb-4 font-semibold px-4">Stok</th>
+                                <th class="pb-4 font-semibold px-4">Status</th>
+                                <th class="pb-4 font-semibold pl-4">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+                            <?php if(!empty($books)){ ?>
+                                <?php foreach($books as $b){ ?>
+                                <tr class="hover:bg-slate-50 transition-colors group">
+                                    <td class="py-4">
+                                        <div class="flex items-center gap-4">
+                                            <?php 
+                                            if(!empty($b['cover'])) {
+                                                $imgSrc = "../assets/images/covers/" . htmlspecialchars($b['cover']); 
+                                            } else {
+                                                $imgSrc = 'https://placehold.co/65x95/e9ecef/a3a3a3?text=No+Cover';
+                                            }
+                                            ?>
+                                            <img src="<?= $imgSrc ?>" alt="Cover Buku" class="w-16 h-24 object-cover rounded-lg shadow-sm border border-slate-200">
+                                            
+                                            <div>
+                                                <h6 class="font-bold text-slate-800 text-base leading-snug group-hover:text-blue-600 transition-colors">
+                                                    <?= isset($b['judul']) ? htmlspecialchars($b['judul']) : '-' ?>
+                                                </h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 text-slate-600"><?= isset($b['penulis']) ? htmlspecialchars($b['penulis']) : '-' ?></td>
+                                    <td class="py-4 px-4 text-slate-600"><?= isset($b['penerbit']) ? htmlspecialchars($b['penerbit']) : '-' ?></td>
+                                    <td class="py-4 px-4 text-slate-600"><?= isset($b['tahun']) ? htmlspecialchars($b['tahun']) : '-' ?></td>
+                                    <td class="py-4 px-4">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                                            <?= isset($b['nama_kategori']) ? htmlspecialchars($b['nama_kategori']) : '-' ?>
+                                        </span>
+                                    </td>
+                                    <td class="py-4 px-4 font-bold text-slate-800">
+                                        <?= isset($b['stok']) ? htmlspecialchars($b['stok']) : 0 ?>
+                                    </td>
+                                    <td class="py-4 px-4">
+                                        <?php if(isset($b['stok']) && $b['stok'] > 0){ ?>
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
+                                                Tersedia
+                                            </span>
+                                        <?php } else { ?>
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 border border-red-200">
+                                                Habis
+                                            </span>
+                                        <?php } ?>
+                                    </td>
+                                    <td class="py-4 pl-4">
+                                        <div class="flex items-center gap-2">
+                                            <a href="edit_buku.php?id=<?= $b['id'] ?>" class="w-8 h-8 rounded-lg bg-yellow-100 text-yellow-600 hover:bg-yellow-500 hover:text-white flex items-center justify-center transition-colors" title="Edit">
+                                                <i class="bi bi-pencil-fill"></i>
+                                            </a>
+                                            <a href="hapus_buku.php?id=<?= $b['id'] ?>" class="w-8 h-8 rounded-lg bg-red-100 text-red-600 hover:bg-red-500 hover:text-white flex items-center justify-center transition-colors" onclick="return confirm('Yakin ingin hapus buku ini?')" title="Hapus">
+                                                <i class="bi bi-trash-fill"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <?php } ?>
+                            <?php } else { ?>
+                                <tr>
+                                    <td colspan="8" class="text-center text-slate-500 py-12 text-lg">
+                                        <i class="bi bi-inbox text-4xl mb-3 block text-slate-300"></i>
+                                        Data buku belum ada
+                                    </td>
+                                </tr>
+                            <?php } ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
     </div>
 
-</div> 
+    <!-- Sidebar Script -->
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const openBtn = document.getElementById('openSidebarBtn');
+        const closeBtn = document.getElementById('closeSidebarBtn');
 
-<div class="offcanvas offcanvas-start" id="sidebar" style="width:280px;" data-bs-backdrop="false">
-    <div class="offcanvas-header border-bottom">
-        <h4 class="fw-bold text-primary">
-            <i class="bi bi-book-half"></i> Digital Library
-        </h4>
-        <button class="btn-close d-lg-none" data-bs-dismiss="offcanvas"></button>
-    </div>
-    
-    <div class="offcanvas-body d-flex flex-column">
-        <div class="text-center mb-4">
-            <img src="https://cdn-icons-png.flaticon.com/512/2232/2232688.png" width="110" class="mb-3">
-            <h5 class="fw-bold mb-0">Administrator</h5>
-            <small class="text-muted">Admin Perpustakaan</small>
-        </div>
-
-        <ul class="nav flex-column">
-            <li><a class="nav-link" href="dashboard.php"><i class="bi bi-grid-fill me-2"></i> Dashboard</a></li>
-            <li><a class="nav-link active" href="buku.php"><i class="bi bi-book-fill me-2"></i> Kelola Buku</a></li>
-            <li><a class="nav-link" href="anggota.php"><i class="bi bi-people-fill me-2"></i> Data Anggota</a></li>
-            <li><a class="nav-link" href="peminjaman.php"><i class="bi bi-journal-check me-2"></i> Peminjaman</a></li>
-            <li><a class="nav-link" href="kategori.php"><i class="bi bi-tags-fill me-2"></i> Kategori Buku</a></li>
-        </ul>
-
-        <div class="mt-auto border-top pt-3">
-            <a href="logout.php" class="btn btn-danger w-100 rounded-4 py-2">
-                <i class="bi bi-box-arrow-right me-2"></i> Logout
-            </a>
-        </div>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-    const sidebar = document.getElementById('sidebar');
-    const wrapper = document.getElementById('mainWrapper');
-
-    function isDesktop(){
-        return window.innerWidth > 992;
-    }
-
-    sidebar.addEventListener('shown.bs.offcanvas', function () {
-        if(isDesktop()){
-            wrapper.classList.add('shifted');
+        function openSidebar() {
+            sidebar.classList.remove('-translate-x-full');
+            overlay.classList.remove('hidden');
+            setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+            document.body.classList.add('overflow-hidden'); 
         }
-    });
 
-    sidebar.addEventListener('hidden.bs.offcanvas', function () {
-        wrapper.classList.remove('shifted');
-    });
-
-    window.addEventListener('resize', function(){
-        if(window.innerWidth <= 992){
-            wrapper.classList.remove('shifted');
+        function closeSidebar() {
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('opacity-0');
+            setTimeout(() => overlay.classList.add('hidden'), 300);
+            document.body.classList.remove('overflow-hidden');
         }
-    });
-</script>
+
+        openBtn.addEventListener('click', openSidebar);
+        closeBtn.addEventListener('click', closeSidebar);
+        overlay.addEventListener('click', closeSidebar);
+    </script>
 
 </body>
 </html>
-
-```

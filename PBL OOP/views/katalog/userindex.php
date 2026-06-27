@@ -16,6 +16,7 @@ if (!isset($_SESSION['user_id']) && !isset($_SESSION['id'])) {
 // Gunakan $currentUser jika ada, jika tidak fallback ke $_SESSION
 $namaUser = $currentUser['nama'] ?? $_SESSION['nama'] ?? 'Mahasiswa';
 $emailUser = $currentUser['email'] ?? $_SESSION['email'] ?? 'Library User';
+$nimUser = $_SESSION['nim'] ?? 'Library User';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -24,1012 +25,185 @@ $emailUser = $currentUser['email'] ?? $_SESSION['email'] ?? 'Library User';
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Katalog - Sistem Perpustakaan Digital</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-:root{
-  --bg:#f4f7fe;
-  --card-bg:#ffffff;
-  --text:#1a1a1a;
-  --text-muted:#6c757d;
-  --radius:24px;
-}
-
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
-
-body{
-  background:var(--bg);
-  font-family:'Poppins','DM Sans',sans-serif;
-  min-height:100vh;
-  overflow-x:hidden;
-}
-
-/* Animasi */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-@keyframes slideInLeft {
-    from {
-        opacity: 0;
-        transform: translateX(-30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-@keyframes slideInRight {
-    from {
-        opacity: 0;
-        transform: translateX(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-/* Toast Notification */
-.toast-notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 9999;
-    animation: slideInRight 0.3s ease-out;
-}
-
-.toast-notification.hide {
-    animation: slideOutRight 0.3s ease-out forwards;
-}
-
-.toast-card {
-    background: white;
-    border-radius: 16px;
-    padding: 16px 20px;
-    min-width: 320px;
-    max-width: 450px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    border-left: 5px solid;
-}
-
-.toast-success {
-    border-left-color: #28a745;
-}
-.toast-success .toast-icon {
-    background: #e8f5e9;
-    color: #28a745;
-}
-
-.toast-error {
-    border-left-color: #dc3545;
-}
-.toast-error .toast-icon {
-    background: #fee;
-    color: #dc3545;
-}
-
-.toast-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    flex-shrink: 0;
-}
-
-.toast-content {
-    flex: 1;
-}
-
-.toast-title {
-    font-weight: 700;
-    font-size: 16px;
-    margin-bottom: 4px;
-}
-
-.toast-message {
-    font-size: 13px;
-    color: #6c757d;
-    line-height: 1.4;
-}
-
-.toast-close {
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-    color: #999;
-    padding: 0;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: all 0.2s;
-}
-
-.toast-close:hover {
-    background: #f0f0f0;
-    color: #333;
-}
-
-@keyframes slideOutRight {
-    from {
-        opacity: 1;
-        transform: translateX(0);
-    }
-    to {
-        opacity: 0;
-        transform: translateX(100px);
-    }
-}
-
-.navbar{
-  height:75px;
-  border-radius:0 0 20px 20px;
-  z-index:1020;
-  animation: slideInLeft 0.5s ease;
-}
-
-.content{
-  padding:30px;
-  transition:0.3s;
-  animation: fadeInUp 0.6s ease;
-}
-
-.shifted{
-  margin-left:280px;
-}
-
-.offcanvas{
-  border:none;
-  box-shadow:0 0 30px rgba(0,0,0,0.08);
-}
-
-.nav-link-custom{
-  padding:14px 18px;
-  border-radius:14px;
-  color:#444;
-  font-weight:500;
-  margin-bottom:8px;
-  display:flex;
-  align-items:center;
-  gap:12px;
-  text-decoration:none;
-  transition: all 0.3s ease;
-}
-
-.nav-link-custom:hover,
-.nav-link-custom.active{
-  background:#0d6efd;
-  color:white !important;
-  transform: translateX(5px);
-}
-
-.section-box{
-  background:white;
-  border-radius:24px;
-  padding:25px;
-  box-shadow:0 10px 25px rgba(0,0,0,0.05);
-  border:1px solid #f0f2f5;
-  transition: all 0.3s ease;
-  animation: fadeInUp 0.6s ease;
-}
-
-.section-box:hover {
-    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-}
-
-.pinjam-header{
-  margin-bottom:25px;
-  animation: slideInLeft 0.5s ease;
-}
-
-.pinjam-header h3{
-  font-size:1.35rem;
-  font-weight:700;
-  border-left:5px solid #0d6efd;
-  padding-left:18px;
-  margin:0;
-  color:#1e293b;
-}
-
-/* ========== FILTER STYLING ========== */
-.filter-container {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-    padding: 15px;
-    background: #f8fafc;
-    border-radius: 16px;
-    border: 1px solid #e2e8f0;
-}
-
-.filter-btn {
-    padding: 8px 20px;
-    border-radius: 30px;
-    border: 2px solid #e2e8f0;
-    background: white;
-    font-size: 13px;
-    font-weight: 600;
-    color: #475569;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.filter-btn:hover {
-    border-color: #0d6efd;
-    color: #0d6efd;
-    transform: translateY(-2px);
-}
-
-.filter-btn.active {
-    background: #0d6efd;
-    border-color: #0d6efd;
-    color: white;
-    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
-}
-
-.filter-btn .badge-count {
-    background: rgba(255,255,255,0.2);
-    color: white;
-    padding: 0 8px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 700;
-}
-
-.filter-btn:not(.active) .badge-count {
-    background: #e2e8f0;
-    color: #475569;
-}
-
-.filter-btn.active .badge-count {
-    background: rgba(255,255,255,0.3);
-    color: white;
-}
-
-/* Tabel Styling */
-.table-responsive {
-    overflow-x: auto;
-    border-radius: 16px;
-}
-
-.pinjam-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    font-size: 14px;
-}
-
-.pinjam-table thead th {
-    background: #f8fafc;
-    padding: 16px 16px;
-    font-weight: 600;
-    font-size: 13px;
-    color: #475569;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-bottom: 2px solid #e2e8f0;
-    white-space: nowrap;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-.pinjam-table thead th:first-child {
-    border-top-left-radius: 12px;
-}
-
-.pinjam-table thead th:last-child {
-    border-top-right-radius: 12px;
-}
-
-.pinjam-table tbody tr {
-    transition: all 0.2s ease;
-    animation: slideInRight 0.4s ease;
-    animation-fill-mode: both;
-}
-
-.pinjam-table tbody tr:hover {
-    background-color: #f8fafc;
-    transform: scale(1.01);
-}
-
-.pinjam-table tbody td {
-    padding: 16px 16px;
-    border-bottom: 1px solid #f1f5f9;
-    vertical-align: middle;
-    color: #334155;
-}
-
-.pinjam-table tbody tr.hidden-row {
-    display: none;
-}
-
-/* Status Badge */
-.status-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    border-radius: 16px;
-    font-size: 11px;
-    font-weight: 600;
-    white-space: nowrap;
-    transition: all 0.3s ease;
-}
-
-.status-pill:hover {
-    transform: translateY(-1px);
-}
-
-.status-pill i {
-    font-size: 12px;
-}
-
-.status-pill-primary {
-    background-color: #dbeafe;
-    color: #1e40af;
-    box-shadow: 0 2px 6px rgba(30, 64, 175, 0.1);
-}
-
-.status-pill-danger {
-    background-color: #fee2e2;
-    color: #991b1b;
-    box-shadow: 0 2px 6px rgba(153, 27, 27, 0.1);
-}
-
-.status-pill-success {
-    background-color: #dcfce7;
-    color: #166534;
-    box-shadow: 0 2px 6px rgba(22, 101, 52, 0.1);
-}
-
-.status-pill-secondary {
-    background-color: #e5e7eb;
-    color: #4b5563;
-    box-shadow: 0 2px 6px rgba(75, 85, 99, 0.1);
-}
-
-.s-dipinjam {
-    background-color: #fef3c7;
-    color: #92400e;
-    box-shadow: 0 2px 6px rgba(146, 64, 14, 0.1);
-}
-
-.s-dipinjam i {
-    color: #b45309;
-}
-
-.s-terlambat {
-    background-color: #fee2e2;
-    color: #991b1b;
-    box-shadow: 0 2px 6px rgba(153, 27, 27, 0.1);
-}
-
-.s-terlambat i {
-    color: #dc2626;
-}
-
-.s-kembali {
-    background-color: #dcfce7;
-    color: #166534;
-    box-shadow: 0 2px 6px rgba(22, 101, 52, 0.1);
-}
-
-.s-kembali i {
-    color: #059669;
-}
-
-.s-batal {
-    background-color: #e5e7eb;
-    color: #4b5563;
-    box-shadow: 0 2px 6px rgba(75, 85, 99, 0.1);
-}
-
-.s-batal i {
-    color: #6b7280;
-}
-
-/* Tombol Aksi */
-.btn-lihat {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 8px;
-    background: #2563eb;
-    color: white;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    box-shadow: 0 1px 6px rgba(37, 99, 235, 0.15);
-    white-space: nowrap;
-    margin-right: 10px;
-    margin-bottom: 8px;
-}
-
-.btn-lihat i {
-    font-size: 13px;
-    color: white;
-}
-
-.btn-lihat:hover {
-    background: #1d4ed8;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
-}
-
-.btn-batalkan {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 8px;
-    background: #fcd34d;
-    color: #1f2937;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    box-shadow: 0 1px 6px rgba(252, 211, 77, 0.15);
-    white-space: nowrap;
-}
-
-.btn-batalkan i {
-    font-size: 14px;
-    color: #1f2937;
-}
-
-.btn-batalkan:hover {
-    background: #fbbf24;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(252, 211, 77, 0.2);
-}
-
-.btn-batalkan:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none !important;
-}
-
-.action-group {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-/* Modal Detail Styling */
-.modal.fade .modal-dialog {
-    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-    transform: scale(0.95);
-    opacity: 0;
-}
-
-.modal.show .modal-dialog {
-    transform: scale(1);
-    opacity: 1;
-}
-
-.modal-form-container .modal-content {
-    border-radius: 28px;
-    border: none;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
-    overflow: hidden;
-}
-
-.modal-header-form {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-    color: white;
-    padding: 20px 28px;
-    text-align: center;
-}
-
-.modal-header-form h3 {
-    font-weight: 700;
-    font-size: 1.3rem;
-    margin: 0;
-}
-
-.modal-header-form .trx-code-form {
-    font-size: 0.7rem;
-    opacity: 0.7;
-    margin: 5px 0 0 0;
-    font-family: monospace;
-}
-
-.modal-body-form {
-    padding: 24px 28px;
-    background: #ffffff;
-}
-
-.form-group-box {
-    margin-bottom: 18px;
-}
-
-.form-group-box label {
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: #64748b;
-    margin-bottom: 6px;
-    display: block;
-}
-
-.form-control-custom {
-    background: #f8fafc;
-    border: 1.5px solid #e2e8f0;
-    border-radius: 14px;
-    padding: 10px 16px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: #1e293b;
-    width: 100%;
-    min-height: 48px;
-}
-
-.row-2cols {
-    display: flex;
-    gap: 16px;
-    margin-bottom: 18px;
-}
-.row-2cols .form-group-box {
-    flex: 1;
-    margin-bottom: 0;
-}
-
-.judul-section {
-    margin-bottom: 20px;
-    padding-bottom: 12px;
-    border-bottom: 2px dashed #eef2f6;
-}
-
-.judul-section h4 {
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: #0f172a;
-    margin: 0 0 6px 0;
-}
-
-.judul-section p {
-    font-size: 0.75rem;
-    color: #64748b;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-/* Progress Bar */
-.progress-box-warning, .progress-box-info {
-    border-radius: 14px;
-    padding: 12px 16px;
-    margin-top: 4px;
-    margin-bottom: 18px;
-}
-
-.progress-box-warning {
-    background: #fef2f2;
-    border: 1px solid #fee2e2;
-}
-
-.progress-box-info {
-    background: #f0f9ff;
-    border: 1px solid #bddfff;
-}
-
-.progress-header-warning, .progress-header-info {
-    font-size: 0.7rem;
-    font-weight: 700;
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-}
-
-.progress-header-warning { color: #b91c1c; }
-.progress-header-info { color: #0c6b9e; }
-
-.progress-bar-bg-custom {
-    background: #e2e8f0;
-    border-radius: 40px;
-    height: 6px;
-    overflow: hidden;
-}
-
-.progress-fill-red-custom {
-    background: linear-gradient(90deg, #ef4444, #dc2626);
-    height: 100%;
-    border-radius: 40px;
-    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.progress-fill-blue-custom {
-    background: linear-gradient(90deg, #3b82f6, #2563eb);
-    height: 100%;
-    border-radius: 40px;
-    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.status-section {
-    margin-top: 8px;
-}
-
-.status-label-custom {
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: #64748b;
-    margin-bottom: 8px;
-    display: block;
-}
-
-.status-badge-large {
-    display: inline-block;
-    padding: 8px 28px;
-    border-radius: 40px;
-    font-size: 0.85rem;
-    font-weight: 700;
-}
-
-.badge-terlambat-form {
-    background: #fef2f2;
-    color: #b91c1c;
-    border: 1px solid #fee2e2;
-}
-.badge-dipinjam-form {
-    background: #fffbeb;
-    color: #b45309;
-    border: 1px solid #fef3c7;
-}
-.badge-kembali-form {
-    background: #ecfdf5;
-    color: #065f46;
-    border: 1px solid #d1fae5;
-}
-.badge-batal-form {
-    background: #e2e3e5;
-    color: #383d41;
-    border: 1px solid #d6d8db;
-}
-
-.modal-footer-form {
-    padding: 16px 28px 24px 28px;
-    background: white;
-    border-top: 1px solid #edf2f7;
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-}
-
-.btn-tutup-form {
-    background: #f1f5f9;
-    border: 1px solid #e2e8f0;
-    padding: 10px 32px;
-    border-radius: 40px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #334155;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.btn-tutup-form:hover {
-    background: #e2e8f0;
-    transform: translateY(-2px);
-}
-
-/* Alert Empty */
-.alert-empty {
-    text-align: center;
-    padding: 60px 20px;
-    background: #f8f9fa;
-    border-radius: 20px;
-    animation: fadeInUp 0.6s ease;
-}
-
-.alert-empty i {
-    font-size: 60px;
-    color: #adb5bd;
-    margin-bottom: 20px;
-}
-
-/* Counter Info */
-.counter-info {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 16px;
-    background: #f1f5f9;
-    border-radius: 30px;
-    font-size: 13px;
-    color: #475569;
-    margin-left: 12px;
-}
-
-.counter-info strong {
-    color: #0d6efd;
-}
-
-/* Scrollbar */
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #0d6efd;
-    border-radius: 10px;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .filter-container {
-        padding: 10px;
-        gap: 6px;
-    }
-    .filter-btn {
-        padding: 6px 14px;
-        font-size: 12px;
-    }
-    .pinjam-table tbody td {
-        padding: 12px 10px;
-        font-size: 13px;
-    }
-    .action-group {
-        flex-direction: column;
-        gap: 4px;
-        align-items: flex-start;
-    }
-    .btn-lihat, .btn-batalkan {
-        padding: 4px 12px;
-        font-size: 11px;
-        margin-right: 0;
-    }
-    .btn-batalkan i {
-        font-size: 12px;
-    }
-    .row-2cols {
-        flex-direction: column;
-        gap: 10px;
-    }
-    .modal-body-form {
-        padding: 16px;
-    }
-}
-/* Katalog Specific CSS */
-.search-input-group{ display:flex; align-items:center; background:#f8f9fa; border:1px solid #e2e8f0; border-radius:40px; padding:8px 16px; gap:8px; transition:0.3s; }
-.search-input-group:focus-within { border-color:#0d6efd; box-shadow:0 0 0 3px rgba(13,110,253,0.1); }
-.search-input-group input{ border:none; background:transparent; outline:none; font-size:13px; width:220px; }
-.search-input-group i{ color:#64748b; }
-.pinjam-header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; }
-.book-grid-2col{ display:grid; grid-template-columns:repeat(2, 1fr); gap:16px; }
-
-.book-card{ display:flex; gap:12px; padding:14px; background:#f8f9fa; border-radius:16px; transition:0.2s; border:1px solid #e9ecef; align-items:center; }
-.book-card:hover{ transform:translateY(-2px); box-shadow:0 8px 16px rgba(0,0,0,0.06); border-color:#0d6efd; }
-.book-icon{ width:55px; height:75px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0; box-shadow:0 2px 6px rgba(0,0,0,0.08); }
-.book-info{ flex:1; min-width:0; }
-.book-info h4{ font-size:0.85rem; font-weight:700; margin-bottom:3px; color:#1a1a2e; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.book-info .author{ font-size:9px; color:#6c757d; margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.book-bottom{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-.badge-custom{ font-size:9px; padding:3px 10px; border-radius:20px; font-weight:600; display:inline-block; }
-.badge-tersedia{ background:#d4edda; color:#276432; }
-.badge-habis{ background:#f8d7da; color:#842029; }
-.badge-terbatas{ background:#fff3cd; color:#856404; }
-.btn-pinjam{ border:none; padding:4px 12px; border-radius:20px; background:#0d6efd; color:white; font-size:9px; font-weight:600; cursor:pointer; transition:0.2s; }
-.btn-pinjam:hover{ background:#0a58ca; transform:translateY(-1px); }
-.btn-pinjam:disabled{ background:#adb5bd; cursor:not-allowed; opacity:0.6; transform:none; }
-
-/* Modal Peminjaman */
-.modal-faux{ display:none; position:fixed; inset:0; z-index:1060; background:rgba(0,0,0,.5); backdrop-filter:blur(3px); align-items:center; justify-content:center; }
-.modal-faux.show{ display:flex; }
-.modal-box{ background:white; border-radius:24px; width:95%; max-width:400px; padding:20px; box-shadow:0 20px 35px rgba(0,0,0,0.2); animation:modalShow 0.28s ease; max-height:90vh; overflow-y:auto; }
-@keyframes modalShow{ from{opacity:0;transform:scale(0.95) translateY(10px);} to{opacity:1;transform:scale(1) translateY(0);} }
-.book-preview{ display:flex; align-items:center; gap:12px; background:#f8f9fa; border-radius:16px; padding:12px; margin-bottom:16px; border:1px solid #e9ecef; }
-.book-preview-cover{ width:50px; height:66px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0; }
-.book-preview-title{ font-size:13px; font-weight:700; margin-bottom:3px; }
-.book-preview-author{ font-size:10px; color:#6c757d; margin-bottom:5px; }
-.form-row{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
-.form-group{ display:flex; flex-direction:column; gap:4px; }
-.form-group label{ font-size:10px; font-weight:600; color:#6c757d; }
-.form-group input{ padding:8px 10px; border:1px solid #e9ecef; border-radius:10px; font-size:12px; background:#f8f9fa; }
-.modal-footer{ display:flex; gap:10px; justify-content:flex-end; margin-top:18px; padding-top:15px; border-top:1px solid #e9ecef; }
-.btn-batal{ padding:8px 18px; border-radius:30px; background:#f0f0f0; border:none; font-size:11px; font-weight:600; cursor:pointer; }
-.btn-proses{ padding:8px 20px; border-radius:30px; background:#0d6efd; border:none; color:white; font-size:11px; font-weight:600; cursor:pointer; }
-
-/* NOTIFIKASI BESAR DI TENGAH */
-.notif-center { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(10px); z-index: 1100; display: none; align-items: center; justify-content: center; font-family: 'Poppins', sans-serif; opacity: 0; transition: opacity 0.25s ease; }
-.notif-center.show { display: flex; opacity: 1; }
-.notif-card { background: linear-gradient(145deg, #ffffff 0%, #fefefe 100%); border-radius: 56px; max-width: 440px; width: 86%; padding: 2rem 1.5rem 2.2rem 1.5rem; text-align: center; box-shadow: 0 40px 65px rgba(0, 0, 0, 0.25), 0 10px 20px rgba(0, 0, 0, 0.1); animation: notifPop 0.4s cubic-bezier(0.21, 1.11, 0.32, 1); border: 1px solid rgba(13, 110, 253, 0.2); }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes cardFadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes modalShow { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 @keyframes notifPop { 0% { transform: scale(0.85); opacity: 0; } 80% { transform: scale(1.02); } 100% { transform: scale(1); opacity: 1; } }
-.notif-icon { font-size: 70px; background: linear-gradient(135deg, #0d6efd, #0a58ca); width: 100px; height: 100px; display: inline-flex; align-items: center; justify-content: center; border-radius: 60px; margin-bottom: 20px; color: white; box-shadow: 0 12px 25px rgba(13, 110, 253, 0.3); }
-.notif-title { font-size: 28px; font-weight: 800; margin-bottom: 10px; background: linear-gradient(125deg, #0d6efd, #0b5ed7); background-clip: text; -webkit-background-clip: text; color: transparent; letter-spacing: -0.3px; }
-.notif-message { font-size: 18px; font-weight: 500; color: #1e2a3a; margin-bottom: 20px; padding: 0 10px; line-height: 1.4; }
-.notif-action-btn { background: #0d6efd; border: none; padding: 12px 28px; border-radius: 50px; font-weight: 700; font-size: 16px; letter-spacing: 0.3px; color: white; box-shadow: 0 8px 18px rgba(13, 110, 253, 0.3); transition: 0.2s; cursor: pointer;}
-.notif-action-btn:hover { background: #0b5ed7; transform: scale(1.02); box-shadow: 0 10px 22px rgba(13, 110, 253, 0.4); }
+
+.animate-fade-up { animation: fadeInUp 0.5s ease-out forwards; }
+.animate-card-fade-in { animation: cardFadeIn 0.4s ease-out backwards; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
 </style>
 </head>
-<body>
+<body class="font-['Poppins'] min-h-screen overflow-x-hidden bg-[#f4f7fe] text-[#333] transition-all duration-300">
 
-<!-- NAVBAR -->
-<nav class="navbar navbar-light bg-white shadow-sm px-4">
-<div class="d-flex align-items-center">
-<button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar">
-<i class="bi bi-list fs-4"></i>
-</button>
-<h4 class="ms-3 mt-2 fw-bold">Dashboard Perpustakaan</h4>
-</div>
-<div class="d-flex align-items-center gap-3">
-<i class="bi bi-bell fs-5"></i>
-<a href="../views/auth/profile.php"><img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" width="45" class="rounded-circle"></a>
-</div>
-</nav>
+<!-- Sidebar Overlay -->
+<div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[1040] opacity-0 invisible transition-all duration-300 lg:hidden" id="sidebarOverlay"></div>
 
 <!-- SIDEBAR -->
-<<div class="offcanvas offcanvas-start" tabindex="-1" id="sidebar" style="width:280px;" data-bs-backdrop="false">
-<div class="offcanvas-header border-bottom">
-    <h4 class="fw-bold text-primary"><i class="bi bi-book-half"></i> Digital Library</h4>
-    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-</div>
-<div class="offcanvas-body d-flex flex-column">
-    <div class="text-center mb-4">
-        <img src="https://cdn-icons-png.flaticon.com/512/2232/2232688.png" width="110" class="mb-3">
-        <h5 class="fw-bold mb-0"><?= htmlspecialchars($_SESSION['nama'] ?? 'Mahasiswa'); ?></h5>
-        <small class="text-muted"><?= htmlspecialchars($_SESSION['nim'] ?? 'Library User'); ?></small>
+<aside class="fixed top-0 left-0 w-[280px] h-screen bg-white shadow-[2px_0_20px_rgba(0,0,0,0.1)] z-[1050] -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col" id="sidebar">
+  <div class="p-5 border-b border-[#e9ecef] flex justify-between items-center">
+    <h4 class="m-0 text-[1.2rem] font-bold text-blue-600">
+      <i class="bi bi-book-half"></i> Digital Library
+    </h4>
+    <button class="text-2xl cursor-pointer bg-transparent border-none lg:hidden transition-transform hover:rotate-90 text-gray-500 hover:text-blue-600" id="closeSidebarBtn">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+  
+  <div class="flex-1 p-5 overflow-y-auto">
+    <div class="text-center mb-6">
+      <img src="https://cdn-icons-png.flaticon.com/512/2232/2232688.png" width="110" class="mb-3 mx-auto" alt="User">
+      <h5 class="font-bold mb-0 text-[#1a1a2e]"><?= htmlspecialchars($namaUser) ?></h5>
+      <small class="text-gray-500"><?= htmlspecialchars($nimUser) ?></small>
     </div>
-    <ul class="nav flex-column">
-        <li class="nav-item"><a class="nav-link-custom" href="dashboard_anggota.php"><i class="bi bi-grid-fill me-2"></i>Dashboard</a></li>
-        <li class="nav-item"><a class="nav-link-custom" href="peminjaman_user.php"><i class="bi bi-journal-check me-2"></i>Peminjaman</a></li>
-        <li class="nav-item"><a class="nav-link-custom active " href="katalog.php"><i class="bi bi-book-half me-2"></i>Katalog</a></li>
+    
+    <ul class="flex flex-col gap-2">
+      <li>
+        <a class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 text-gray-600 hover:bg-blue-600 hover:text-white hover:translate-x-1" href="dashboard_anggota.php">
+          <i class="bi bi-grid-fill text-lg"></i> Dashboard
+        </a>
+      </li>
+      <li>
+        <a class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 text-gray-600 hover:bg-blue-600 hover:text-white hover:translate-x-1" href="peminjaman_user.php">
+          <i class="bi bi-journal-check text-lg"></i> Peminjaman
+        </a>
+      </li>
+      <li>
+        <a class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 bg-blue-600 text-white translate-x-1" href="katalog.php">
+          <i class="bi bi-book-half text-lg"></i> Katalog
+        </a>
+      </li>
     </ul>
-    <div class="mt-auto border-top pt-3">
-        <a href="../public/logout.php" class="btn btn-danger w-100 rounded-4"><i class="bi bi-box-arrow-right me-2"></i>Logout</a>
+  </div>
+  
+  <div class="p-5 border-t border-[#e9ecef]">
+    <a href="../public/logout.php" class="flex items-center justify-center gap-2 w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-colors font-medium">
+      <i class="bi bi-box-arrow-right"></i> Logout
+    </a>
+  </div>
+</aside>
+
+<!-- NAVBAR -->
+<nav class="fixed top-0 left-0 lg:left-[280px] right-0 h-[75px] bg-white shadow-sm rounded-b-[20px] z-[1000] flex justify-between items-center px-6 lg:px-10">
+  <div class="flex items-center">
+    <button class="bg-transparent border-none text-blue-600 text-2xl cursor-pointer p-2 rounded-lg transition-all lg:hidden hover:bg-black/5 hover:scale-105" id="openSidebarBtn">
+      <i class="bi bi-list"></i>
+    </button>
+    <h4 class="ml-3 mt-1 font-bold text-lg hidden sm:block text-blue-600">📚 Dashboard Perpustakaan</h4>
+  </div>
+  <div class="flex items-center gap-4">
+    <i class="bi bi-bell text-xl text-gray-600"></i>
+    <a href="../views/auth/profile.php">
+      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" width="45" class="rounded-full border-2 border-transparent hover:border-blue-500 transition-colors">
+    </a>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="mt-[75px] p-6 lg:p-8 transition-all duration-300 min-h-[calc(100vh-75px)] lg:ml-[280px]" id="mainContent">
+    <div class="mb-8 animate-fade-up">
+        <h1 class="text-3xl font-bold text-blue-600">📚 Katalog Buku</h1>
+        <p class="mt-2 text-gray-500">Jelajahi koleksi buku digital dan fisik yang tersedia di perpustakaan kami</p>
     </div>
-</div>
-</div>
 
-
-
-
-<!-- MAIN CONTENT --><div class="content" id="mainContent">
-
-    <div class="mb-4">
-        <h1 class="fw-bold">📚 Katalog Buku</h1>
-        <p class="text-muted">Jelajahi koleksi buku digital dan fisik yang tersedia di perpustakaan kami</p>
-    </div>
-
-    <div class="table-box">
-        <div class="section-header">
-            <h3>Koleksi Buku</h3>
-            <div class="search-input-group">
-                <i class="bi bi-search"></i>
-                <input type="text" id="searchKatalog" placeholder="Cari judul atau penulis..." oninput="filterBooks()">
+    <div class="bg-white rounded-3xl p-6 lg:p-8 shadow-[0_10px_25px_rgba(0,0,0,0.05)] animate-fade-up border border-gray-100" style="animation-delay: 0.1s">
+        <!-- Section Header & Search -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <h3 class="text-xl font-bold text-[#1e293b] border-l-4 border-blue-600 pl-3 m-0">Koleksi Buku</h3>
+            <div class="flex items-center bg-gray-50 border border-gray-200 rounded-full px-4 py-2 gap-2 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition-all w-full sm:w-auto">
+                <i class="bi bi-search text-gray-400"></i>
+                <input type="text" id="searchKatalog" class="bg-transparent border-none outline-none text-sm w-full sm:w-56 text-gray-700" placeholder="Cari judul atau penulis...">
             </div>
         </div>
 
-        <div class="filter-container" id="categoryFilter">
-            <button class="filter-btn active" data-cat="all">Semua</button>
+        <!-- Filters -->
+        <div class="flex flex-wrap gap-2 mb-4 p-4 bg-gray-50 rounded-2xl border border-gray-200" id="categoryFilter">
+            <button class="px-5 py-2 rounded-full border-2 border-transparent bg-blue-600 text-white text-sm font-semibold transition-all hover:-translate-y-0.5 filter-btn" data-cat="all">Semua</button>
             <?php 
             if(isset($bukuList) && !empty($bukuList)) {
-                // UBAH 'kategori' MENJADI 'nama_kategori' DI SINI
-                 $categories = array_unique(array_column($bukuList, 'nama_kategori'));
-        
-            foreach($categories as $cat): 
-            // Tambahkan pengecekan agar tidak mencetak tombol kosong
-            if(!empty($cat)): 
+                $categories = array_unique(array_column($bukuList, 'nama_kategori'));
+                foreach($categories as $cat): 
+                    if(!empty($cat)): 
             ?>
-            <button class="filter-btn" data-cat="<?= strtolower($cat); ?>"><?= htmlspecialchars($cat); ?></button>
+            <button class="px-5 py-2 rounded-full border-2 border-gray-200 bg-white text-gray-600 text-sm font-semibold transition-all hover:border-blue-600 hover:text-blue-600 hover:-translate-y-0.5 filter-btn" data-cat="<?= strtolower($cat); ?>"><?= htmlspecialchars($cat); ?></button>
             <?php 
-            endif;
-            endforeach; 
-             }
+                    endif;
+                endforeach; 
+            }
             ?>
         </div>
 
-        <div class="filter-container" id="statusFilter">
-            <button class="filter-btn active" data-stat="all">Semua Status</button>
-            <button class="filter-btn" data-stat="tersedia">Tersedia</button>
-            <button class="filter-btn" data-stat="terbatas">Terbatas</button>
-            <button class="filter-btn" data-stat="habis">Habis</button>
+        <div class="flex flex-wrap gap-2 mb-6 p-4 bg-gray-50 rounded-2xl border border-gray-200" id="statusFilter">
+            <button class="px-5 py-2 rounded-full border-2 border-transparent bg-blue-600 text-white text-sm font-semibold transition-all hover:-translate-y-0.5 filter-btn" data-stat="all">Semua Status</button>
+            <button class="px-5 py-2 rounded-full border-2 border-gray-200 bg-white text-gray-600 text-sm font-semibold transition-all hover:border-blue-600 hover:text-blue-600 hover:-translate-y-0.5 filter-btn" data-stat="tersedia">Tersedia</button>
+            <button class="px-5 py-2 rounded-full border-2 border-gray-200 bg-white text-gray-600 text-sm font-semibold transition-all hover:border-blue-600 hover:text-blue-600 hover:-translate-y-0.5 filter-btn" data-stat="terbatas">Terbatas</button>
+            <button class="px-5 py-2 rounded-full border-2 border-gray-200 bg-white text-gray-600 text-sm font-semibold transition-all hover:border-blue-600 hover:text-blue-600 hover:-translate-y-0.5 filter-btn" data-stat="habis">Habis</button>
         </div>
 
-        <div id="emptyState" class="alert-empty" style="display: none;">
-            <i class="bi bi-journal-x"></i>
-            <h4>Buku tidak ditemukan</h4>
-            <p>Coba gunakan kata kunci atau filter lain.</p>
+        <div id="emptyState" class="hidden text-center py-16 px-4 bg-gray-50 rounded-2xl border border-gray-100 animate-fade-up">
+            <i class="bi bi-journal-x text-6xl text-gray-300 mb-4 block"></i>
+            <h4 class="text-xl font-bold text-gray-700">Buku tidak ditemukan</h4>
+            <p class="text-gray-500 mt-2">Coba gunakan kata kunci atau filter lain.</p>
         </div>
 
-        <div class="book-grid-2col" id="katalogGrid">
+        <!-- Grid Buku -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="katalogGrid">
             <?php 
             if(isset($bukuList) && !empty($bukuList)): 
+                $i = 0;
                 foreach($bukuList as $buku): 
+                    $i++;
                     $stok = (int)$buku['stok'];
                     if($stok <= 0){
                         $badgeText  = "Habis";
-                        $badgeClass = "badge-habis";
+                        $badgeClass = "bg-red-100 text-red-800 border-red-200";
                         $status     = "habis";
                     } elseif($stok <= 5){
                         $badgeText  = $stok . " Tersisa";
-                        $badgeClass = "badge-terbatas";
+                        $badgeClass = "bg-yellow-100 text-yellow-800 border-yellow-200";
                         $status     = "terbatas";
                     } else{
                         $badgeText  = "Tersedia";
-                        $badgeClass = "badge-tersedia";
+                        $badgeClass = "bg-green-100 text-green-800 border-green-200";
                         $status     = "tersedia";
                     }
             ?>
-            <div class="book-card"
+            <div class="flex gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-blue-500 items-center book-card animate-card-fade-in"
+                 style="animation-delay: <?= $i * 0.05 ?>s;"
                  data-category="<?= strtolower($buku['nama_kategori'] ?? 'lainnya'); ?>"
                  data-status="<?= $status; ?>"
                  data-title="<?= strtolower($buku['judul']); ?>"
                  data-author="<?= strtolower($buku['penulis']); ?>">
 
-                <div class="book-icon" style="overflow:hidden; padding:0; background:transparent; box-shadow:none;">
+                <div class="w-16 h-24 rounded-xl flex items-center justify-center text-3xl shrink-0 shadow-sm overflow-hidden bg-gray-100">
                     <?php if(!empty($buku['cover'])): ?>
-                        <img src="../assets/images/covers/<?= htmlspecialchars($buku['cover']); ?>" alt="Cover <?= htmlspecialchars($buku['judul']); ?>" style="width:100%; height:100%; object-fit:cover; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.08);">
+                        <img src="../assets/images/covers/<?= htmlspecialchars($buku['cover']); ?>" alt="Cover <?= htmlspecialchars($buku['judul']); ?>" class="w-full h-full object-cover">
                     <?php else: ?>
-                        <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#f8f9fa; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.08); font-size:28px;">📘</div>
+                        <span>📘</span>
                     <?php endif; ?>
                 </div>
 
-                <div class="book-info">
-                    <h4><?= htmlspecialchars($buku['judul']); ?></h4>
-                    <div class="author">
+                <div class="flex-1 min-w-0">
+                    <h4 class="text-sm font-bold text-gray-900 mb-1 truncate" title="<?= htmlspecialchars($buku['judul']); ?>"><?= htmlspecialchars($buku['judul']); ?></h4>
+                    <div class="text-[11px] text-gray-500 mb-2 truncate">
                         <?= htmlspecialchars($buku['penulis']); ?> · <?= htmlspecialchars($buku['nama_kategori'] ?? 'Tidak Berkategori'); ?>
                     </div>
-                    <div class="book-bottom">
-                        <span class="badge-custom <?= $badgeClass; ?>"><?= $badgeText; ?></span>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-[10px] px-2.5 py-1 rounded-full font-bold border <?= $badgeClass; ?>"><?= $badgeText; ?></span>
 
                         <?php if($stok <= 0): ?>
-                            <button class="btn-pinjam" disabled>Stok Habis</button>
+                            <button class="px-3 py-1 rounded-full bg-gray-300 text-gray-500 text-[10px] font-bold cursor-not-allowed" disabled>Stok Habis</button>
                         <?php else: ?>
-                            <button class="btn-pinjam" 
+                            <button class="px-3 py-1 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold transition-all hover:-translate-y-0.5 shadow-sm" 
                                 onclick="pinjamBuku('<?= $buku['id']; ?>', '<?= addslashes(htmlspecialchars($buku['judul'])); ?>', '<?= addslashes(htmlspecialchars($buku['penulis'])); ?>', '<?= addslashes(htmlspecialchars($buku['cover'] ?? '')); ?>')">
                                 Pinjam
                             </button>
@@ -1043,97 +217,109 @@ body{
             ?>
         </div>
     </div>
-</div>
+</main>
 
-<div class="modal-faux" id="modalOverlay">
-  <div class="modal-box">
+<!-- Modal Peminjaman -->
+<div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[1060] flex items-center justify-center opacity-0 invisible transition-all duration-300" id="modalOverlay">
+  <div class="bg-white rounded-3xl w-[95%] max-w-[450px] p-6 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.3)] transform scale-95 transition-transform duration-300 max-h-[90vh] overflow-y-auto" id="modalBox">
     
     <form id="formPinjam" onsubmit="memprosesPeminjaman(event)">
-        <h4 style="text-align:center; font-weight:bold; margin-bottom:15px;">Form Peminjaman</h4>
+        <h4 class="text-xl font-bold text-center text-gray-900 mb-6">Form Peminjaman</h4>
         
         <input type="hidden" name="buku_id" id="idBuku">
         <input type="hidden" name="user_id" value="<?= htmlspecialchars($_SESSION['id'] ?? $_SESSION['user_id'] ?? 1); ?>">
         <input type="hidden" name="status" value="dipinjam">
 
-        <div class="form-row">
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" id="inputEmail" value="<?= htmlspecialchars($emailUser); ?>" readonly>
-            </div>
-            <div class="form-group">
-                <label>Nama Peminjam</label>
-                <input type="text" id="inputNama" value="<?= htmlspecialchars($namaUser); ?>" readonly>
-            </div>
-        </div>
-
-        <div class="book-preview">
-            <div class="book-preview-cover" id="modalPreviewCover" style="background:#d4e8f4; overflow:hidden;">📘</div>
+        <div class="grid grid-cols-2 gap-4 mb-4">
             <div>
-                <div class="book-preview-title" id="mJudul2">—</div>
-                <div class="book-preview-author" id="mPenulis2">—</div>
-                <span class="badge-custom badge-tersedia">Tersedia</span>
+                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Email</label>
+                <input type="email" id="inputEmail" value="<?= htmlspecialchars($emailUser); ?>" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-700 font-medium outline-none" readonly>
+            </div>
+            <div>
+                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Nama</label>
+                <input type="text" id="inputNama" value="<?= htmlspecialchars($namaUser); ?>" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-700 font-medium outline-none" readonly>
             </div>
         </div>
 
-        <div class="form-row">
-            <div class="form-group">
-                <label>Tanggal Pinjam</label>
-                <input type="date" name="tanggal_pinjam" id="tanggalPinjam" readonly>
-            </div>
-            <div class="form-group">
-                <label>Tanggal Kembali</label>
-                <input type="date" name="tanggal_kembali" id="tanggalKembali" readonly>
+        <div class="flex items-center gap-4 bg-gray-50 rounded-2xl p-3 mb-4 border border-gray-200">
+            <div class="w-12 h-16 rounded-xl flex items-center justify-center text-3xl shrink-0 overflow-hidden bg-blue-100" id="modalPreviewCover">📘</div>
+            <div class="flex-1 min-w-0">
+                <div class="text-sm font-bold text-gray-900 mb-1 truncate" id="mJudul2">—</div>
+                <div class="text-[11px] text-gray-500 mb-1.5 truncate" id="mPenulis2">—</div>
+                <span class="inline-block text-[10px] px-2 py-0.5 rounded-full font-bold bg-green-100 text-green-800 border border-green-200">Tersedia</span>
             </div>
         </div>
 
-        <div class="form-group" style="margin-bottom:10px;">
-            <label>Durasi</label>
-            <input type="text" value="14 Hari" readonly>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Tgl Pinjam</label>
+                <input type="date" name="tanggal_pinjam" id="tanggalPinjam" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-700 font-medium outline-none" readonly>
+            </div>
+            <div>
+                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Tgl Kembali</label>
+                <input type="date" name="tanggal_kembali" id="tanggalKembali" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-700 font-medium outline-none" readonly>
+            </div>
         </div>
 
-        <div class="modal-footer">
-            <button type="button" class="btn-batal" onclick="closeModal()">Batal</button>
-            <button type="submit" class="btn-proses">Proses Pinjam</button>
+        <div class="mb-6">
+            <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Durasi</label>
+            <input type="text" value="14 Hari" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm text-blue-700 font-bold outline-none" readonly>
+        </div>
+
+        <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
+            <button type="button" class="px-5 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-bold transition-colors" onclick="closeModal()">Batal</button>
+            <button type="submit" class="px-5 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition-all hover:-translate-y-0.5 shadow-md shadow-blue-500/30">Proses Pinjam</button>
         </div>
     </form>
   </div>
 </div>
 
-<div id="bigNotifCenter" class="notif-center">
-  <div class="notif-card">
-    <div class="notif-icon"><i class="bi bi-check2-circle"></i></div>
-    <div class="notif-title">Peminjaman Berhasil!</div>
-    <div class="notif-message">
-      Silahkan ambil buku di perpustakaan.<br>
-      <span id="bigNotifBookName" style="font-weight:600; display:block; margin-top:10px; color:#0d6efd;">—</span>
+<!-- Notifikasi Besar -->
+<div class="fixed inset-0 bg-black/65 backdrop-blur-md z-[1100] flex items-center justify-center opacity-0 invisible transition-opacity duration-300" id="bigNotifCenter">
+  <div class="bg-gradient-to-br from-white to-gray-50 rounded-[40px] w-[90%] max-w-[420px] p-8 text-center shadow-[0_40px_65px_rgba(0,0,0,0.25)] border border-blue-100 transform scale-90 transition-transform duration-400" id="bigNotifCard">
+    <div class="w-24 h-24 mx-auto bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center text-white text-5xl mb-6 shadow-[0_12px_25px_rgba(59,130,246,0.3)]">
+        <i class="bi bi-check2-circle"></i>
     </div>
-    <div style="font-size:14px; color:#6c757d; margin-bottom: 20px;" id="bigNotifUser">Terima kasih telah meminjam</div>
-    <button class="notif-action-btn" id="closeBigNotifBtn" onclick="selesai()">OK, Mengerti</button>
+    <div class="text-3xl font-extrabold mb-3 bg-gradient-to-br from-blue-600 to-blue-800 bg-clip-text text-transparent">Peminjaman Berhasil!</div>
+    <div class="text-lg font-medium text-gray-700 mb-5 leading-snug">
+      Silahkan ambil buku di perpustakaan.<br>
+      <span id="bigNotifBookName" class="font-bold block mt-2 text-blue-600">—</span>
+    </div>
+    <div class="text-sm text-gray-500 mb-8 font-medium" id="bigNotifUser">Terima kasih telah meminjam</div>
+    <button class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-bold text-lg transition-all hover:scale-105 shadow-[0_8px_20px_rgba(37,99,235,0.3)]" id="closeBigNotifBtn" onclick="selesai()">OK, Mengerti</button>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
-// Sidebar logika
+// Sidebar Toggle Logic
 const sidebar = document.getElementById('sidebar');
-const content = document.querySelector('.content');
-function isDesktop(){ return window.innerWidth > 992; }
-if(sidebar) {
-    sidebar.addEventListener('shown.bs.offcanvas', function () { if(isDesktop()) content.classList.add('shifted'); });
-    sidebar.addEventListener('hidden.bs.offcanvas', function () { content.classList.remove('shifted'); });
+const sidebarOverlay = document.getElementById('sidebarOverlay');
+const openSidebarBtn = document.getElementById('openSidebarBtn');
+const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+
+function openSidebar() {
+    sidebar.classList.remove('-translate-x-full');
+    sidebarOverlay.classList.remove('opacity-0', 'invisible');
+    sidebarOverlay.classList.add('opacity-100', 'visible');
 }
-window.addEventListener('resize', () => {
-    if(window.innerWidth <= 992) content.classList.remove('shifted');
-    else if(!sidebar.classList.contains('show')) content.classList.remove('shifted');
-});
+
+function closeSidebar() {
+    sidebar.classList.add('-translate-x-full');
+    sidebarOverlay.classList.remove('opacity-100', 'visible');
+    sidebarOverlay.classList.add('opacity-0', 'invisible');
+}
+
+if (openSidebarBtn) openSidebarBtn.addEventListener('click', openSidebar);
+if (closeSidebarBtn) closeSidebarBtn.addEventListener('click', closeSidebar);
+if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
 
 // FILTER dan SEARCH
 let currentCategory = 'all';
 let currentStatus = 'all';
 
 function filterBooks() {
-    const keyword = document.getElementById('searchKatalog').value.toLowerCase().trim();
+    const searchInput = document.getElementById('searchKatalog');
+    const keyword = searchInput ? searchInput.value.toLowerCase().trim() : '';
     const items = document.querySelectorAll('#katalogGrid .book-card');
     let visibleCount = 0;
 
@@ -1148,33 +334,62 @@ function filterBooks() {
         const matchSearch = keyword === '' || title.includes(keyword) || author.includes(keyword);
         
         const show = matchCategory && matchStatus && matchSearch;
-        item.style.display = show ? 'flex' : 'none';
-        if(show) visibleCount++;
+        
+        if (show) {
+            item.style.display = 'flex';
+            visibleCount++;
+        } else {
+            item.style.display = 'none';
+        }
     });
 
-    document.getElementById('emptyState').style.display = visibleCount === 0 ? 'block' : 'none';
+    const emptyState = document.getElementById('emptyState');
+    if (emptyState) {
+        if (visibleCount === 0) {
+            emptyState.classList.remove('hidden');
+        } else {
+            emptyState.classList.add('hidden');
+        }
+    }
 }
 
 document.querySelectorAll('#categoryFilter .filter-btn').forEach(btn => {
     btn.addEventListener('click', function() {
-        document.querySelectorAll('#categoryFilter .filter-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
+        document.querySelectorAll('#categoryFilter .filter-btn').forEach(b => {
+            b.classList.remove('bg-blue-600', 'text-white', 'border-transparent');
+            b.classList.add('bg-white', 'text-gray-600', 'border-gray-200');
+        });
+        this.classList.remove('bg-white', 'text-gray-600', 'border-gray-200');
+        this.classList.add('bg-blue-600', 'text-white', 'border-transparent');
+        
         currentCategory = this.getAttribute('data-cat');
         filterBooks();
     });
 });
+
 document.querySelectorAll('#statusFilter .filter-btn').forEach(btn => {
     btn.addEventListener('click', function() {
-        document.querySelectorAll('#statusFilter .filter-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
+        document.querySelectorAll('#statusFilter .filter-btn').forEach(b => {
+            b.classList.remove('bg-blue-600', 'text-white', 'border-transparent');
+            b.classList.add('bg-white', 'text-gray-600', 'border-gray-200');
+        });
+        this.classList.remove('bg-white', 'text-gray-600', 'border-gray-200');
+        this.classList.add('bg-blue-600', 'text-white', 'border-transparent');
+        
         currentStatus = this.getAttribute('data-stat');
         filterBooks();
     });
 });
-document.getElementById('searchKatalog').addEventListener('input', filterBooks);
+
+const searchKatalog = document.getElementById('searchKatalog');
+if (searchKatalog) {
+    searchKatalog.addEventListener('input', filterBooks);
+}
 
 // VARIABEL PEMINJAMAN
 let currentBook = {};
+const modalOverlay = document.getElementById('modalOverlay');
+const modalBox = document.getElementById('modalBox');
 
 // MEMPERSIAPKAN DATA MODAL SAAT TOMBOL PINJAM DIKLIK
 function pinjamBuku(id, judul, penulis, cover) {
@@ -1186,11 +401,11 @@ function pinjamBuku(id, judul, penulis, cover) {
 
     let coverEl = document.getElementById('modalPreviewCover');
     if (cover && cover.trim() !== '') {
-        coverEl.innerHTML = `<img src="../assets/images/covers/${cover}" style="width:100%; height:100%; object-fit:cover; border-radius:10px;">`;
-        coverEl.style.background = 'transparent';
+        coverEl.innerHTML = `<img src="../assets/images/covers/${cover}" class="w-full h-full object-cover">`;
+        coverEl.classList.remove('bg-blue-100');
     } else {
         coverEl.innerHTML = '📘';
-        coverEl.style.background = '#d4e8f4';
+        coverEl.classList.add('bg-blue-100');
     }
 
     // Set Tanggal Pinjam & Kembali otomatis (format YYYY-MM-DD)
@@ -1202,25 +417,32 @@ function pinjamBuku(id, judul, penulis, cover) {
     document.getElementById('tanggalPinjam').value = today.toISOString().split('T')[0];
     document.getElementById('tanggalKembali').value = kembali.toISOString().split('T')[0];
 
-    document.getElementById('modalOverlay').classList.add('show');
+    // Show Modal
+    modalOverlay.classList.remove('opacity-0', 'invisible');
+    modalOverlay.classList.add('opacity-100', 'visible');
+    setTimeout(() => {
+        modalBox.classList.remove('scale-95');
+        modalBox.classList.add('scale-100');
+    }, 10);
 }
 
 function closeModal() {
-    document.getElementById('modalOverlay').classList.remove('show');
+    modalBox.classList.remove('scale-100');
+    modalBox.classList.add('scale-95');
+    setTimeout(() => {
+        modalOverlay.classList.remove('opacity-100', 'visible');
+        modalOverlay.classList.add('opacity-0', 'invisible');
+    }, 200);
 }
 
 // MENGIRIM DATA KE CONTROLLER MENGGUNAKAN FETCH API (AJAX)
 function memprosesPeminjaman(event) {
-    // Mencegah form memuat ulang halaman
     event.preventDefault(); 
-    
-    // Tutup modal formulir
     closeModal();
     
     const formElement = document.getElementById('formPinjam');
     const formData = new FormData(formElement);
 
-    // GANTI URL FETCH-NYA MENJADI SEPERTI INI:
     formData.append('action', 'pinjam');
     fetch('katalog.php', {
         method: 'POST',
@@ -1237,7 +459,16 @@ function memprosesPeminjaman(event) {
             document.getElementById('bigNotifBookName').innerText = `📖 "${currentBook.judul}"`;
             document.getElementById('bigNotifUser').innerText = `Peminjam: ${namaPeminjam} • Selamat membaca!`;
             
-            document.getElementById('bigNotifCenter').classList.add('show');
+            const bigNotifCenter = document.getElementById('bigNotifCenter');
+            const bigNotifCard = document.getElementById('bigNotifCard');
+            
+            bigNotifCenter.classList.remove('opacity-0', 'invisible');
+            bigNotifCenter.classList.add('opacity-100', 'visible');
+            setTimeout(() => {
+                bigNotifCard.classList.remove('scale-90');
+                bigNotifCard.classList.add('scale-100');
+            }, 10);
+            
         } else {
             alert("Gagal memproses peminjaman: " + (data.message || "Kesalahan tidak diketahui"));
             console.log(data);
@@ -1251,10 +482,17 @@ function memprosesPeminjaman(event) {
 
 // MENUTUP NOTIFIKASI BESAR
 function selesai() {
-    document.getElementById('bigNotifCenter').classList.remove('show');
+    const bigNotifCenter = document.getElementById('bigNotifCenter');
+    const bigNotifCard = document.getElementById('bigNotifCard');
     
-    // Refresh otomatis agar stok buku terupdate secara visual
-    window.location.reload(); 
+    bigNotifCard.classList.remove('scale-100');
+    bigNotifCard.classList.add('scale-90');
+    
+    setTimeout(() => {
+        bigNotifCenter.classList.remove('opacity-100', 'visible');
+        bigNotifCenter.classList.add('opacity-0', 'invisible');
+        window.location.reload(); 
+    }, 200);
 }
 </script>
 </body>
