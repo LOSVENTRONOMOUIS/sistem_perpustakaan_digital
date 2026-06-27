@@ -8,7 +8,7 @@ if(!isset($_SESSION['id'])){
 }
 
 if($_SESSION['role'] != 'admin'){
-    header("Location: dashboard.php");
+    header("Location: dashboard_anggota.php");
     exit;
 }
 
