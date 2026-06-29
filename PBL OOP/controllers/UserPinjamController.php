@@ -38,7 +38,7 @@ class PeminjamanController {
                 'id' => $p['id'],
                 'judul' => $p['judul'],
                 'nama' => $_SESSION['nama'] ?? 'User',
-                'nim' => $_SESSION['nim'] ?? '-',
+                'email' => $_SESSION['email'] ?? '-',
                 'tglPinjam' => $this->formatDate($p['tanggal_pinjam']),
                 'tglKembali' => $this->formatDate($p['tanggal_kembali']),
                 'status' => $status,
