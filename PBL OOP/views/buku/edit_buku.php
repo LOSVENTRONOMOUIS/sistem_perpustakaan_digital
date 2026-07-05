@@ -67,9 +67,15 @@
                 </div>
             </div>
 
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">Stok Buku</label>
-                <input type="number" name="stok" class="w-full md:w-1/3 px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-slate-700" value="<?= htmlspecialchars($book['stok']) ?>" required>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Stok Buku</label>
+                    <input type="number" name="stok" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-slate-700" value="<?= htmlspecialchars($book['stok']) ?>" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Harga Buku (Rp)</label>
+                    <input type="number" name="harga" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-slate-700" value="<?= htmlspecialchars($book['harga'] ?? 0) ?>" required>
+                </div>
             </div>
 
             <div>

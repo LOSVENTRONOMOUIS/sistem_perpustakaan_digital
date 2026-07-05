@@ -389,8 +389,12 @@ class PeminjamanUser extends Database {
      * Hitung total denda per user (untuk dashboard)
      */
     public function totalFineByUser($user_id, $fine_per_day = 2000){
-        $totalLateDays = $this->totalLateDaysByUser($user_id);
-        return $totalLateDays * $fine_per_day;
+        $books = $this->getLateBooksDetailByUser($user_id, $fine_per_day);
+        $total = 0;
+        foreach($books as $book) {
+            $total += $book['fine_amount'];
+        }
+        return $total;
     }
 
     /**
@@ -403,15 +407,17 @@ class PeminjamanUser extends Database {
                 peminjaman.buku_id,
                 peminjaman.tanggal_pinjam,
                 peminjaman.tanggal_kembali,
+                peminjaman.kondisi_buku,
                 buku.judul,
                 buku.penulis,
+                buku.harga,
                 DATE_ADD(peminjaman.tanggal_pinjam, INTERVAL 14 DAY) as batas_kembali,
                 GREATEST(0, DATEDIFF(CURDATE(), DATE_ADD(peminjaman.tanggal_pinjam, INTERVAL 14 DAY))) as late_days
             FROM peminjaman
             JOIN buku ON peminjaman.buku_id = buku.id
             WHERE peminjaman.user_id = ? 
             AND peminjaman.status = 'dipinjam' 
-            AND DATE_ADD(peminjaman.tanggal_pinjam, INTERVAL 14 DAY) < CURDATE()
+            AND (DATE_ADD(peminjaman.tanggal_pinjam, INTERVAL 14 DAY) < CURDATE() OR peminjaman.kondisi_buku = 'rusak')
             ORDER BY peminjaman.tanggal_kembali ASC
         ");
         $stmt->bind_param("i", $user_id);
@@ -422,6 +428,13 @@ class PeminjamanUser extends Database {
         while($row = $result->fetch_assoc()) {
             $row['late_days'] = max(0, (int)$row['late_days']);
             $row['fine_amount'] = $row['late_days'] * $fine_per_day;
+            if (isset($row['kondisi_buku']) && strtolower($row['kondisi_buku']) == 'rusak') {
+                if ($row['late_days'] > 0) {
+                    $row['fine_amount'] += (int)$row['harga']; // Gabungan jika rusak + telat
+                } else {
+                    $row['fine_amount'] = (int)$row['harga']; // Ganti buku saja jika rusak saja
+                }
+            }
             $books[] = $row;
         }
         

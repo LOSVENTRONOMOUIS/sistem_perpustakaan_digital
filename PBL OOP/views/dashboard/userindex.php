@@ -272,12 +272,13 @@ if (!isset($is_locked)) {
                                 </div>
                             <?php else: ?>
                                 <?php foreach($late_books_detail as $index => $book): 
-                                    $fine_amount = $book['late_days'] * $denda_per_hari;
+                                    $fine_amount = $book['fine_amount'];
                                     $denda_status = $book['denda_status'] ?? 'unpaid';
                                     $is_waiting_confirmation = ($denda_status === 'pending');
                                     $kode_konfirmasi = $book['kode_konfirmasi'] ?? '';
+                                    $is_rusak = (isset($book['kondisi_buku']) && strtolower($book['kondisi_buku']) == 'rusak');
                                 ?>
-                                <div class="fine-item-card <?= $is_waiting_confirmation ? 'waiting-confirmation' : '' ?> p-4 rounded-2xl border-2 transition-all cursor-pointer relative <?= $is_waiting_confirmation ? ($is_locked ? 'bg-[#2e2e50] border-yellow-500 opacity-95' : 'bg-yellow-50 border-yellow-500 opacity-95') : ($is_locked ? 'bg-[#252540] border-[#3a3a5e] hover:border-red-500' : 'bg-white border-gray-200 hover:border-red-500 hover:shadow-md') ?>" 
+                                <div class="fine-item-card <?= $is_waiting_confirmation ? 'waiting-confirmation' : '' ?> p-4 rounded-2xl border-2 transition-all cursor-pointer relative <?= $is_rusak ? ($is_locked ? 'bg-red-900/50 border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]' : 'bg-red-50 border-red-500 shadow-md') : ($is_waiting_confirmation ? ($is_locked ? 'bg-[#2e2e50] border-yellow-500 opacity-95' : 'bg-yellow-50 border-yellow-500 opacity-95') : ($is_locked ? 'bg-[#252540] border-[#3a3a5e] hover:border-red-500' : 'bg-white border-gray-200 hover:border-red-500 hover:shadow-md')) ?>" 
                                      data-id="<?= $book['buku_id'] ?>" 
                                      data-peminjaman-id="<?= $book['id'] ?>" 
                                      data-late-days="<?= $book['late_days'] ?>" 
@@ -304,7 +305,11 @@ if (!isset($is_locked)) {
                                                 <h6 class="font-bold m-0 text-base line-clamp-1 <?= $is_locked ? 'text-white' : 'text-gray-900' ?>">
                                                     <?= htmlspecialchars($book['judul']) ?>
                                                 </h6>
-                                                <?php if($is_waiting_confirmation): ?>
+                                                <?php if($is_rusak): ?>
+                                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-600 text-white text-[10px] font-bold rounded-full shadow-sm">
+                                                        <i class="bi bi-exclamation-octagon-fill"></i> Buku Rusak
+                                                    </span>
+                                                <?php elseif($is_waiting_confirmation): ?>
                                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-yellow-100 text-yellow-800 text-[10px] font-bold rounded-full">
                                                         <i class="bi bi-clock-history"></i> Menunggu Konfirmasi
                                                     </span>
@@ -326,11 +331,35 @@ if (!isset($is_locked)) {
                                                 </div>
                                             </div>
                                             
-                                            <div class="flex justify-between items-center bg-black/5 p-2 rounded-lg <?= $is_locked ? 'bg-white/5' : 'bg-gray-50' ?>">
-                                                <span class="text-[10px] font-medium <?= $is_locked ? 'text-yellow-400' : 'text-yellow-600' ?>">Denda: <?= formatRupiah($denda_per_hari) ?>/hari</span>
-                                                <strong class="text-sm <?= $is_waiting_confirmation ? 'text-yellow-500' : 'text-red-600' ?>" id="fineAmount_<?= $book['buku_id'] ?>">
-                                                    <?= $is_waiting_confirmation ? 'Menunggu...' : formatRupiah($fine_amount) ?>
-                                                </strong>
+                                            <div class="flex flex-col gap-1 bg-black/5 p-2 rounded-lg <?= $is_locked ? 'bg-white/5' : 'bg-gray-50' ?>">
+                                                <?php if($is_rusak): ?>
+                                                    <?php if($book['late_days'] > 0): ?>
+                                                    <div class="flex justify-between items-center">
+                                                        <span class="text-[10px] font-bold text-red-500"><i class="bi bi-exclamation-octagon"></i> Ganti Buku (Rusak)</span>
+                                                        <span class="text-[10px] font-bold text-red-500"><?= formatRupiah($book['harga'] ?? 0) ?></span>
+                                                    </div>
+                                                    <div class="flex justify-between items-center">
+                                                        <span class="text-[10px] font-medium <?= $is_locked ? 'text-yellow-400' : 'text-yellow-600' ?>">Keterlambatan</span>
+                                                        <span class="text-[10px] font-medium <?= $is_locked ? 'text-gray-400' : 'text-gray-500' ?>"><?= formatRupiah($book['late_days'] * $denda_per_hari) ?></span>
+                                                    </div>
+                                                    <?php else: ?>
+                                                    <div class="flex justify-between items-center">
+                                                        <span class="text-[10px] font-bold text-red-500"><i class="bi bi-exclamation-octagon"></i> Ganti Buku (Rusak)</span>
+                                                        <span class="text-[10px] font-bold text-red-500"><?= formatRupiah($book['harga'] ?? 0) ?></span>
+                                                    </div>
+                                                    <?php endif; ?>
+                                                <?php else: ?>
+                                                <div class="flex justify-between items-center">
+                                                    <span class="text-[10px] font-medium <?= $is_locked ? 'text-yellow-400' : 'text-yellow-600' ?>">Keterlambatan: <?= formatRupiah($denda_per_hari) ?>/hari</span>
+                                                    <span class="text-[10px] font-medium text-gray-500"><?= formatRupiah($book['late_days'] * $denda_per_hari) ?></span>
+                                                </div>
+                                                <?php endif; ?>
+                                                <div class="flex justify-between items-center mt-1 pt-1 border-t <?= $is_locked ? 'border-gray-700' : 'border-gray-200' ?>">
+                                                    <span class="text-xs font-bold <?= $is_locked ? 'text-gray-300' : 'text-gray-700' ?>">Total Denda</span>
+                                                    <strong class="text-sm <?= $is_waiting_confirmation ? 'text-yellow-500' : 'text-red-600' ?>" id="fineAmount_<?= $book['buku_id'] ?>">
+                                                        <?= $is_waiting_confirmation ? 'Menunggu...' : formatRupiah($fine_amount) ?>
+                                                    </strong>
+                                                </div>
                                             </div>
                                             
                                             <?php if($is_waiting_confirmation && $kode_konfirmasi): ?>

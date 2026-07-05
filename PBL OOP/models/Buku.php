@@ -59,6 +59,7 @@ class Buku extends Database {
         $penerbit = mysqli_real_escape_string($this->conn, $data['penerbit']);
         $tahun = $data['tahun'];
         $stok = (int)$data['stok'];
+        $harga = (int)($data['harga'] ?? 0);
 
         $kategori = !empty($data['kategori'])
             ? (int)$data['kategori']
@@ -78,6 +79,7 @@ class Buku extends Database {
                 penerbit,
                 tahun,
                 stok,
+                harga,
                 cover,
                 kategori,
                 status
@@ -89,6 +91,7 @@ class Buku extends Database {
                 '$penerbit',
                 '$tahun',
                 '$stok',
+                '$harga',
                 $coverValue,
                 $kategori,
                 '$status'
@@ -129,6 +132,7 @@ class Buku extends Database {
         $penerbit = mysqli_real_escape_string($this->conn, $data['penerbit']);
         $tahun = $data['tahun'];
         $stok = (int)$data['stok'];
+        $harga = (int)($data['harga'] ?? 0);
 
         $kategori = !empty($data['kategori'])
             ? (int)$data['kategori']
@@ -144,6 +148,7 @@ class Buku extends Database {
                 tahun = '$tahun',
                 kategori = $kategori,
                 stok = '$stok',
+                harga = '$harga',
                 status = '$status'
         ";
 

@@ -110,11 +110,44 @@ tailwind.config = {
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 bg-white">
-                        <?php foreach($denda_list as $item): ?>
+                        <?php foreach($denda_list as $item): 
+                            $is_rusak = (isset($item['kondisi_buku']) && strtolower($item['kondisi_buku']) == 'rusak');
+                            $is_late = false;
+                            if (isset($item['tanggal_kembali'])) {
+                                $date_kembali = new DateTime($item['tanggal_kembali']);
+                                $date_created = new DateTime($item['created_at'] ?? $item['tanggal_bayar'] ?? 'now');
+                                if ($date_created->format('Y-m-d') > $date_kembali->format('Y-m-d')) {
+                                    $is_late = true;
+                                }
+                            }
+                        ?>
                         <tr>
-                            <td class="px-6 py-4 font-semibold text-slate-800"><?= htmlspecialchars($item['judul']) ?></td>
-                            <td class="px-6 py-4 text-center text-slate-500">Keterlambatan</td>
-                            <td class="px-6 py-4 text-right font-mono font-medium">Rp <?= number_format($item['jumlah_denda'], 0, ',', '.') ?></td>
+                            <td class="px-6 py-4 font-semibold text-slate-800">
+                                <?= htmlspecialchars($item['judul']) ?>
+                                <?php if ($is_rusak): ?>
+                                    <br><span class="text-xs text-red-500 font-normal mt-1 block"><i class="bi bi-exclamation-circle"></i> Kondisi: Rusak</span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="px-6 py-4 text-center text-slate-500 text-sm">
+                                <div class="flex flex-col gap-1 items-center">
+                                    <?php if ($is_rusak): ?>
+                                        <?php if ($is_late): ?>
+                                            <span class="text-xs bg-orange-100 text-orange-700 px-3 py-1 rounded-full border border-orange-200 font-bold"><i class="bi bi-exclamation-octagon"></i> Ganti Buku + Keterlambatan</span>
+                                        <?php else: ?>
+                                            <span class="text-xs bg-red-100 text-red-600 px-3 py-1 rounded-full border border-red-200 font-bold"><i class="bi bi-exclamation-octagon"></i> Ganti Buku</span>
+                                        <?php endif; ?>
+                                    <?php else: ?>
+                                        <span>Keterlambatan</span>
+                                    <?php endif; ?>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-right font-mono font-medium">
+                                <?php if ($is_rusak): ?>
+                                    <span class="text-red-600 font-bold">Rp <?= number_format($item['jumlah_denda'], 0, ',', '.') ?></span>
+                                <?php else: ?>
+                                    <span>Rp <?= number_format($item['jumlah_denda'], 0, ',', '.') ?></span>
+                                <?php endif; ?>
+                            </td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -129,7 +162,7 @@ tailwind.config = {
 
             <!-- Instructions -->
             <?php if ($status === 'pending' && $metode === 'tunai'): ?>
-            <div class="bg-blue-50 border border-blue-200 rounded-2xl p-5 mb-2">
+            <div class="bg-blue-50 border border-blue-200 rounded-2xl p-5 mb-4">
                 <h4 class="font-bold text-blue-800 mb-2 flex items-center gap-2"><i class="bi bi-info-circle-fill"></i> Instruksi Pembayaran Tunai</h4>
                 <ol class="list-decimal list-inside text-sm text-blue-700 space-y-1.5 ml-1">
                     <li>Bawa cetakan invoice ini atau tunjukkan <strong>Kode Referensi</strong> dari layar HP Anda.</li>
@@ -138,6 +171,14 @@ tailwind.config = {
                 </ol>
             </div>
             <?php endif; ?>
+
+            <!-- Warning Note -->
+            <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5 mb-2">
+                <h4 class="font-bold text-amber-800 mb-2 flex items-center gap-2"><i class="bi bi-exclamation-triangle-fill"></i> Perhatian</h4>
+                <p class="text-sm text-amber-700 ml-1">
+                    Jika buku yang dikembalikan dalam kondisi <strong>rusak</strong>, maka akan dikenakan penambahan biaya denda <strong>sesuai dengan harga buku</strong> yang bersangkutan.
+                </p>
+            </div>
 
         </div>
         

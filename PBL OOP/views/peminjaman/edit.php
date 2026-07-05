@@ -71,19 +71,37 @@
                     </div>
                 </div>
 
-                <!-- Input Group: Status -->
-                <div class="space-y-2">
-                    <label class="block text-sm font-semibold text-slate-700">Status Peminjaman</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                            <i class="bi bi-info-circle"></i>
+                <!-- Input Group: Status & Kondisi -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold text-slate-700">Status Peminjaman</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                                <i class="bi bi-info-circle"></i>
+                            </div>
+                            <select name="status" class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all text-slate-700 bg-slate-50 focus:bg-white appearance-none">
+                                <option value="dipinjam" <?= ($pinjam['status'] == 'dipinjam') ? 'selected' : '' ?>>Sedang Dipinjam</option>
+                                <option value="dikembalikan" <?= ($pinjam['status'] == 'dikembalikan') ? 'selected' : '' ?>>Sudah Dikembalikan</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-400">
+                                <i class="bi bi-chevron-down"></i>
+                            </div>
                         </div>
-                        <select name="status" class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all text-slate-700 bg-slate-50 focus:bg-white appearance-none">
-                            <option value="dipinjam" <?= ($pinjam['status'] == 'dipinjam') ? 'selected' : '' ?>>Sedang Dipinjam</option>
-                            <option value="dikembalikan" <?= ($pinjam['status'] == 'dikembalikan') ? 'selected' : '' ?>>Sudah Dikembalikan</option>
-                        </select>
-                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-400">
-                            <i class="bi bi-chevron-down"></i>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold text-slate-700">Kondisi Buku (Saat Kembali)</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                                <i class="bi bi-book"></i>
+                            </div>
+                            <select name="kondisi_buku" class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all text-slate-700 bg-slate-50 focus:bg-white appearance-none">
+                                <option value="baik" <?= (($pinjam['kondisi_buku'] ?? 'baik') == 'baik') ? 'selected' : '' ?>>Baik</option>
+                                <option value="rusak" <?= (($pinjam['kondisi_buku'] ?? '') == 'rusak') ? 'selected' : '' ?>>Rusak (Denda Sesuai Harga Buku)</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-400">
+                                <i class="bi bi-chevron-down"></i>
+                            </div>
                         </div>
                     </div>
                 </div>

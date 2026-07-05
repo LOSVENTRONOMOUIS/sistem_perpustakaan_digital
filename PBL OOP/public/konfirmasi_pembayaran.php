@@ -28,7 +28,7 @@ class DBConnection extends Database {
 $db = new DBConnection();
 $conn = $db->getConnection();
 
-$query = "SELECT d.*, b.judul, u.nama, u.email
+$query = "SELECT d.*, b.judul, b.harga, p.kondisi_buku, u.nama, u.email
           FROM denda d
           JOIN peminjaman p ON d.peminjaman_id = p.id
           JOIN buku b ON p.buku_id = b.id

@@ -96,11 +96,11 @@ class UserDashController extends Database {
     }
     
     public function getTotalTerlambat() {
-        return $this->peminjaman->countLateBooksByUser($this->user_id);
+        return count($this->getLateBooksDetail());
     }
     
     public function isLocked() {
-        return $this->peminjaman->countLateBooksByUser($this->user_id) > 0;
+        return count($this->getLateBooksDetail()) > 0;
     }
     
     public function getTotalLateDays() {
@@ -182,7 +182,7 @@ class UserDashController extends Database {
                   LEFT JOIN denda d ON p.id = d.peminjaman_id
                   WHERE p.user_id = ? 
                   AND p.status = 'dipinjam'
-                  AND p.tanggal_kembali < CURDATE()
+                  AND (p.tanggal_kembali < CURDATE() OR p.kondisi_buku = 'rusak')
                   ORDER BY p.tanggal_kembali ASC";
         
         $stmt = $this->conn->prepare($query);
@@ -257,27 +257,41 @@ class UserDashController extends Database {
             
             foreach ($bookIdArray as $book_id) {
                 // PERBAIKAN 3: Gunakan tanggal_kembali dari database untuk validasi keterlambatan yang konsisten
-                $query = "SELECT p.*, 
-                          DATEDIFF(NOW(), p.tanggal_kembali) as late_days
-                          FROM peminjaman p
-                          WHERE p.user_id = ? AND p.buku_id = ? 
-                          AND p.status = 'dipinjam'
-                          AND p.tanggal_kembali < NOW()";
-                
-                $stmt = $this->conn->prepare($query);
-                $stmt->bind_param("ii", $user_id, $book_id);
-                $stmt->execute();
-                $result = $stmt->get_result();
-                $peminjaman = $result->fetch_assoc();
-                
-                // DEBUG: Log hasil query
-                error_log("Checking book_id: " . $book_id . ", user_id: " . $user_id);
-                error_log("Peminjaman found: " . ($peminjaman ? "YES (ID: " . $peminjaman['id'] . ", late_days: " . $peminjaman['late_days'] . ")" : "NO"));
-                
-                if ($peminjaman) {
-                    // Pastikan denda minimal dihitung 1 hari jika sudah masuk query telat
-                    $late_days = max(1, (int)$peminjaman['late_days']);
-                    $fine_amount = $late_days * $denda_per_hari;
+                 $query = "SELECT p.*, b.harga, p.kondisi_buku,
+                           DATEDIFF(NOW(), p.tanggal_kembali) as late_days
+                           FROM peminjaman p
+                           JOIN buku b ON p.buku_id = b.id
+                           WHERE p.user_id = ? AND p.buku_id = ? 
+                           AND p.status = 'dipinjam'
+                           AND (p.tanggal_kembali < NOW() OR p.kondisi_buku = 'rusak')";
+                 
+                 $stmt = $this->conn->prepare($query);
+                 $stmt->bind_param("ii", $user_id, $book_id);
+                 $stmt->execute();
+                 $result = $stmt->get_result();
+                 $peminjaman = $result->fetch_assoc();
+                 
+                 // DEBUG: Log hasil query
+                 error_log("Checking book_id: " . $book_id . ", user_id: " . $user_id);
+                 error_log("Peminjaman found: " . ($peminjaman ? "YES (ID: " . $peminjaman['id'] . ", late_days: " . $peminjaman['late_days'] . ")" : "NO"));
+                 
+                 if ($peminjaman) {
+                     $late_days = max(0, (int)$peminjaman['late_days']);
+                     $fine_amount = $late_days * $denda_per_hari;
+                     
+                     if (isset($peminjaman['kondisi_buku']) && strtolower($peminjaman['kondisi_buku']) == 'rusak') {
+                         if ($late_days > 0) {
+                             $fine_amount += (int)$peminjaman['harga']; // Gabungan jika rusak + telat
+                         } else {
+                             $fine_amount = (int)$peminjaman['harga']; // Ganti buku saja jika rusak saja
+                         }
+                     } else {
+                         // Jika tidak rusak tapi masuk ke sini (berarti telat), pastikan minimal denda 1 hari
+                         if ($late_days == 0) {
+                             $late_days = 1;
+                             $fine_amount = $late_days * $denda_per_hari;
+                         }
+                     }
                     
                     // PERUBAHAN: Untuk pembayaran tunai, status = 'pending', untuk online = 'lunas'
                     $status = ($method == 'tunai') ? 'pending' : 'lunas';

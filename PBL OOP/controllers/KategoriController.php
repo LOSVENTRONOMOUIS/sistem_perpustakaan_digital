@@ -14,7 +14,7 @@ class KategoriController {
     // halaman kategori
     public function index(){
 
-        $kategori = $this->kategori->getAllKategori();
+        $kategori = $this->kategori->getAll();
 
         $totalKategori = $this->kategori->countKategori();
 

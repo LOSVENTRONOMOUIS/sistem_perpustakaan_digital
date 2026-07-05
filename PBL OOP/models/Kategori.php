@@ -7,6 +7,10 @@ class Kategori extends Database {
     // =========================
     // AMBIL SEMUA
     // =========================
+    public function getAll(){
+        return  $this->getAllKategori();
+    }
+
     public function getAllKategori(){
 
         $query = mysqli_query($this->conn, "

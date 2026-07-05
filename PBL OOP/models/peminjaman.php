@@ -84,6 +84,7 @@ class Peminjaman extends Database {
         $tanggal_kembali = $data['tanggal_kembali'];
 
         $status = $data['status'];
+        $kondisi_buku = 'baik';
 
         mysqli_query($this->conn, "
 
@@ -93,7 +94,8 @@ class Peminjaman extends Database {
                 buku_id,
                 tanggal_pinjam,
                 tanggal_kembali,
-                status
+                status,
+                kondisi_buku
             )
 
             VALUES
@@ -102,7 +104,8 @@ class Peminjaman extends Database {
                 '$buku_id',
                 '$tanggal_pinjam',
                 '$tanggal_kembali',
-                '$status'
+                '$status',
+                '$kondisi_buku'
             )
 
         ");
@@ -144,6 +147,7 @@ class Peminjaman extends Database {
         $tanggal_kembali = $data['tanggal_kembali'];
 
         $status = $data['status'];
+        $kondisi_buku = $data['kondisi_buku'] ?? 'baik';
 
         mysqli_query($this->conn, "
 
@@ -151,7 +155,8 @@ class Peminjaman extends Database {
 
             tanggal_pinjam='$tanggal_pinjam',
             tanggal_kembali='$tanggal_kembali',
-            status='$status'
+            status='$status',
+            kondisi_buku='$kondisi_buku'
 
             WHERE id='$id'
 

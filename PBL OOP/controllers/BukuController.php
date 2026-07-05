@@ -17,7 +17,7 @@ class BukuController {
     // HALAMAN BUKU
     // =========================
     public function index(){
-        $books = $this->buku->getAllBooks();
+        $books = $this->buku->getAll();
         $totalBuku = $this->buku->totalBuku();
         $totalTersedia = $this->buku->totalTersedia();
         $totalHabis = $this->buku->totalHabis();
