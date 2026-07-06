@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jun 26, 2026 at 07:46 PM
+-- Generation Time: Jul 05, 2026 at 06:32 AM
 -- Server version: 8.4.6
 -- PHP Version: 8.4.16
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `perpustakaan_digital`
+-- Database: `dummy_pay`
 --
 
 -- --------------------------------------------------------
@@ -30,7 +30,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `aktivitas` (
   `id` int NOT NULL,
   `user_id` int DEFAULT NULL,
-  `aktivitas` text COLLATE utf8mb4_general_ci,
+  `aktivitas` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
   `waktu` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -42,31 +42,33 @@ CREATE TABLE `aktivitas` (
 
 CREATE TABLE `buku` (
   `id` int NOT NULL,
-  `judul` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `penulis` varchar(150) COLLATE utf8mb4_general_ci NOT NULL,
-  `penerbit` varchar(150) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `judul` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `penulis` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `penerbit` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `tahun` year DEFAULT NULL,
   `stok` int DEFAULT '0',
-  `cover` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `harga` int NOT NULL DEFAULT '0',
+  `cover` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `kategori` int DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `status` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL
+  `status` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `buku`
 --
 
-INSERT INTO `buku` (`id`, `judul`, `penulis`, `penerbit`, `tahun`, `stok`, `cover`, `kategori`, `created_at`, `status`) VALUES
-(23, 'How to make Your own AI', 'masbro', 'Politeknik Negeri Batam', '2026', 46, '1781107019_download_(4).jpg', 18, '2026-06-03 10:51:17', 'tersedia'),
-(26, 'Harry Potter', 'J. K. Rowling', 'Politeknik Negeri Batam', '2010', 5, '1781045693_download.jpg', 18, '2026-06-09 22:54:53', 'tersedia'),
-(28, 'Informatika', 'Will Smith', 'Politeknik Negeri Batam', '2025', 48, '1781106978_download_(2).jpg', 14, '2026-06-10 15:56:18', 'tersedia'),
-(29, 'Learning about making Robotic', 'Will Smith', 'Politeknik Negeri Batam', '1998', 70, '1781107010_download_(5).jpg', 15, '2026-06-10 15:56:50', 'tersedia'),
-(30, 'Matahari', 'Will Smith', 'Politeknik Negeri Batam', '2025', 498, '1781107474_download_(1).jpg', 16, '2026-06-10 16:04:34', 'tersedia'),
-(31, 'Python and Pandon', 'Will Smith', 'Politeknik Negeri Batam', '2025', 50, '1781107654_download_(3).jpg', 14, '2026-06-10 16:07:34', 'tersedia'),
-(32, 'Pemrograman C++', 'Will Smith', 'Politeknik Negeri Batam', '2025', 50, '1781107684_download_(6).jpg', 14, '2026-06-10 16:08:04', 'tersedia'),
-(33, 'Multimedia', 'Will Smith', 'Politeknik Negeri Batam', '2025', 48, '1781107711_f9ad5800bed9b48f2b35457687b5c8b5.jpg', 14, '2026-06-10 16:08:31', 'tersedia'),
-(45, 'Claude', 'Will Smith', 'Politeknik Negeri Batam', '2002', 2, '1782502945_images.png', 17, '2026-06-26 19:42:25', 'tersedia');
+INSERT INTO `buku` (`id`, `judul`, `penulis`, `penerbit`, `tahun`, `stok`, `harga`, `cover`, `kategori`, `created_at`, `status`) VALUES
+(23, 'How to make Your own AI', 'masbro', 'Politeknik Negeri Batam', '2026', 46, 150000, '1781107019_download_(4).jpg', 18, '2026-06-03 10:51:17', 'tersedia'),
+(26, 'Harry Potter', 'J. K. Rowling', 'Politeknik Negeri Batam', '2010', 5, 200000, '1781045693_download.jpg', 18, '2026-06-09 22:54:53', 'tersedia'),
+(28, 'Informatika', 'Will Smith', 'Politeknik Negeri Batam', '2025', 48, 120000, '1781106978_download_(2).jpg', 14, '2026-06-10 15:56:18', 'tersedia'),
+(29, 'Learning about making Robotic', 'Will Smith', 'Politeknik Negeri Batam', '1998', 70, 250000, '1781107010_download_(5).jpg', 15, '2026-06-10 15:56:50', 'tersedia'),
+(30, 'Matahari', 'Will Smith', 'Politeknik Negeri Batam', '2025', 498, 100000, '1781107474_download_(1).jpg', 16, '2026-06-10 16:04:34', 'tersedia'),
+(31, 'Python and Pandon', 'Will Smith', 'Politeknik Negeri Batam', '2025', 50, 180000, '1781107654_download_(3).jpg', 14, '2026-06-10 16:07:34', 'tersedia'),
+(32, 'Pemrograman C++', 'Will Smith', 'Politeknik Negeri Batam', '2025', 50, 150000, '1781107684_download_(6).jpg', 14, '2026-06-10 16:08:04', 'tersedia'),
+(33, 'Multimedia', 'Will Smith', 'Politeknik Negeri Batam', '2025', 48, 130000, '1781107711_f9ad5800bed9b48f2b35457687b5c8b5.jpg', 14, '2026-06-10 16:08:31', 'tersedia'),
+(47, 'AI', 'masbro', 'Politeknik Negeri Batam', '2025', 49, 250000, '1782913590_images.png', 18, '2026-07-01 13:46:30', 'tersedia'),
+(48, 'Claude', 'Will Smith', 'Politeknik Negeri Batam', '2025', 50, 200000, '1782975036_images.png', 18, '2026-07-02 06:50:36', 'tersedia');
 
 -- --------------------------------------------------------
 
@@ -102,8 +104,30 @@ INSERT INTO `denda` (`id`, `peminjaman_id`, `user_id`, `jumlah_denda`, `status`,
 (21, 18, 18, 8000, 'pending', 'tunai', '1BAFC8B48A', '2026-06-27 01:48:29', '2026-06-26 18:48:29'),
 (22, 18, 18, 8000, 'pending', 'tunai', 'EF81BEF1C7', '2026-06-27 01:49:42', '2026-06-26 18:49:42'),
 (23, 18, 18, 8000, 'pending', 'tunai', '266A2DDC21', '2026-06-27 01:51:54', '2026-06-26 18:51:54'),
-(24, 18, 18, 8000, 'pending', 'tunai', '45EC3E6475', '2026-06-27 01:55:35', '2026-06-26 18:55:35'),
-(25, 18, 18, 8000, 'lunas', 'tunai', '73CB482205', '2026-06-27 01:57:14', '2026-06-26 18:57:14');
+(28, 41, 18, 24000, 'pending', 'tunai', 'D6FE968D7C', '2026-06-28 16:36:47', '2026-06-28 09:36:47'),
+(29, 41, 18, 24000, 'pending', 'tunai', 'B262105BE8', '2026-06-28 16:40:07', '2026-06-28 09:40:07'),
+(30, 41, 18, 24000, 'pending', 'tunai', '19F6908772', '2026-06-28 16:44:46', '2026-06-28 09:44:46'),
+(31, 41, 18, 724000, 'pending', 'tunai', '4CB95F3E1D', '2026-06-28 16:49:00', '2026-06-28 09:49:00'),
+(32, 41, 18, 724000, 'pending', 'tunai', '7869A3AEC0', '2026-06-28 18:27:40', '2026-06-28 11:27:40'),
+(33, 41, 18, 726000, 'pending', 'tunai', '81514AB7E7', '2026-06-29 14:32:42', '2026-06-29 07:32:42'),
+(34, 41, 18, 726000, 'pending', 'tunai', 'EFB4302287', '2026-06-29 21:35:59', '2026-06-29 14:35:59'),
+(35, 41, 18, 726000, 'pending', 'tunai', 'CC9F657781', '2026-06-29 22:15:39', '2026-06-29 15:15:39'),
+(36, 18, 18, 150000, 'pending', 'tunai', '737261DAD7', '2026-06-30 20:32:40', '2026-06-30 13:32:40'),
+(37, 18, 18, 150000, 'pending', 'tunai', '991CDA0057', '2026-06-30 22:35:17', '2026-06-30 15:35:17'),
+(38, 18, 18, 16000, 'pending', 'tunai', '0451179EF0', '2026-07-01 19:20:01', '2026-07-01 12:20:01'),
+(39, 18, 18, 184000, 'pending', 'tunai', '40E0E2701C', '2026-07-01 20:37:32', '2026-07-01 13:37:32'),
+(40, 18, 18, 184000, 'pending', 'tunai', '1EAE004DC0', '2026-07-01 20:40:34', '2026-07-01 13:40:34'),
+(41, 18, 18, 184000, 'pending', 'tunai', 'FF77BA0302', '2026-07-01 20:40:48', '2026-07-01 13:40:48'),
+(42, 18, 18, 34000, 'pending', 'tunai', '9194E16D90', '2026-07-01 20:53:05', '2026-07-01 13:53:05'),
+(43, 18, 18, 184000, 'pending', 'tunai', '8736C4735B', '2026-07-01 20:54:28', '2026-07-01 13:54:28'),
+(44, 18, 18, 184000, 'pending', 'tunai', '38A44D2054', '2026-07-01 21:07:31', '2026-07-01 14:07:31'),
+(45, 18, 18, 188000, 'pending', 'tunai', 'E6221FFDD6', '2026-07-03 20:08:14', '2026-07-03 13:08:14'),
+(46, 18, 18, 192000, 'pending', 'tunai', '87C190F718', '2026-07-05 12:32:28', '2026-07-05 05:32:28'),
+(47, 18, 18, 192000, 'pending', 'tunai', '8DCA477473', '2026-07-05 12:37:41', '2026-07-05 05:37:41'),
+(48, 37, 18, 24000, 'pending', 'tunai', '8DCA477473', '2026-07-05 12:37:41', '2026-07-05 05:37:41'),
+(49, 37, 18, 24000, 'pending', 'tunai', 'ACE2A49CCC', '2026-07-05 12:57:53', '2026-07-05 05:57:53'),
+(50, 37, 18, 24000, 'pending', 'tunai', 'C68FCB55EB', '2026-07-05 13:15:59', '2026-07-05 06:15:59'),
+(51, 18, 18, 192000, 'pending', 'tunai', 'A1D2E8F140', '2026-07-05 13:28:08', '2026-07-05 06:28:08');
 
 -- --------------------------------------------------------
 
@@ -113,7 +137,7 @@ INSERT INTO `denda` (`id`, `peminjaman_id`, `user_id`, `jumlah_denda`, `status`,
 
 CREATE TABLE `kategori` (
   `id` int NOT NULL,
-  `nama_kategori` varchar(100) COLLATE utf8mb4_general_ci NOT NULL
+  `nama_kategori` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -139,23 +163,25 @@ CREATE TABLE `peminjaman` (
   `buku_id` int DEFAULT NULL,
   `tanggal_pinjam` date DEFAULT NULL,
   `tanggal_kembali` date DEFAULT NULL,
-  `status` enum('dipinjam','dikembalikan','dibatalkan','dihapus') COLLATE utf8mb4_general_ci DEFAULT NULL
+  `status` enum('dipinjam','dikembalikan','dibatalkan','dihapus') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `kondisi_buku` enum('baik','rusak') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT 'baik'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `peminjaman`
 --
 
-INSERT INTO `peminjaman` (`id`, `user_id`, `buku_id`, `tanggal_pinjam`, `tanggal_kembali`, `status`) VALUES
-(18, 18, 23, '2026-06-09', '2026-06-23', 'dikembalikan'),
-(22, 18, 30, '2026-06-17', '2026-06-09', 'dikembalikan'),
-(30, 18, 23, '2026-06-25', '2026-07-09', 'dibatalkan'),
-(31, 18, 29, '2026-06-25', '2026-07-09', 'dibatalkan'),
-(32, 18, 28, '2026-06-25', '2026-07-09', 'dibatalkan'),
-(33, 18, 26, '2026-06-26', '2026-07-10', 'dibatalkan'),
-(34, 18, 26, '2026-06-26', '2026-07-10', 'dibatalkan'),
-(35, 18, 32, '2026-06-26', '2026-07-10', 'dibatalkan'),
-(37, 18, 30, '2026-06-26', '2026-07-10', 'dipinjam');
+INSERT INTO `peminjaman` (`id`, `user_id`, `buku_id`, `tanggal_pinjam`, `tanggal_kembali`, `status`, `kondisi_buku`) VALUES
+(18, 18, 23, '2026-06-01', '2026-06-14', 'dipinjam', 'rusak'),
+(22, 18, 30, '2026-06-17', '2026-06-09', 'dikembalikan', 'baik'),
+(30, 18, 23, '2026-06-25', '2026-07-09', 'dibatalkan', 'baik'),
+(31, 18, 29, '2026-06-25', '2026-07-09', 'dibatalkan', 'baik'),
+(32, 18, 28, '2026-06-25', '2026-07-09', 'dibatalkan', 'baik'),
+(33, 18, 26, '2026-06-26', '2026-07-10', 'dibatalkan', 'baik'),
+(34, 18, 26, '2026-06-26', '2026-07-10', 'dibatalkan', 'baik'),
+(35, 18, 32, '2026-06-26', '2026-07-10', 'dibatalkan', 'baik'),
+(37, 18, 30, '2026-06-09', '2026-06-23', 'dibatalkan', 'baik'),
+(43, 18, 47, '2026-07-05', '2026-07-19', 'dipinjam', 'baik');
 
 -- --------------------------------------------------------
 
@@ -165,8 +191,8 @@ INSERT INTO `peminjaman` (`id`, `user_id`, `buku_id`, `tanggal_pinjam`, `tanggal
 
 CREATE TABLE `pengumuman` (
   `id` int NOT NULL,
-  `judul` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `isi` text COLLATE utf8mb4_general_ci,
+  `judul` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `isi` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
   `tanggal` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -187,10 +213,10 @@ INSERT INTO `pengumuman` (`id`, `judul`, `isi`, `tanggal`) VALUES
 
 CREATE TABLE `users` (
   `id` int NOT NULL,
-  `nama` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
-  `email` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
-  `password` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `role` enum('admin','anggota') COLLATE utf8mb4_general_ci DEFAULT 'anggota',
+  `nama` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `role` enum('admin','anggota') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT 'anggota',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -272,13 +298,13 @@ ALTER TABLE `aktivitas`
 -- AUTO_INCREMENT for table `buku`
 --
 ALTER TABLE `buku`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 
 --
 -- AUTO_INCREMENT for table `denda`
 --
 ALTER TABLE `denda`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
 
 --
 -- AUTO_INCREMENT for table `kategori`
@@ -290,7 +316,7 @@ ALTER TABLE `kategori`
 -- AUTO_INCREMENT for table `peminjaman`
 --
 ALTER TABLE `peminjaman`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
 
 --
 -- AUTO_INCREMENT for table `pengumuman`
