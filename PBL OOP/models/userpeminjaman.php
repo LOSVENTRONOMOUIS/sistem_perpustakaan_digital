@@ -401,46 +401,69 @@ class PeminjamanUser extends Database {
      * Ambil semua buku yang terlambat detailnya
      */
     public function getLateBooksDetailByUser($user_id, $fine_per_day = 2000){
-        $stmt = $this->conn->prepare("
-            SELECT 
-                peminjaman.id,
-                peminjaman.buku_id,
-                peminjaman.tanggal_pinjam,
-                peminjaman.tanggal_kembali,
-                peminjaman.kondisi_buku,
-                buku.judul,
-                buku.penulis,
-                buku.harga,
-                DATE_ADD(peminjaman.tanggal_pinjam, INTERVAL 14 DAY) as batas_kembali,
-                GREATEST(0, DATEDIFF(CURDATE(), DATE_ADD(peminjaman.tanggal_pinjam, INTERVAL 14 DAY))) as late_days
-            FROM peminjaman
-            JOIN buku ON peminjaman.buku_id = buku.id
-            WHERE peminjaman.user_id = ? 
-            AND peminjaman.status = 'dipinjam' 
-            AND (DATE_ADD(peminjaman.tanggal_pinjam, INTERVAL 14 DAY) < CURDATE() OR peminjaman.kondisi_buku = 'rusak')
-            ORDER BY peminjaman.tanggal_kembali ASC
-        ");
-        $stmt->bind_param("i", $user_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        
-        $books = [];
-        while($row = $result->fetch_assoc()) {
-            $row['late_days'] = max(0, (int)$row['late_days']);
-            $row['fine_amount'] = $row['late_days'] * $fine_per_day;
-            if (isset($row['kondisi_buku']) && strtolower($row['kondisi_buku']) == 'rusak') {
-                if ($row['late_days'] > 0) {
-                    $row['fine_amount'] += (int)$row['harga']; // Gabungan jika rusak + telat
-                } else {
-                    $row['fine_amount'] = (int)$row['harga']; // Ganti buku saja jika rusak saja
-                }
-            }
-            $books[] = $row;
+
+    $stmt = $this->conn->prepare("
+        SELECT
+            p.id,
+            p.buku_id,
+            p.tanggal_pinjam,
+            p.tanggal_kembali,
+            p.kondisi_buku,
+            b.judul,
+            b.penulis,
+            b.harga,
+            d.status AS denda_status,
+            DATE_ADD(p.tanggal_pinjam, INTERVAL 14 DAY) AS batas_kembali,
+            GREATEST(
+                0,
+                DATEDIFF(IFNULL(p.tanggal_pengembalian, CURDATE()), DATE_ADD(p.tanggal_pinjam, INTERVAL 14 DAY))
+            ) AS late_days
+        FROM peminjaman p
+        JOIN buku b
+            ON p.buku_id = b.id
+        LEFT JOIN denda d
+            ON d.peminjaman_id = p.id
+        WHERE
+             p.user_id = ?
+             AND (
+             p.status = 'dipinjam'
+                OR (
+                p.status = 'dikembalikan'
+                    AND LOWER(p.kondisi_buku) = 'rusak'
+                )
+             )
+             AND (
+             DATE_ADD(p.tanggal_pinjam, INTERVAL 14 DAY) < CURDATE()
+             OR (
+             LOWER(p.kondisi_buku) = 'rusak'
+             AND (d.status IS NULL OR d.status IN ('unpaid','pending'))
+             )
+        )
+        ORDER BY p.tanggal_kembali ASC
+    ");
+
+    $stmt->bind_param("i",$user_id);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+
+    $books = [];
+
+    while($row = $result->fetch_assoc()){
+
+        $row['late_days'] = max(0,(int)$row['late_days']);
+
+        $row['fine_amount'] = $row['late_days'] * $fine_per_day;
+
+        if(strtolower($row['kondisi_buku']) == 'rusak'){
+            $row['fine_amount'] += (int)$row['harga'];
         }
-        
-        return $books;
+
+        $books[] = $row;
     }
 
+    return $books;
+}
     /**
      * Ambil peminjaman aktif yang terlambat (untuk warning banner)
      */

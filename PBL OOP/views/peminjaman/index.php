@@ -16,6 +16,94 @@
 
     <style>
         body { font-family: 'Poppins', sans-serif; }
+        
+        /* Toast notification */
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .toast {
+            padding: 12px 20px;
+            border-radius: 12px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            animation: toastIn 0.4s ease, toastOut 0.4s ease 2.6s forwards;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .toast.success { background: linear-gradient(135deg, #10b981, #059669); }
+        .toast.error { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        @keyframes toastIn {
+            from { transform: translateX(120%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes toastOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(120%); opacity: 0; }
+        }
+        
+        /* Denda dropdown styling */
+        .denda-select {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 6px 28px 6px 10px;
+            border-radius: 8px;
+            border: 1.5px solid;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            appearance: none;
+            -webkit-appearance: none;
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 12px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%2364748b' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+        }
+        .denda-select:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        .denda-select.status-pending {
+            background-color: #fef3c7;
+            border-color: #f59e0b;
+            color: #92400e;
+        }
+        .denda-select.status-lunas {
+            background-color: #d1fae5;
+            border-color: #10b981;
+            color: #065f46;
+        }
+        .denda-select.status-unpaid {
+            background-color: #fee2e2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+        .denda-select:hover {
+            filter: brightness(0.95);
+        }
+        
+        /* Saving spinner */
+        .saving-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(0,0,0,0.1);
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="text-slate-800 antialiased bg-slate-50 overflow-x-hidden">
@@ -155,6 +243,7 @@
                                 <th class="pb-4 font-semibold px-4">Tanggal Pinjam</th>
                                 <th class="pb-4 font-semibold px-4">Tanggal Kembali</th>
                                 <th class="pb-4 font-semibold px-4">Status</th>
+                                <th class="pb-4 font-semibold px-4">Status Denda</th>
                                 <th class="pb-4 font-semibold pl-4">Aksi</th>
                             </tr>
                         </thead>
@@ -189,6 +278,30 @@
                                         </span>
                                     <?php } ?>
                                 </td>
+                                <td class="py-4 px-4">
+                                    <?php if($isTelat && !empty($d['denda'])): ?>
+                                        <div class="flex items-center gap-1">
+                                            <select 
+                                                class="denda-select status-<?= $d['denda']['status'] ?>" 
+                                                data-denda-id="<?= $d['denda']['id'] ?>"
+                                                onchange="updateDendaStatus(this)"
+                                            >
+                                                <option value="pending" <?= ($d['denda']['status'] == 'pending') ? 'selected' : '' ?>>Pending</option>
+                                                <option value="lunas" <?= ($d['denda']['status'] == 'lunas') ? 'selected' : '' ?>>Lunas</option>
+                                                <option value="unpaid" <?= ($d['denda']['status'] == 'unpaid') ? 'selected' : '' ?>>Unpaid</option>
+                                            </select>
+                                        </div>
+                                        <div class="mt-1 text-[10px] text-slate-400">
+                                            Rp <?= number_format($d['denda']['jumlah_denda'], 0, ',', '.') ?>
+                                        </div>
+                                    <?php elseif($isTelat && empty($d['denda'])): ?>
+                                        <span class="inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold bg-red-100 text-red-600 border border-red-200">
+                                            <i class="bi bi-exclamation-circle mr-1"></i> Belum dicatat
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="text-slate-300">—</span>
+                                    <?php endif; ?>
+                                </td>
                                 <td class="py-4 pl-4">
                                     <div class="flex items-center gap-2">
                                         <a href="peminjaman.php?action=edit&id=<?= $d['id'] ?>" class="w-8 h-8 rounded-lg bg-yellow-100 text-yellow-600 hover:bg-yellow-500 hover:text-white flex items-center justify-center transition-colors" title="Edit">
@@ -202,7 +315,7 @@
                             </tr>
                             <?php }} else { ?>
                             <tr>
-                                <td colspan="6" class="text-center text-slate-500 py-12 text-lg">
+                                <td colspan="7" class="text-center text-slate-500 py-12 text-lg">
                                     <i class="bi bi-inbox text-4xl mb-3 block text-slate-300"></i>
                                     Data peminjaman belum ada
                                 </td>
@@ -240,6 +353,68 @@
         openBtn.addEventListener('click', openSidebar);
         closeBtn.addEventListener('click', closeSidebar);
         overlay.addEventListener('click', closeSidebar);
+
+        // ========================
+        // Toast notification
+        // ========================
+        function showToast(message, type = 'success') {
+            let container = document.querySelector('.toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            const toast = document.createElement('div');
+            toast.className = 'toast ' + type;
+            const icon = type === 'success' ? '<i class="bi bi-check-circle-fill"></i>' : '<i class="bi bi-x-circle-fill"></i>';
+            toast.innerHTML = icon + ' ' + message;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // ========================
+        // Update Denda Status via AJAX
+        // ========================
+        function updateDendaStatus(selectEl) {
+            const dendaId = selectEl.dataset.dendaId;
+            const newStatus = selectEl.value;
+            
+            // Add a small spinner next to dropdown
+            let spinner = selectEl.parentElement.querySelector('.saving-spinner');
+            if (!spinner) {
+                spinner = document.createElement('span');
+                spinner.className = 'saving-spinner';
+                selectEl.parentElement.appendChild(spinner);
+            }
+            selectEl.disabled = true;
+
+            const formData = new FormData();
+            formData.append('denda_id', dendaId);
+            formData.append('status', newStatus);
+
+            fetch('peminjaman.php?action=updateDendaStatus', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showToast('Status denda berhasil diperbarui!', 'success');
+                    
+                    // Update dropdown color classes
+                    selectEl.className = 'denda-select status-' + newStatus;
+                } else {
+                    showToast(data.message || 'Gagal memperbarui status', 'error');
+                }
+            })
+            .catch(() => {
+                showToast('Terjadi kesalahan jaringan', 'error');
+            })
+            .finally(() => {
+                selectEl.disabled = false;
+                if (spinner) spinner.remove();
+            });
+        }
     </script>
 </body>
 </html>

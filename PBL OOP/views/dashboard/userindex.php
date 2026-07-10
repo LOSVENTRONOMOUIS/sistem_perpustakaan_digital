@@ -427,22 +427,7 @@ if (!isset($is_locked)) {
                                 <h6 class="font-bold mb-4 flex items-center gap-2 <?= $is_locked ? 'text-white' : 'text-gray-800' ?>">
                                     <i class="bi bi-credit-card text-blue-500"></i> Metode Pembayaran
                                 </h6>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div class="payment-card border-2 rounded-xl p-3 text-center cursor-pointer transition-all <?= $is_locked ? 'bg-[#1a1a2e] border-[#3a3a5e] hover:border-blue-500 text-gray-300' : 'bg-white border-gray-200 hover:border-blue-500 text-gray-600' ?>" data-method="qris" onclick="selectPaymentMethod('qris')">
-                                        <i class="bi bi-qr-code-scan text-2xl mb-1 block <?= $is_locked ? 'text-gray-400' : 'text-gray-400' ?>"></i>
-                                        <div class="font-bold text-sm">QRIS</div>
-                                        <div class="text-[10px] text-gray-500">Scan QR Code</div>
-                                    </div>
-                                    <div class="payment-card border-2 rounded-xl p-3 text-center cursor-pointer transition-all <?= $is_locked ? 'bg-[#1a1a2e] border-[#3a3a5e] hover:border-blue-500 text-gray-300' : 'bg-white border-gray-200 hover:border-blue-500 text-gray-600' ?>" data-method="transfer" onclick="selectPaymentMethod('transfer')">
-                                        <i class="bi bi-bank text-2xl mb-1 block <?= $is_locked ? 'text-gray-400' : 'text-gray-400' ?>"></i>
-                                        <div class="font-bold text-sm">Transfer</div>
-                                        <div class="text-[10px] text-gray-500">BCA/BRI/Mandiri</div>
-                                    </div>
-                                    <div class="payment-card border-2 rounded-xl p-3 text-center cursor-pointer transition-all <?= $is_locked ? 'bg-[#1a1a2e] border-[#3a3a5e] hover:border-blue-500 text-gray-300' : 'bg-white border-gray-200 hover:border-blue-500 text-gray-600' ?>" data-method="ewallet" onclick="selectPaymentMethod('ewallet')">
-                                        <i class="bi bi-phone text-2xl mb-1 block <?= $is_locked ? 'text-gray-400' : 'text-gray-400' ?>"></i>
-                                        <div class="font-bold text-sm">E-Wallet</div>
-                                        <div class="text-[10px] text-gray-500">OVO/GoPay/DANA</div>
-                                    </div>
+                                <div class="grid grid-cols-1 gap-3">
                                     <div class="payment-card border-2 rounded-xl p-3 text-center cursor-pointer transition-all <?= $is_locked ? 'bg-[#1a1a2e] border-[#3a3a5e] hover:border-blue-500 text-gray-300' : 'bg-white border-gray-200 hover:border-blue-500 text-gray-600' ?>" data-method="tunai" onclick="selectPaymentMethod('tunai')">
                                         <i class="bi bi-cash-stack text-2xl mb-1 block <?= $is_locked ? 'text-gray-400' : 'text-gray-400' ?>"></i>
                                         <div class="font-bold text-sm">Tunai</div>
@@ -716,15 +701,20 @@ function deselectAllBooks() {
 
 function updateFineTotal() {
     let total = 0;
+
     selectedFineBooks.forEach(bookId => {
         const book = lateBooks.find(b => b.buku_id == bookId);
+
         if (book) {
-            const lateDays = parseInt(book.late_days) || 0;
-            total += lateDays * dendaPerHari;
+            total += parseInt(book.fine_amount) || 0;
         }
     });
+
     const totalDisplay = document.getElementById('totalFineAmountDisplay');
-    if (totalDisplay) totalDisplay.innerHTML = formatRupiah(total);
+
+    if (totalDisplay) {
+        totalDisplay.innerHTML = formatRupiah(total);
+    }
 }
 
 function updatePayButton() {
@@ -735,8 +725,7 @@ function updatePayButton() {
             selectedFineBooks.forEach(bookId => {
                 const book = lateBooks.find(b => b.buku_id == bookId);
                 if (book) {
-                    const lateDays = parseInt(book.late_days) || 0;
-                    total += lateDays * dendaPerHari;
+                    total += parseInt(book.fine_amount) || 0;
                 }
             });
             payButton.disabled = false;
@@ -810,7 +799,7 @@ function processFinePayment() {
         const book = lateBooks.find(b => b.buku_id == bookId);
         if (book) {
             const lateDays = parseInt(book.late_days) || 0;
-            totalDenda += lateDays * dendaPerHari;
+            totalDenda += parseInt(book.fine_amount) || 0;
             bookTitles.push(book.judul);
             bookData.push({
                 id: book.buku_id,

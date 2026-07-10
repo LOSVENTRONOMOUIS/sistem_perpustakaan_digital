@@ -99,9 +99,26 @@ class UserDashController extends Database {
         return count($this->getLateBooksDetail());
     }
     
-    public function isLocked() {
-        return count($this->getLateBooksDetail()) > 0;
+    public function isLocked()
+{
+    $books = $this->getLateBooksDetail();
+
+    foreach ($books as $book) {
+
+        $late = ($book['late_days'] ?? 0) > 0;
+        $rusak = strtolower($book['kondisi_buku'] ?? '') == 'rusak';
+
+        // Jika belum ada data denda, anggap unpaid
+        $status = strtolower($book['denda_status'] ?? 'unpaid');
+
+        if (($late || $rusak) &&
+            in_array($status, ['unpaid', 'pending'])) {
+            return true;
+        }
     }
+
+    return false;
+}
     
     public function getTotalLateDays() {
         return $this->peminjaman->totalLateDaysByUser($this->user_id);
@@ -257,13 +274,22 @@ class UserDashController extends Database {
             
             foreach ($bookIdArray as $book_id) {
                 // PERBAIKAN 3: Gunakan tanggal_kembali dari database untuk validasi keterlambatan yang konsisten
-                 $query = "SELECT p.*, b.harga, p.kondisi_buku,
-                           DATEDIFF(NOW(), p.tanggal_kembali) as late_days
-                           FROM peminjaman p
-                           JOIN buku b ON p.buku_id = b.id
-                           WHERE p.user_id = ? AND p.buku_id = ? 
-                           AND p.status = 'dipinjam'
-                           AND (p.tanggal_kembali < NOW() OR p.kondisi_buku = 'rusak')";
+                 $query = "SELECT
+                        p.*,
+                        b.harga,
+                        p.kondisi_buku,
+                        GREATEST(
+                            0,
+                            DATEDIFF(NOW(), p.tanggal_kembali)
+                        ) AS late_days
+                    FROM peminjaman p
+                    JOIN buku b ON p.buku_id = b.id
+                    WHERE p.user_id = ?
+                    AND p.buku_id = ?
+                    AND (
+                            (p.status='dipinjam' AND p.tanggal_kembali < NOW())
+                        OR  (p.status='dikembalikan' AND p.kondisi_buku='rusak')
+                    )";
                  
                  $stmt = $this->conn->prepare($query);
                  $stmt->bind_param("ii", $user_id, $book_id);
@@ -277,50 +303,86 @@ class UserDashController extends Database {
                  
                  if ($peminjaman) {
                      $late_days = max(0, (int)$peminjaman['late_days']);
-                     $fine_amount = $late_days * $denda_per_hari;
-                     
-                     if (isset($peminjaman['kondisi_buku']) && strtolower($peminjaman['kondisi_buku']) == 'rusak') {
-                         if ($late_days > 0) {
-                             $fine_amount += (int)$peminjaman['harga']; // Gabungan jika rusak + telat
-                         } else {
-                             $fine_amount = (int)$peminjaman['harga']; // Ganti buku saja jika rusak saja
-                         }
-                     } else {
-                         // Jika tidak rusak tapi masuk ke sini (berarti telat), pastikan minimal denda 1 hari
-                         if ($late_days == 0) {
-                             $late_days = 1;
-                             $fine_amount = $late_days * $denda_per_hari;
-                         }
-                     }
+
+                        $fine_amount = 0;
+
+                        // ============================
+                        // CASE 1 : BOOK STILL BORROWED
+                        // ============================
+                        if ($peminjaman['status'] == 'dipinjam') {
+
+                            // User only pays late fine
+                        $fine_amount = $late_days * $denda_per_hari;
+                        }
+
+                        // =====================================
+                        // CASE 2 : BOOK RETURNED BUT DAMAGED
+                        // =====================================
+                        else if (
+                            $peminjaman['status'] == 'dikembalikan' &&
+                            strtolower($peminjaman['kondisi_buku']) == 'rusak'
+                        ) {
+
+                            // User only pays damage compensation
+                            $fine_amount = (int)$peminjaman['harga'];
+                        }
+
+                        // Invalid payment
+                        if ($fine_amount <= 0) {
+                            continue;
+                        }
                     
                     // PERUBAHAN: Untuk pembayaran tunai, status = 'pending', untuk online = 'lunas'
                     $status = ($method == 'tunai') ? 'pending' : 'lunas';
                     
                     // Insert ke tabel denda
-                    $query = "INSERT INTO denda (peminjaman_id, user_id, jumlah_denda, status, metode_pembayaran, kode_konfirmasi, tanggal_bayar, created_at)
-                              VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())";
+                    $query = "INSERT INTO denda (
+                        peminjaman_id,
+                        user_id,
+                        jenis_denda,
+                        jumlah_denda,
+                        status,
+                        metode_pembayaran,
+                        kode_konfirmasi,
+                        tanggal_bayar,
+                        created_at
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
+                    $jenis_denda = 'terlambat';
+
+                    if (
+                        isset($peminjaman['kondisi_buku']) &&
+                        strtolower($peminjaman['kondisi_buku']) == 'rusak'
+                    ) {
+                        $jenis_denda = 'rusak';
+                    }
+
                     $stmt = $this->conn->prepare($query);
-                    $stmt->bind_param("iidsss", $peminjaman['id'], $user_id, $fine_amount, $status, $method, $kode_konfirmasi);
+                    $stmt->bind_param("iisdsss", $peminjaman['id'], $user_id, $jenis_denda, $fine_amount, $status, $method, $kode_konfirmasi);
                     
                     if ($stmt->execute()) {
                         $successCount++;
                         
                         // PERUBAHAN: Untuk pembayaran online langsung update status peminjaman
                         // Untuk tunai, TIDAK update status dulu, menunggu konfirmasi admin
-                        if ($method != 'tunai') {
-                            // Update status peminjaman jadi dikembalikan
-                            $query = "UPDATE peminjaman 
-                                      SET status = 'dikembalikan', tanggal_pengembalian = NOW()
-                                      WHERE id = ?";
+                        if ($peminjaman['status'] == 'dipinjam') {
+
+                            $query = "UPDATE peminjaman
+                                    SET status='dikembalikan'
+                                    WHERE id=?";
+
                             $stmt = $this->conn->prepare($query);
                             $stmt->bind_param("i", $peminjaman['id']);
                             $stmt->execute();
-                            
-                            // Update stok buku
-                            $query = "UPDATE buku SET stok = stok + 1 WHERE id = ?";
+
+                            $query = "UPDATE buku
+                                    SET stok = stok + 1
+                                    WHERE id=?";
+
                             $stmt = $this->conn->prepare($query);
                             $stmt->bind_param("i", $book_id);
                             $stmt->execute();
+                            
                         }
                         
                         error_log("Successfully processed book_id: " . $book_id . ", peminjaman_id: " . $peminjaman['id'] . ", status: " . $status);
@@ -336,9 +398,13 @@ class UserDashController extends Database {
                 // PERUBAHAN: Hanya unlock user jika pembayaran online (bukan tunai)
                 if ($method != 'tunai') {
                     // Cek apakah user masih punya buku telat yang lain
-                    $query = "SELECT COUNT(*) as total FROM peminjaman 
-                              WHERE user_id = ? AND status = 'dipinjam' 
-                              AND tanggal_kembali < NOW()";
+                    $query = "SELECT COUNT(*) as total
+                            FROM peminjaman
+                            WHERE user_id=?
+                            AND (
+                                (status='dipinjam' AND tanggal_kembali < NOW())
+                                OR (status='dikembalikan' AND kondisi_buku='rusak')
+                            )";
                     $stmt = $this->conn->prepare($query);
                     $stmt->bind_param("i", $user_id);
                     $stmt->execute();

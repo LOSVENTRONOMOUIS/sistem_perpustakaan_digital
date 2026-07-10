@@ -47,6 +47,46 @@ class Peminjaman extends Database {
     }
 
     // ======================
+    // TOTAL PENDAPATAN DENDA
+    // ======================
+    public function totalPendapatanDenda(){
+
+        $query = mysqli_query($this->conn, "
+            SELECT SUM(jumlah_denda) as total FROM denda WHERE status = 'lunas'
+        ");
+        $result = mysqli_fetch_assoc($query);
+        return $result['total'] ? $result['total'] : 0;
+    }
+
+
+    // ======================
+    // PENDAPATAN DENDA HARIAN
+    // ======================
+    public function pendapatanDendaHarian(){
+        $query = mysqli_query($this->conn, "
+            SELECT DATE(tanggal_bayar) as tanggal, SUM(jumlah_denda) as total 
+            FROM denda 
+            WHERE status = 'lunas' AND tanggal_bayar IS NOT NULL
+            GROUP BY DATE(tanggal_bayar)
+            ORDER BY DATE(tanggal_bayar) ASC
+            LIMIT 7
+        ");
+        return mysqli_fetch_all($query, MYSQLI_ASSOC);
+    }
+
+    // ======================
+    // STATUS DENDA (UNTUK CHART BULAT)
+    // ======================
+    public function statusDenda(){
+        $query = mysqli_query($this->conn, "
+            SELECT status, SUM(jumlah_denda) as total 
+            FROM denda 
+            GROUP BY status
+        ");
+        return mysqli_fetch_all($query, MYSQLI_ASSOC);
+    }
+
+    // ======================
     // TOTAL DIPINJAM
     // ======================
     public function totalDipinjam(){
@@ -141,27 +181,82 @@ class Peminjaman extends Database {
     // ======================
     public function update($data){
 
-        $id = $data['id'];
+    $id = $data['id'];
 
-        $tanggal_pinjam = $data['tanggal_pinjam'];
-        $tanggal_kembali = $data['tanggal_kembali'];
+    $tanggal_pinjam  = $data['tanggal_pinjam'];
+    $tanggal_kembali = $data['tanggal_kembali'];
+    $status          = $data['status'];
+    $kondisi_buku    = $data['kondisi_buku'] ?? 'baik';
 
-        $status = $data['status'];
-        $kondisi_buku = $data['kondisi_buku'] ?? 'baik';
-
-        mysqli_query($this->conn, "
-
-            UPDATE peminjaman SET
-
+    mysqli_query($this->conn,"
+        UPDATE peminjaman SET
             tanggal_pinjam='$tanggal_pinjam',
             tanggal_kembali='$tanggal_kembali',
             status='$status',
             kondisi_buku='$kondisi_buku'
+        WHERE id='$id'
+    ");
 
-            WHERE id='$id'
+    // Only process after the book has been returned
+    if($status == 'dikembalikan'){
 
+        $q = mysqli_query($this->conn,"
+            SELECT p.*, b.harga
+            FROM peminjaman p
+            JOIN buku b ON b.id = p.buku_id
+            WHERE p.id='$id'
         ");
+
+        $pinjam = mysqli_fetch_assoc($q);
+
+        $cek = mysqli_query($this->conn,"
+            SELECT id
+            FROM denda
+            WHERE peminjaman_id='$id'
+            LIMIT 1
+        ");
+
+        // Book is damaged
+        if($kondisi_buku == 'rusak'){
+
+            if(mysqli_num_rows($cek) == 0){
+
+                mysqli_query($this->conn,"
+                    INSERT INTO denda
+                    (
+                        peminjaman_id,
+                        user_id,
+                        jumlah_denda,
+                        status,
+                        kode_konfirmasi
+                    )
+                    VALUES
+                    (
+                        '$id',
+                        '{$pinjam['user_id']}',
+                        '{$pinjam['harga']}',
+                        'unpaid',
+                        '$kode'
+                    )
+                ");
+
+            }
+
+        }
+        // Book is in good condition
+        else{
+
+            mysqli_query($this->conn,"
+                DELETE FROM denda
+                WHERE peminjaman_id='$id'
+                AND status <> 'lunas'
+            ");
+
+        }
+
     }
+
+}
 
     // ======================
     // HAPUS
@@ -230,5 +325,57 @@ public function aktivitas(){
             $query,
             MYSQLI_ASSOC
         );
+    }
+
+    // ======================
+    // GET DENDA BY PEMINJAMAN ID (single latest)
+    // ======================
+    public function getDendaByPeminjamanId($peminjaman_id){
+        $peminjaman_id = mysqli_real_escape_string($this->conn, $peminjaman_id);
+        $query = mysqli_query($this->conn, "
+            SELECT * FROM denda
+            WHERE peminjaman_id = '$peminjaman_id'
+            ORDER BY id DESC
+            LIMIT 1
+        ");
+        return mysqli_fetch_assoc($query);
+    }
+
+    // ======================
+    // GET ALL DENDA BY PEMINJAMAN ID
+    // ======================
+    public function getAllDendaByPeminjamanId($peminjaman_id){
+        $peminjaman_id = mysqli_real_escape_string($this->conn, $peminjaman_id);
+        $query = mysqli_query($this->conn, "
+            SELECT * FROM denda
+            WHERE peminjaman_id = '$peminjaman_id'
+            ORDER BY id DESC
+        ");
+        return mysqli_fetch_all($query, MYSQLI_ASSOC);
+    }
+
+    // ======================
+    // UPDATE DENDA STATUS
+    // ======================
+    public function updateDendaStatus($denda_id, $status){
+        $denda_id = mysqli_real_escape_string($this->conn, $denda_id);
+        $status = mysqli_real_escape_string($this->conn, $status);
+
+        // If status is lunas, set tanggal_bayar to now
+        if($status == 'lunas'){
+            mysqli_query($this->conn, "
+                UPDATE denda SET
+                status = '$status',
+                tanggal_bayar = NOW()
+                WHERE id = '$denda_id'
+            ");
+        } else {
+            mysqli_query($this->conn, "
+                UPDATE denda SET
+                status = '$status',
+                tanggal_bayar = NULL
+                WHERE id = '$denda_id'
+            ");
+        }
     }
 }

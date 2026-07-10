@@ -12,7 +12,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -113,7 +113,7 @@
             </div>
 
             <!-- Stats Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
                 
                 <!-- Stat Card 1 -->
                 <div class="bg-white p-6 rounded-3xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all border border-slate-50">
@@ -151,6 +151,23 @@
                     <p class="text-slate-500 mt-1">Kategori Buku</p>
                 </div>
 
+                <!-- Stat Card 5 -->
+                <div class="bg-white p-6 rounded-3xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all border border-slate-50">
+                    <div class="w-16 h-16 rounded-2xl bg-red-500 text-white flex items-center justify-center text-3xl mb-4 shadow-lg shadow-red-200">
+                        <i class="bi bi-cash-coin"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-800">Rp <?= isset($totalPendapatanDenda) ? number_format($totalPendapatanDenda, 0, ',', '.') : 0 ?></h2>
+                    <p class="text-slate-500 mt-1">Pendapatan Denda</p>
+                </div>
+                <!-- Stat Card 6 (Chart) -->
+                <div class="lg:col-span-3 bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-50">
+                    <h4 class="text-xl font-bold text-slate-800 mb-6">
+                        Grafik Pendapatan Denda
+                    </h4>
+                    <div class="w-full h-80">
+                        <canvas id="dendaChart"></canvas>
+                    </div>
+                </div>
             </div>
 
             <!-- Main Sections Grid -->
@@ -230,6 +247,46 @@
         openBtn.addEventListener('click', openSidebar);
         closeBtn.addEventListener('click', closeSidebar);
         overlay.addEventListener('click', closeSidebar);
+
+        // Pie/Doughnut Chart Configuration
+        const pieDataRaw = <?= json_encode(isset($statusDenda) ? $statusDenda : []) ?>;
+        const pieLabels = pieDataRaw.map(item => item.status.toUpperCase());
+        const pieValues = pieDataRaw.map(item => parseInt(item.total));
+
+        // Chart.js Configuration
+        const chartData = <?= json_encode(isset($chartDenda) ? $chartDenda : []) ?>;
+        const labels = chartData.map(item => item.tanggal);
+        const data = chartData.map(item => parseInt(item.total));
+        const ctx = document.getElementById('dendaChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels.length ? labels : ['Belum ada data'],
+                datasets: [{
+                    label: 'Pendapatan Denda (Rp)',
+                    data: data.length ? data : [0],
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
     </script>
 </body>
 </html>

@@ -29,6 +29,9 @@ class DashboardController {
             'totalAnggota' => $this->user->countAnggota(),
             'totalPeminjaman' => $this->peminjaman->totalPinjam(),
             'totalKategori' => $this->kategori->countKategori(),
+            'totalPendapatanDenda' => $this->peminjaman->totalPendapatanDenda(),
+            'statusDenda' => $this->peminjaman->statusDenda(),
+            'chartDenda' => $this->peminjaman->pendapatanDendaHarian(),
             'aktivitas' => $this->peminjaman->aktivitas(),
             'buku' => $this->buku->latestBook()
 

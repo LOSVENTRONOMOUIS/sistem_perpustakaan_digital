@@ -106,6 +106,55 @@
                     </div>
                 </div>
 
+                <!-- Informasi Denda (Jika Terlambat / Ada Denda) -->
+                <?php if (isset($is_late) && ($is_late || !empty($denda))) : ?>
+                <div class="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+                    <h4 class="text-red-700 font-semibold flex items-center gap-2 mb-2">
+                        <i class="bi bi-exclamation-triangle"></i> Informasi Denda Keterlambatan
+                    </h4>
+                    <p class="text-sm text-red-600 mb-4">Peminjaman ini terdeteksi terlambat.</p>
+                    
+                    <?php if (!empty($denda)) : ?>
+                        <div class="flex flex-col sm:flex-row items-center gap-4">
+                            <div class="bg-white px-4 py-3 rounded-lg border border-red-100 flex-1 w-full shadow-sm">
+                                <span class="block text-xs text-slate-500 mb-2">Status Denda</span>
+                                <div class="flex items-center gap-2" id="dendaStatusWrapper">
+                                    <select 
+                                        id="dendaStatusSelect"
+                                        class="w-full px-3 py-2 rounded-lg border-2 font-bold text-sm transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-yellow-500 appearance-none
+                                        <?php if($denda['status'] == 'lunas'): ?> bg-emerald-50 border-emerald-300 text-emerald-700
+                                        <?php elseif($denda['status'] == 'pending'): ?> bg-amber-50 border-amber-300 text-amber-700
+                                        <?php else: ?> bg-red-50 border-red-300 text-red-700
+                                        <?php endif; ?>"
+                                        data-denda-id="<?= $denda['id'] ?>"
+                                        onchange="updateDendaStatusEdit(this)"
+                                        style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath fill=%27%2364748b%27 d=%27M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z%27/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 10px center; background-size: 14px; padding-right: 32px;"
+                                    >
+                                        <option value="pending" <?= ($denda['status'] == 'pending') ? 'selected' : '' ?>>⏳ PENDING</option>
+                                        <option value="lunas" <?= ($denda['status'] == 'lunas') ? 'selected' : '' ?>>✅ LUNAS</option>
+                                        <option value="unpaid" <?= ($denda['status'] == 'unpaid') ? 'selected' : '' ?>>❌ UNPAID</option>
+                                    </select>
+                                    <span id="dendaSaveSpinner" class="hidden">
+                                        <span class="inline-block w-5 h-5 border-2 border-slate-200 border-t-blue-500 rounded-full animate-spin"></span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="bg-white px-4 py-3 rounded-lg border border-red-100 flex-1 w-full shadow-sm">
+                                <span class="block text-xs text-slate-500 mb-1">Jumlah Denda</span>
+                                <span class="font-bold text-slate-800">Rp <?= number_format($denda['jumlah_denda'], 0, ',', '.') ?></span>
+                            </div>
+                        </div>
+                    <?php else : ?>
+                        <div class="bg-white px-4 py-3 rounded-lg border border-red-100 inline-block shadow-sm">
+                            <span class="block text-xs text-slate-500 mb-1">Status Denda</span>
+                            <span class="font-bold text-red-600 uppercase flex items-center gap-2">
+                                <i class="bi bi-exclamation-circle-fill"></i> UNPAID (Sistem belum mencatat denda)
+                            </span>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <?php endif; ?>
+
                 <!-- Actions -->
                 <div class="pt-6 border-t border-slate-100 flex flex-col sm:flex-row gap-4 justify-end">
                     <a href="peminjaman.php" class="px-6 py-3 text-sm font-semibold text-slate-700 bg-white border-2 border-slate-200 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all text-center">
@@ -119,6 +168,85 @@
             </form>
         </div>
     </div>
+
+    <!-- Toast container -->
+    <div id="toastContainer" style="position:fixed;top:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;"></div>
+
+    <script>
+        function showToast(message, type) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const bg = type === 'success' 
+                ? 'linear-gradient(135deg, #10b981, #059669)' 
+                : 'linear-gradient(135deg, #ef4444, #dc2626)';
+            toast.style.cssText = `padding:12px 20px;border-radius:12px;color:white;font-size:14px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.15);display:flex;align-items:center;gap:8px;background:${bg};animation:toastIn 0.4s ease;`;
+            const icon = type === 'success' ? '<i class="bi bi-check-circle-fill"></i>' : '<i class="bi bi-x-circle-fill"></i>';
+            toast.innerHTML = icon + ' ' + message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'toastOut 0.4s ease forwards';
+                setTimeout(() => toast.remove(), 400);
+            }, 2600);
+        }
+
+        function updateDendaStatusEdit(selectEl) {
+            const dendaId = selectEl.dataset.dendaId;
+            const newStatus = selectEl.value;
+            const spinner = document.getElementById('dendaSaveSpinner');
+            
+            spinner.classList.remove('hidden');
+            selectEl.disabled = true;
+
+            const formData = new FormData();
+            formData.append('denda_id', dendaId);
+            formData.append('status', newStatus);
+
+            fetch('peminjaman.php?action=updateDendaStatus', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showToast('Status denda berhasil diperbarui!', 'success');
+                    
+                    // Update dropdown colors dynamically
+                    selectEl.classList.remove(
+                        'bg-emerald-50', 'border-emerald-300', 'text-emerald-700',
+                        'bg-amber-50', 'border-amber-300', 'text-amber-700',
+                        'bg-red-50', 'border-red-300', 'text-red-700'
+                    );
+                    if (newStatus === 'lunas') {
+                        selectEl.classList.add('bg-emerald-50', 'border-emerald-300', 'text-emerald-700');
+                    } else if (newStatus === 'pending') {
+                        selectEl.classList.add('bg-amber-50', 'border-amber-300', 'text-amber-700');
+                    } else {
+                        selectEl.classList.add('bg-red-50', 'border-red-300', 'text-red-700');
+                    }
+                } else {
+                    showToast(data.message || 'Gagal memperbarui status', 'error');
+                }
+            })
+            .catch(() => {
+                showToast('Terjadi kesalahan jaringan', 'error');
+            })
+            .finally(() => {
+                selectEl.disabled = false;
+                spinner.classList.add('hidden');
+            });
+        }
+    </script>
+
+    <style>
+        @keyframes toastIn {
+            from { transform: translateX(120%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes toastOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(120%); opacity: 0; }
+        }
+    </style>
 
 </body>
 </html>

@@ -28,7 +28,7 @@ class DBConnection extends Database {
 $db = new DBConnection();
 $conn = $db->getConnection();
 
-$query = "SELECT d.*, b.judul, b.harga, p.kondisi_buku, u.nama, u.email
+$query = "SELECT d.*, b.judul, b.harga, p.kondisi_buku, p.tanggal_kembali, p.tanggal_pengembalian, u.nama, u.email
           FROM denda d
           JOIN peminjaman p ON d.peminjaman_id = p.id
           JOIN buku b ON p.buku_id = b.id
@@ -52,7 +52,27 @@ $metode = $denda_list[0]['metode_pembayaran'];
 $tanggal = $denda_list[0]['created_at'] ?? $denda_list[0]['tanggal_bayar'];
 
 $total_bayar = 0;
-foreach ($denda_list as $item) {
+$denda_per_hari = 2000;
+
+foreach ($denda_list as &$item) {
+    $calculated_denda = 0;
+
+    $date_kembali = !empty($item['tanggal_kembali']) ? new DateTime($item['tanggal_kembali']) : null;
+    $date_end = !empty($item['tanggal_pengembalian']) ? new DateTime($item['tanggal_pengembalian']) : new DateTime($item['created_at'] ?? $item['tanggal_bayar'] ?? 'now');
+    
+    if ($date_kembali && $date_end->format('Y-m-d') > $date_kembali->format('Y-m-d')) {
+        $selisih = $date_end->diff($date_kembali)->days;
+        $calculated_denda += $selisih * $denda_per_hari;
+    }
+
+    if (!empty($item['kondisi_buku']) && strtolower($item['kondisi_buku']) == 'rusak') {
+        $calculated_denda += (int)$item['harga'];
+    }
+
+    if ($calculated_denda > 0) {
+        $item['jumlah_denda'] = $calculated_denda;
+    }
+    
     $total_bayar += $item['jumlah_denda'];
 }
 
