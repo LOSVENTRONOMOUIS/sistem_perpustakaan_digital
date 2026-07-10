@@ -507,6 +507,11 @@ window.addEventListener('DOMContentLoaded', function () {
     const stok   = <?= (int)($autoPinjamBuku['stok'] ?? 0) ?>;
 
     if (stok > 0) {
+        // Hapus parameter buku_id dari URL agar modal tidak muncul lagi saat reload
+        const url = new URL(window.location);
+        url.searchParams.delete('buku_id');
+        window.history.replaceState({}, '', url);
+
         // Sedikit delay agar DOM modal sudah siap
         setTimeout(() => pinjamBuku(id, judul, penulis, cover), 300);
     }

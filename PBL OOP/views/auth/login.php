@@ -1,3 +1,14 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+// Baca buku_id dari URL (dikirim dari landing page saat klik Pinjam sebelum login)
+$buku_id_from_url = isset($_GET['buku_id']) ? (int)$_GET['buku_id'] : 0;
+// Jika ada redirect parameter, simpan ke session untuk digunakan setelah login
+if (isset($_GET['redirect']) && !empty($_GET['redirect'])) {
+    $_SESSION['redirect_after_login'] = urldecode($_GET['redirect']);
+}
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -24,6 +35,10 @@
             <!-- Card Body -->
             <div class="p-8">
                 <form action="login_proses.php" method="POST" class="space-y-6">
+                    
+                    <?php if ($buku_id_from_url > 0): ?>
+                    <input type="hidden" name="buku_id" value="<?= $buku_id_from_url ?>">
+                    <?php endif; ?>
                     
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">Email</label>
