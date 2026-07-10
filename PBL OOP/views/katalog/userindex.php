@@ -495,5 +495,24 @@ function selesai() {
     }, 200);
 }
 </script>
+
+<?php if ($autoPinjamBuku): ?>
+<script>
+// Auto-trigger modal pinjam jika diarahkan dari landing page
+window.addEventListener('DOMContentLoaded', function () {
+    const id     = <?= (int)$autoPinjamBuku['id'] ?>;
+    const judul  = <?= json_encode($autoPinjamBuku['judul'] ?? '') ?>;
+    const penulis= <?= json_encode($autoPinjamBuku['penulis'] ?? '') ?>;
+    const cover  = <?= json_encode($autoPinjamBuku['cover'] ?? '') ?>;
+    const stok   = <?= (int)($autoPinjamBuku['stok'] ?? 0) ?>;
+
+    if (stok > 0) {
+        // Sedikit delay agar DOM modal sudah siap
+        setTimeout(() => pinjamBuku(id, judul, penulis, cover), 300);
+    }
+});
+</script>
+<?php endif; ?>
+
 </body>
 </html>

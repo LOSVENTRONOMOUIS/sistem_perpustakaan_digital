@@ -28,9 +28,21 @@ $user_id = $_SESSION['user_id'] ?? $_SESSION['id'];
 // Cek apakah user terkunci karena denda (terlambat)
 $is_locked = $controller->isUserLocked($user_id);
 
+// Auto-trigger modal pinjam jika ada parameter buku_id dari landing page
+$autoPinjamBuku = null;
+if (!empty($_GET['buku_id'])) {
+    $target_id = (int)$_GET['buku_id'];
+    foreach ($bukuList as $b) {
+        if ((int)$b['id'] === $target_id) {
+            $autoPinjamBuku = $b;
+            break;
+        }
+    }
+}
+
 $currentUser = [
-    'id' => $_SESSION['id'] ?? '',
-    'nama' => $_SESSION['nama'] ?? '',
+    'id'    => $_SESSION['id'] ?? '',
+    'nama'  => $_SESSION['nama'] ?? '',
     'email' => $_SESSION['email'] ?? ''
 ];
 
